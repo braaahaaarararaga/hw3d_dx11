@@ -22,31 +22,12 @@ void Engine::Update()
 {
 	float dt = timer.GetMiliseceondsElapsed();
 	timer.Restart();
-
-	// type check
-	while (!input.keyboard.CharBufferIsEmpty())
-	{
-		auto opt = input.keyboard.Readchar();
-		if (opt.has_value())
-			unsigned char ch = opt.value();
-	}
-	input.mouse.FillRawPoint();
+	input.Update();
+	
 	if (input.mouse.IsRightDown())
 	{
 		this->gfx.Camera3D.AdjustRotation(input.mouse.rawPoint.x * 0.01f, input.mouse.rawPoint.y * 0.01, 0.0f);
 	}
-	//while (!input.mouse.IsRawBufferEmpty())
-	//{
-	//	auto opt = input.mouse.ReadRawData();
-	//	if (opt.has_value())
-	//	{
-	//		auto rawData = opt.value();
-	//		if (input.mouse.IsRightDown())
-	//		{
-	//			this->gfx.Camera3D.AdjustRotation(rawData.x * 0.01f, rawData.y * 0.01, 0.0f);
-	//		}
-	//	}
-	//}
 
 	float Camera3DSpeed = 0.005f;
 
