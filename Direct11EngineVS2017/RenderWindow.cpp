@@ -28,7 +28,7 @@ bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInst
 		this->window_title_wide.c_str(), // window title
 		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, // windows style - See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632600(v=vs.85).aspx
 		wr.left, // window X position
-		wr.top, // window Y potision
+		wr.top, // window Y position
 		wr.right - wr.left, // window width
 		wr.bottom - wr.top, // window height
 		NULL, // Handle to parent of this window. Since this is the first window, it has no parent window.
@@ -60,8 +60,8 @@ bool RenderWindow::ProcessMessages()
 
 	while (PeekMessage(&msg, // Where to store message(if one exists) See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644943(v=vs.85).aspx
 		this->handle, // Handle to window we are checking message for.
-		0, // Mininum Filter msg Value - We are not filtering for specific messages, but the min/max could be used to filter only mouse messages for example.
-		0, // Maxinum Filter msg Value
+		0, // Minimum Filter msg Value - We are not filtering for specific messages, but the min/max could be used to filter only mouse messages for example.
+		0, // Maximum Filter msg Value
 		PM_REMOVE)) // remove message after capturing it via PeekMessage. For more argument options, See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644943(v=vs.85).aspx 
 	{
 		TranslateMessage(&msg); // Translate message from virtual key messages into character messages so we can dispatch the message. See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644955(v=vs.85).aspx
@@ -73,7 +73,7 @@ bool RenderWindow::ProcessMessages()
 	{
 		if (!IsWindow(this->handle))
 		{
-			this->handle = NULL; // message procecssing loop takes care of destroying this window.
+			this->handle = NULL; // message processing loop takes care of destroying this window.
 			UnregisterClass(this->window_class_wide.c_str(), this->hInstance);
 			return false;
 		}
@@ -147,7 +147,7 @@ void RenderWindow::RegisterWindowClass()
 	wc.hIcon = NULL; // Handle to the class icon. Must be a handle to an icon resource. we are not currently assign an icon, so this is null.
 	wc.hIconSm = NULL; // Handle to small icon for this class. We are not currently assigning an icon, so this is null.
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW); // Default Cursor - If we leave this null, we have to explicitly set the cursor's shape each time it enters the window.
-	wc.hbrBackground = NULL; // Handle to the class backgroun brush for the window's background color - we will leave this blank for now and later set this to black. For stock brushes, see: https://msdn.microsoft.com/en-us/library/windows/desktop/dd144925(v=vs.85).aspx 
+	wc.hbrBackground = NULL; // Handle to the class background brush for the window's background color - we will leave this blank for now and later set this to black. For stock brushes, see: https://msdn.microsoft.com/en-us/library/windows/desktop/dd144925(v=vs.85).aspx 
 	wc.lpszMenuName = NULL; // Pointer to a null terminated character string for the menu. we are not using a menu yet, so this will be NULL.
 	wc.lpszClassName = this->window_class_wide.c_str(); // Pointer to null terminated string of our class name for this window.
 	wc.cbSize = sizeof(WNDCLASSEX); // Need to fill in the size of our struct for cbSize

@@ -14,7 +14,8 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 	if (!InitializeScene())
 		return false;
-
+	this->deviceContext->IASetPrimitiveTopology(
+		D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// Setup ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -28,43 +29,6 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 void Graphics::RenderFrame()
 {
-	// graphic pipeline
-	// Input-Assember--IA
-	// Vertex Shader---VS
-	// Hull Shader
-	// Tessellator-----subdivision surfaces
-	// Domain Shader
-	// Geometry Shader-GS
-	//   |- Stream Output---- output data to buffer
-	// Rasterizer------rasterization vector information to raster image
-	// Pixel Shader----PS
-	// Output-Merger---OM
-
-	this->cb_ps_light.data.dynamicLightColor = light.lightColor;
-	this->cb_ps_light.data.dynamicLightStrength = light.lightStrenght;
-	this->cb_ps_light.data.dynamicPosition = light.GetPositionFloat3();
-	this->cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
-	this->cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
-	this->cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
-
-	this->cb_ps_light.ApplyChanges();
-	this->deviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
-
-	float bgcolor[] = { .0f, .0f, .0f, 1.0f };
-	this->deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor);
-	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
-	this->deviceContext->IASetPrimitiveTopology(
-		D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	this->deviceContext->RSSetState(this->rasterrizerState.Get());
-	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
-	this->deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
-	this->deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
-	this->deviceContext->VSSetShader(this->vertexshader.GetShader(), NULL, 0);
-	this->deviceContext->PSSetShader(this->pixelshader.GetShader(), NULL, 0);
-
-
 	{	// pinkSquare
 		this->gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 		//Square
@@ -73,21 +37,11 @@ void Graphics::RenderFrame()
 		this->deviceContext->PSSetShader(this->pixelshader_nolight.GetShader(), NULL, 0);
 		this->light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
-	// Draw text
-	static int fpsCounter = 0;
-	static std::wstring fpsString = L"FPS: 0";
-	fpsCounter++;
-	if (fpsTimer.GetMiliseceondsElapsed() > 1000.0)
-	{
-		fpsString = L"FPS: " + std::to_wstring(fpsCounter);
-		fpsCounter = 0;
-		fpsTimer.Restart();
-	}
-	spriteBatch->Begin();
-	spriteFont->DrawString(spriteBatch.get(), fpsString.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f,
-		DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteBatch->End();
 
+}
+
+void Graphics::RenderImGui()
+{
 	// Start the Dear ImGui frame
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -107,7 +61,68 @@ void Graphics::RenderFrame()
 	ImGui::Render();
 	// Render Draw Data
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
 
+void Graphics::RenderText()
+{
+	// Draw text
+	static int fpsCounter = 0;
+	static std::wstring fpsString = L"FPS: 0";
+	fpsCounter++;
+	if (fpsTimer.GetMiliseceondsElapsed() > 1000.0)
+	{
+		fpsString = L"FPS: " + std::to_wstring(fpsCounter);
+		fpsCounter = 0;
+		fpsTimer.Restart();
+	}
+	spriteBatch->Begin();
+	spriteFont->DrawString(spriteBatch.get(), fpsString.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f,
+		DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteBatch->End();
+}
+
+void Graphics::SetLight()
+{
+	this->cb_ps_light.data.dynamicLightColor = light.lightColor;
+	this->cb_ps_light.data.dynamicLightStrength = light.lightStrenght;
+	this->cb_ps_light.data.dynamicPosition = light.GetPositionFloat3();
+	this->cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
+	this->cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
+	this->cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
+
+	this->cb_ps_light.ApplyChanges();
+	this->deviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
+}
+
+void Graphics::RenderBegin()
+{
+	// graphic pipeline
+	// Input-Assembler--IA
+	// Vertex Shader---VS
+	// Hull Shader
+	// Tessellates-----subdivision surfaces
+	// Domain Shader
+	// Geometry Shader-GS
+	//   |- Stream Output---- output data to buffer
+	// Rasterizer------rasterization vector information to raster image
+	// Pixel Shader----PS
+	// Output-Merger---OM
+
+	float bgcolor[] = { .0f, .0f, .0f, 1.0f };
+	this->deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor);
+	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
+	this->deviceContext->RSSetState(this->rasterrizerState.Get());
+	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+	this->deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+	this->deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
+	this->deviceContext->VSSetShader(this->vertexshader.GetShader(), NULL, 0);
+	this->deviceContext->PSSetShader(this->pixelshader.GetShader(), NULL, 0);
+}
+
+void Graphics::RenderEnd()
+{
 	this->swapchain->Present(0, NULL);
 }
 

@@ -13,18 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Keyboard">
-      <UniqueIdentifier>{0566966a-afce-4a83-a7db-c9f7d1d14ac5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Keyborad">
-      <UniqueIdentifier>{3da8bbeb-6b10-4f62-b431-49144fd5bb1f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Mouse">
-      <UniqueIdentifier>{3dddd0b1-da85-422c-ac83-acebfe84b205}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Mouse">
-      <UniqueIdentifier>{17f1673a-20eb-42e8-bb6c-a942f9ad9242}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Graphics">
       <UniqueIdentifier>{0d664df5-094c-4144-a00f-8d497a90d3bd}</UniqueIdentifier>
     </Filter>
@@ -36,6 +24,12 @@
     </Filter>
     <Filter Include="Source Files\Graphics\ImGui">
       <UniqueIdentifier>{e9b73ce6-e419-4ed8-a33b-e9996295eed5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input">
+      <UniqueIdentifier>{0566966a-afce-4a83-a7db-c9f7d1d14ac5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{3da8bbeb-6b10-4f62-b431-49144fd5bb1f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -53,18 +47,6 @@
     </ClCompile>
     <ClCompile Include="WindowContainer.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Keyboard\KeyboardEvent.cpp">
-      <Filter>Source Files\Keyborad</Filter>
-    </ClCompile>
-    <ClCompile Include="Keyboard\KeyboardClass.cpp">
-      <Filter>Source Files\Keyborad</Filter>
-    </ClCompile>
-    <ClCompile Include="Mouse\MouseEvent.cpp">
-      <Filter>Source Files\Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="Mouse\MouseClass.cpp">
-      <Filter>Source Files\Mouse</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Graphics.cpp">
       <Filter>Source Files\Graphics</Filter>
@@ -132,6 +114,15 @@
     <ClCompile Include="Graphics\Sprite.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Input\MouseClass.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\MouseEvent.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\KeyboardClass.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.h">
@@ -142,18 +133,6 @@
     </ClInclude>
     <ClInclude Include="WindowContainer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Keyboard\KeyboardClass.h">
-      <Filter>Header Files\Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="Keyboard\KeyboardEvent.h">
-      <Filter>Header Files\Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="Mouse\MouseClass.h">
-      <Filter>Header Files\Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="Mouse\MouseEvent.h">
-      <Filter>Header Files\Mouse</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Graphics.h">
       <Filter>Header Files\Graphics</Filter>
@@ -250,6 +229,15 @@
     </ClInclude>
     <ClInclude Include="Graphics\Sprite.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\MouseClass.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\MouseEvent.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\KeyboardClass.h">
+      <Filter>Header Files\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

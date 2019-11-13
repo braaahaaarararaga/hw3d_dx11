@@ -97,6 +97,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -111,6 +112,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -127,6 +129,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -145,6 +148,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -177,10 +181,9 @@
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Keyboard\KeyboardClass.cpp" />
-    <ClCompile Include="Keyboard\KeyboardEvent.cpp" />
-    <ClCompile Include="Mouse\MouseClass.cpp" />
-    <ClCompile Include="Mouse\MouseEvent.cpp" />
+    <ClCompile Include="Input\KeyboardClass.cpp" />
+    <ClCompile Include="Input\MouseClass.cpp" />
+    <ClCompile Include="Input\MouseEvent.cpp" />
     <ClCompile Include="RenderWindow.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -217,10 +220,9 @@
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Sprite.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="Keyboard\KeyboardClass.h" />
-    <ClInclude Include="Keyboard\KeyboardEvent.h" />
-    <ClInclude Include="Mouse\MouseClass.h" />
-    <ClInclude Include="Mouse\MouseEvent.h" />
+    <ClInclude Include="Input\KeyboardClass.h" />
+    <ClInclude Include="Input\MouseClass.h" />
+    <ClInclude Include="Input\MouseEvent.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="StringHelper.h" />

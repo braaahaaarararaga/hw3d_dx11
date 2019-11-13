@@ -18,6 +18,14 @@ class Graphics
 public:
 	bool Initialize(HWND hwnd, int width, int height);
 	void RenderFrame();
+
+	void RenderImGui();
+
+	void RenderText();
+
+	void SetLight();
+	void RenderBegin();
+	void RenderEnd();
 	Camera3D Camera3D;
 	Light light;
 private:

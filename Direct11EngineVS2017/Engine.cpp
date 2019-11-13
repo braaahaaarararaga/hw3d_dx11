@@ -25,28 +25,37 @@ void Engine::Update()
 
 	while (!keyboard.CharBufferIsEmpty())
 	{
-		unsigned char ch = keyboard.Readchar();
+		auto opt = keyboard.Readchar();
+		if (opt.has_value())
+			unsigned char ch = opt.value();
 	}
 	while (!keyboard.KeyBufferIsEmpty())
 	{
-		KeyboardEvent kbe = keyboard.ReadKey();
-		unsigned char Keycode = kbe.GetKeyCode();
+		auto opt = keyboard.ReadKey();
+		if (opt.has_value())
+		{
+			auto kbe = opt.value();
+			unsigned char Keycode = kbe.GetKeyCode();
+		}
 	}
 
 	while (!mouse.EventBufferIsEmpty())
 	{
-		MouseEvent me = mouse.ReadEvent();
-		if (me.GetType() == MouseEvent::EventType::WheelUp)
+		auto opt = mouse.ReadEvent();
+		if (!opt.has_value())
+			continue;
+		MouseClass::Event me = opt.value();
+		if (me.GetType() == MouseClass::Event::Type::WheelUp)
 		{
 			OutputDebugString(L"wheel up\n");
 		}
-		if (me.GetType() == MouseEvent::EventType::WheelDown)
+		if (me.GetType() == MouseClass::Event::Type::WheelDown)
 		{
 			OutputDebugStringA("wheel down\n");
 		}
 		if (mouse.IsRightDown())
 		{
-			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+			if (me.GetType() == MouseClass::Event::Type::RAW_MOVE)
 			{
 				this->gfx.Camera3D.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01, 0.0f);
 			}
@@ -95,5 +104,12 @@ void Engine::Update()
 
 void Engine::RenderFrame()
 {
+	gfx.RenderBegin();
+	gfx.SetLight();
+
 	gfx.RenderFrame();
+
+	gfx.RenderText();
+	gfx.RenderImGui();
+	gfx.RenderEnd();
 }

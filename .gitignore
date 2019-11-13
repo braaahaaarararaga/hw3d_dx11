@@ -51,6 +51,8 @@ artifacts/
 *.ilk
 *.meta
 *.obj
+!Direct11EngineVS2017/Data/Objects/*/*
+!Direct11EngineVS2017/Libs/*/*/*
 *.pch
 *.pdb
 *.pgc

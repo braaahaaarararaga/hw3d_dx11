@@ -23,44 +23,38 @@ bool KeyboardClass::CharBufferIsEmpty()
 	return this->charBuffer.empty();
 }
 
-KeyboardEvent KeyboardClass::ReadKey()
+std::optional<KeyboardClass::Event> KeyboardClass::ReadKey()
 {
-	if (this->keyBuffer.empty()) // If no keys to be read?
+	if(keyBuffer.size() > 0u)
 	{
-		return KeyboardEvent(); // return empty keyboard event
-	}
-	else
-	{
-		KeyboardEvent e = this->keyBuffer.front(); // Get first Keyboard Event from queue
+		Event e = this->keyBuffer.front(); // Get first Keyboard Event from queue
 		this->keyBuffer.pop(); // remove first item from queue
 		return e; // return keyboard event
 	}
+	return {};
 }
 
-unsigned char KeyboardClass::Readchar()
+std::optional<unsigned char> KeyboardClass::Readchar()
 {
-	if (this->charBuffer.empty())
-	{
-		return 0u; // return 0 (NULL char)
-	}
-	else
+	if (charBuffer.size() > 0u)
 	{
 		unsigned char e = this->charBuffer.front();
 		charBuffer.pop();
 		return e;
 	}
+	return {};
 }
 
 void KeyboardClass::OnKeyPressed(const unsigned char key)
 {
 	this->keyStates[key] = true;
-	this->keyBuffer.push(KeyboardEvent(KeyboardEvent::EventType::Press, key));
+	this->keyBuffer.push(Event(Event::Type::Press, key));
 }
 
 void KeyboardClass::OnKeyRelease(const unsigned char key)
 {
 	this->keyStates[key] = false;
-	this->keyBuffer.push(KeyboardEvent(KeyboardEvent::EventType::Release, key));
+	this->keyBuffer.push(Event(Event::Type::Release, key));
 }
 
 void KeyboardClass::OnChar(const unsigned char key)
