@@ -1,4 +1,5 @@
 ﻿#include "WindowContainer.h"
+#include <sstream>
 
 WindowContainer::WindowContainer()
 {
@@ -35,6 +36,7 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	// Keyboard messages
 #pragma region Keyboard Messages
 	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
 	{
 		unsigned char keycode = static_cast<unsigned char>(wParam);
 		if (input.keyboard.IsKeyAutoRepeat())
@@ -52,6 +54,7 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		return 0;
 	}
 	case WM_KEYUP:
+	case WM_SYSKEYUP:
 	{
 		unsigned char keycode = static_cast<unsigned char>(wParam);
 		input.keyboard.OnKeyRelease(keycode);
@@ -78,90 +81,151 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	// Mouse Messages
 	case WM_MOUSEMOVE:
 	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		input.mouse.OnMouseMove(x, y);
-		return 0;
+		POINTS pos = MAKEPOINTS(lParam);
+		if (pos.x >= 0 && pos.x < render_window.GetWidht() && pos.y >= 0 && pos.y < render_window.GetHeight())
+		{
+			input.mouse.OnMouseMove(pos.x, pos.y);
+			if (!input.mouse.IsMouseInWindow())
+			{
+				SetCapture(render_window.GetHWND());
+				input.mouse.OnMouseEnter();
+			}
+		}
+		else
+		{
+			if (wParam & (MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1 | MK_XBUTTON2))
+			{
+				input.mouse.OnMouseMove(pos.x, pos.y);
+			}
+			else
+			{
+				ReleaseCapture();
+				input.mouse.OnMouseLeave();
+			}
+		}
+		break;
 	}
 	case WM_LBUTTONDOWN:
 	{
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		input.mouse.OnLeftPressed(x, y);
+		input.mouse.OnMouseButtonDown(x, y, MouseClass::MouseButton::Left);
 		return 0;
 	}
 	case WM_LBUTTONUP:
 	{
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		input.mouse.OnLeftReleased(x, y);
+		input.mouse.OnMouseButtonUp(x, y, MouseClass::MouseButton::Left);
 		return 0;
 	}
 	case WM_RBUTTONDOWN:
 	{
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		input.mouse.OnRightPressed(x, y);
+		input.mouse.OnMouseButtonDown(x, y, MouseClass::MouseButton::Right);
 		return 0;
 	}
 	case WM_RBUTTONUP:
 	{
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		input.mouse.OnRightReleased(x, y);
+		input.mouse.OnMouseButtonUp(x, y, MouseClass::MouseButton::Right);
 		return 0;
 	}
 	case WM_MBUTTONDOWN:
 	{
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		input.mouse.OnMiddlePressed(x, y);
+		input.mouse.OnMouseButtonDown(x, y, MouseClass::MouseButton::Middle);
 		return 0;
 	}
 	case WM_MBUTTONUP:
 	{
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		input.mouse.OnMiddleReleased(x, y);
+		input.mouse.OnMouseButtonUp(x, y, MouseClass::MouseButton::Middle);
 		return 0;
+	}
+	case WM_XBUTTONDOWN:
+	{
+		int x = LOWORD(lParam);
+		int y = HIWORD(lParam);
+		if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+		{
+			input.mouse.OnMouseButtonDown(x, y, MouseClass::MouseButton::X1);
+		}
+		else if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
+		{
+			input.mouse.OnMouseButtonDown(x, y, MouseClass::MouseButton::X2);
+		}
+		break;
+	}
+	case WM_XBUTTONUP:
+	{
+		int x = LOWORD(lParam);
+		int y = HIWORD(lParam);
+		if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+		{
+			input.mouse.OnMouseButtonUp(x, y, MouseClass::MouseButton::X1);
+		}
+		else if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
+		{
+			input.mouse.OnMouseButtonUp(x, y, MouseClass::MouseButton::X2);
+		}
+		break;
 	}
 	case WM_MOUSEWHEEL:
 	{
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
-		{
-			input.mouse.OnWheelUp(x, y);
-		}
-		else if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
-		{
-			input.mouse.OnWheelDown(x, y);
-		}
+		const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+		input.mouse.OnWheelDelta(x, y, delta);
 		break;
 	}
 	case WM_INPUT:
 	{
-		UINT dataSize;
-
-		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
-		
-		if (dataSize > 0)
+		if (!input.mouse.RawEnabled())
 		{
-			std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
-			if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize,
-				sizeof(RAWINPUTHEADER)) == dataSize)
-			{
-				RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
-				if (raw->header.dwType == RIM_TYPEMOUSE)
-				{
-					input.mouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-				}
-			}
+			break;
 		}
 
-		return DefWindowProc(hwnd, uMsg, wParam, lParam); // Need to call DefWindowProc for WM_INPUT messages
+		UINT size;
+		// first get the size of the input data
+		if (GetRawInputData(
+			reinterpret_cast<HRAWINPUT>(lParam),
+			RID_INPUT,
+			nullptr,
+			&size,
+			sizeof(RAWINPUTHEADER)) == -1)
+		{
+			// bail msg processing if error
+			break;
+		}
+		rawBuffer.resize(size);
+		// read in the input data
+		if (GetRawInputData(
+			reinterpret_cast<HRAWINPUT>(lParam),
+			RID_INPUT,
+			rawBuffer.data(),
+			&size,
+			sizeof(RAWINPUTHEADER)) != size)
+		{
+			// bail msg processing if error
+			break;
+		}
+		// process the raw input data
+		auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
+		if (ri.header.dwType == RIM_TYPEMOUSE &&
+			(ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
+		{
+			std::wostringstream oss;
+			oss << "(" << ri.data.mouse.lLastX << "," << ri.data.mouse.lLastY << ")";
+			SetWindowText(render_window.GetHWND(), oss.str().c_str());
+			input.mouse.OnMouseMoveRaw(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
+		}
+		break;
 	}
-	default:
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }

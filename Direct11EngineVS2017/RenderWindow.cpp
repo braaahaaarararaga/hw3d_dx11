@@ -86,6 +86,16 @@ HWND RenderWindow::GetHWND() const
 	return handle;
 }
 
+int RenderWindow::GetWidht() const
+{
+	return width;
+}
+
+int RenderWindow::GetHeight() const
+{
+	return height;
+}
+
 RenderWindow::~RenderWindow()
 {
 	if (this->handle != NULL)

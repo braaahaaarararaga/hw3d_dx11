@@ -4,97 +4,63 @@
 
 class MouseClass
 {
+	friend class WindowContainer;
+	enum class MouseButton
+	{
+		Left,
+		Right,
+		Middle,
+		X1,
+		X2,
+		MAX_MOUSE_BUTTONS
+	};
 public:
 	struct MousePoint
 	{
 		int x;
 		int y;
 	};
-	class Event
-	{
-	public:
-		enum Type
-		{
-			LPress,
-			LRelease,
-			RPress,
-			RRelease,
-			MPress,
-			MRelease,
-			WheelUp,
-			WheelDown,
-			Move,
-			RAW_MOVE,
-			Enter,
-			Leave
-		};
-	private:
-		Type type;
-		int x;
-		int y;
-		bool leftIsPressed;
-		bool rightIsPressed;
-	public:
-		Event(const Type type, const int x, const int y)
-			:
-			type(type),
-			x(x),
-			y(y)
-		{
-		}
-		Event::Type GetType() const
-		{
-			return type;
-		}
-		MousePoint GetPos() const
-		{
-			return { x,y };
-		}
-		int GetPosX() const
-		{
-			return x;
-		}
-		int GetPosY() const
-		{
-			return y;
-		}
-		bool LeftIsPreesed() const
-		{
-			return leftIsPressed;
-		}
-		bool RightIsPreesed() const
-		{
-			return rightIsPressed;
-		}
-	};
-public:
-	void OnLeftPressed(int x, int y);
-	void OnLeftReleased(int x, int y);
-	void OnRightPressed(int x, int y);
-	void OnRightReleased(int x, int y);
-	void OnMiddlePressed(int x, int y);
-	void OnMiddleReleased(int x, int y);
-	void OnWheelUp(int x, int y);
-	void OnWheelDown(int x, int y);
-	void OnMouseMove(int x, int y);
-	void OnMouseMoveRaw(int x, int y);
 
-	bool IsLeftDown();
-	bool IsMiddleDown();
-	bool IsRightDown();
+
+	MouseClass() = default;
+	MouseClass(const MouseClass&) = delete;
+	MouseClass& operator=(const MouseClass&) = delete;
+
+	std::optional<MousePoint> ReadRawData();
+	bool IsMouseButtonDown(const MouseButton mb) const;
+	bool IsLeftDown() const;
+	bool IsMiddleDown() const;
+	bool IsRightDown() const;
+	bool IsX1Down() const;
+	bool IsX2Down() const;
+	bool IsMouseInWindow();
+	bool IsRawBufferEmpty();
+	bool RawEnabled();
+	void EnableRawInput();
+	void DisableRawInput();
 
 	int GetPosX();
 	int GetPosY();
 	MousePoint GetPos();
 
-	bool EventBufferIsEmpty();
-	std::optional<MouseClass::Event> ReadEvent();
+	void FillRawPoint();
+	MousePoint rawPoint;
+private:
+	void OnMouseButtonDown(const int x, const int y, const MouseButton mb);
+	void OnMouseButtonUp(const int x, const int y, const MouseButton mb);
+	void OnWheelDelta(const int x, const int y, const float delta);
+	void OnMouseMove(int x, int y);
+	void OnMouseEnter();
+	void OnMouseLeave();
+	void OnMouseMoveRaw(int x, int y);
 
 private:
-	std::queue<Event> eventBuffer;
-	bool leftIsDown = false;
-	bool rightIsDown = false;
-	bool mbuttonDown = false;
 	int x = 0;
 	int y = 0;
+	bool mouseInWindow = true;
+	bool rawInputEnabled = true;
+	bool mouseButtonStates[(int)MouseButton::MAX_MOUSE_BUTTONS] = {0};
+	float wheelDeltaCarry = 0.0f;
+	int wheelDelta = 0;
+	std::queue<MousePoint> rawDeltaBuffer;
 };

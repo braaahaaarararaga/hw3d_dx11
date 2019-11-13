@@ -4,6 +4,7 @@
 
 class KeyboardClass
 {
+	friend class WindowContainer;
 public:
 	class Event
 	{
@@ -39,23 +40,23 @@ public:
 public:
 	KeyboardClass();
 	bool KeyIsPressed(const unsigned char keycode);
-	bool KeyBufferIsEmpty();
 	bool CharBufferIsEmpty();
-	std::optional<Event> ReadKey();
 	std::optional<unsigned char> Readchar();
-	void OnKeyPressed(const unsigned char key);
-	void OnKeyRelease(const unsigned char key);
-	void OnChar(const unsigned char key);
 	void EnableAutoRepeatKeys();
 	void DisableAutoRepeatKeys();
 	void EnableAutoRepeatChars();
 	void DisableAutoRepeatChars();
 	bool IsKeyAutoRepeat();
 	bool IsCharAutoRepeat();
+	void FlushChar();
+private:
+	void OnKeyPressed(const unsigned char key);
+	void OnKeyRelease(const unsigned char key);
+	void OnChar(const unsigned char key);
+
 private:
 	bool autoRepeatKeys = false;
 	bool autoRepeatChars = false;
 	bool keyStates[256];
-	std::queue<Event> keyBuffer;
 	std::queue<unsigned char> charBuffer;
 };

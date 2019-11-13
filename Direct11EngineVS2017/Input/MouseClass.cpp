@@ -1,76 +1,121 @@
 ﻿#include "MouseClass.h"
+/* Value for rolling one detent */
+#define _WHEEL_DELTA 120
 
-void MouseClass::OnLeftPressed(int x, int y)
+void MouseClass::OnMouseButtonDown(const int x, const int y, const MouseButton mb)
 {
-	leftIsDown = true;
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::LPress, x, y));
+	this->x = x;
+	this->y = y;
+	mouseButtonStates[(int)mb] = true;
 }
 
-void MouseClass::OnLeftReleased(int x, int y)
+void MouseClass::OnMouseButtonUp(const int x, const int y, const MouseButton mb)
 {
-	leftIsDown = false;
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::LRelease, x, y));
+	this->x = x;
+	this->y = y;
+	mouseButtonStates[(int)mb] = false;
 }
 
-void MouseClass::OnRightPressed(int x, int y)
+void MouseClass::OnWheelDelta(const int x, const int y, const float delta)
 {
-	rightIsDown = true;
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::RPress, x, y));
-}
-
-void MouseClass::OnRightReleased(int x, int y)
-{
-	rightIsDown = false;
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::RRelease, x, y));
-}
-
-void MouseClass::OnMiddlePressed(int x, int y)
-{
-	mbuttonDown = true;
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::MPress, x, y));
-}
-
-void MouseClass::OnMiddleReleased(int x, int y)
-{
-	mbuttonDown = false;
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::MRelease, x, y));
-}
-
-void MouseClass::OnWheelUp(int x, int y)
-{
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::WheelUp, x, y));
-}
-
-void MouseClass::OnWheelDown(int x, int y)
-{
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::WheelDown, x, y));
+	wheelDeltaCarry += delta;
+	while (wheelDeltaCarry >= _WHEEL_DELTA)
+	{
+		wheelDeltaCarry -= _WHEEL_DELTA;
+		wheelDelta--;
+	}
+	while (wheelDeltaCarry <= -_WHEEL_DELTA)
+	{
+		wheelDeltaCarry += _WHEEL_DELTA;
+		wheelDelta++;
+	}
 }
 
 void MouseClass::OnMouseMove(int x, int y)
 {
 	this->x = x;
 	this->y = y;
-	eventBuffer.push(MouseClass::Event(MouseClass::Event::Type::Move, x, y));
+}
+
+void MouseClass::OnMouseEnter()
+{
+	mouseInWindow = true;
+}
+
+void MouseClass::OnMouseLeave()
+{
+	mouseInWindow = false;
 }
 
 void MouseClass::OnMouseMoveRaw(int x, int y)
 {
-	this->eventBuffer.push(MouseClass::Event(MouseClass::Event::RAW_MOVE, x, y));
+	rawDeltaBuffer.push({ y,x });
 }
 
-bool MouseClass::IsLeftDown()
+std::optional<MouseClass::MousePoint> MouseClass::ReadRawData()
 {
-	return leftIsDown;
+	if (rawDeltaBuffer.empty())
+	{
+		return {};
+	}
+	const MousePoint pt = rawDeltaBuffer.front();
+	rawDeltaBuffer.pop();
+	return pt;
 }
 
-bool MouseClass::IsMiddleDown()
+bool MouseClass::IsMouseButtonDown(const MouseButton mb) const
 {
-	return mbuttonDown;
+	return mouseButtonStates[(int)mb];
 }
 
-bool MouseClass::IsRightDown()
+bool MouseClass::IsLeftDown() const
 {
-	return rightIsDown;
+	return mouseButtonStates[(int)MouseButton::Left];
+}
+
+bool MouseClass::IsMiddleDown() const
+{
+	return mouseButtonStates[(int)MouseButton::Middle];
+}
+
+bool MouseClass::IsRightDown() const
+{
+	return mouseButtonStates[(int)MouseButton::Right];
+}
+
+bool MouseClass::IsX1Down() const
+{
+	return mouseButtonStates[(int)MouseButton::X1];
+}
+
+bool MouseClass::IsX2Down() const
+{
+	return mouseButtonStates[(int)MouseButton::X2];
+}
+
+bool MouseClass::IsMouseInWindow()
+{
+	return mouseInWindow;
+}
+
+bool MouseClass::IsRawBufferEmpty()
+{
+	return rawDeltaBuffer.empty();
+}
+
+bool MouseClass::RawEnabled()
+{
+	return rawInputEnabled;
+}
+
+void MouseClass::EnableRawInput()
+{
+	rawInputEnabled = true;
+}
+
+void MouseClass::DisableRawInput()
+{
+	rawInputEnabled = false;
 }
 
 int MouseClass::GetPosX()
@@ -88,18 +133,17 @@ MouseClass::MousePoint MouseClass::GetPos()
 	return { x,y };
 }
 
-bool MouseClass::EventBufferIsEmpty()
+void MouseClass::FillRawPoint()
 {
-	return eventBuffer.empty();
-}
-
-std::optional<MouseClass::Event> MouseClass::ReadEvent()
-{
-	if (eventBuffer.size() > 0u)
+	rawPoint = { 0 };
+	while (!IsRawBufferEmpty())
 	{
-		MouseClass::Event me = eventBuffer.front();
-		eventBuffer.pop();
-		return me;
+		auto opt = ReadRawData();
+		if (opt.has_value())
+		{
+			auto rawData = opt.value();
+			rawPoint.x += rawData.x;
+			rawPoint.y += rawData.y;
+		}
 	}
-	return {};
 }

@@ -13,25 +13,10 @@ bool KeyboardClass::KeyIsPressed(const unsigned char keycode)
 	return this->keyStates[keycode];
 }
 
-bool KeyboardClass::KeyBufferIsEmpty()
-{
-	return this->keyBuffer.empty();
-}
 
 bool KeyboardClass::CharBufferIsEmpty()
 {
 	return this->charBuffer.empty();
-}
-
-std::optional<KeyboardClass::Event> KeyboardClass::ReadKey()
-{
-	if(keyBuffer.size() > 0u)
-	{
-		Event e = this->keyBuffer.front(); // Get first Keyboard Event from queue
-		this->keyBuffer.pop(); // remove first item from queue
-		return e; // return keyboard event
-	}
-	return {};
 }
 
 std::optional<unsigned char> KeyboardClass::Readchar()
@@ -48,13 +33,11 @@ std::optional<unsigned char> KeyboardClass::Readchar()
 void KeyboardClass::OnKeyPressed(const unsigned char key)
 {
 	this->keyStates[key] = true;
-	this->keyBuffer.push(Event(Event::Type::Press, key));
 }
 
 void KeyboardClass::OnKeyRelease(const unsigned char key)
 {
 	this->keyStates[key] = false;
-	this->keyBuffer.push(Event(Event::Type::Release, key));
 }
 
 void KeyboardClass::OnChar(const unsigned char key)
@@ -90,4 +73,9 @@ bool KeyboardClass::IsKeyAutoRepeat()
 bool KeyboardClass::IsCharAutoRepeat()
 {
 	return autoRepeatChars;
+}
+
+void KeyboardClass::FlushChar()
+{
+	charBuffer = std::queue<unsigned char>();
 }

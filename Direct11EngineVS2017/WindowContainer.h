@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "RenderWindow.h"
-#include "Input/Input.h"
 #include "Graphics/Graphics.h"
+#include "Input/Input.h"
 
 class WindowContainer
 {
@@ -12,4 +12,6 @@ protected:
 	RenderWindow render_window;
 	Input input;
 	Graphics gfx;
+
+	std::vector<BYTE> rawBuffer;
 };

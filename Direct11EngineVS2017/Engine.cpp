@@ -23,30 +23,30 @@ void Engine::Update()
 	float dt = timer.GetMiliseceondsElapsed();
 	timer.Restart();
 
-	input.Update();
-
-	while (!input.mouse.EventBufferIsEmpty())
+	// type check
+	while (!input.keyboard.CharBufferIsEmpty())
 	{
-		auto opt = input.mouse.ReadEvent();
-		if (!opt.has_value())
-			continue;
-		MouseClass::Event me = opt.value();
-		if (me.GetType() == MouseClass::Event::Type::WheelUp)
-		{
-			OutputDebugString(L"wheel up\n");
-		}
-		if (me.GetType() == MouseClass::Event::Type::WheelDown)
-		{
-			OutputDebugStringA("wheel down\n");
-		}
-		if (input.mouse.IsRightDown())
-		{
-			if (me.GetType() == MouseClass::Event::Type::RAW_MOVE)
-			{
-				this->gfx.Camera3D.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01, 0.0f);
-			}
-		}
+		auto opt = input.keyboard.Readchar();
+		if (opt.has_value())
+			unsigned char ch = opt.value();
 	}
+	input.mouse.FillRawPoint();
+	if (input.mouse.IsRightDown())
+	{
+		this->gfx.Camera3D.AdjustRotation(input.mouse.rawPoint.x * 0.01f, input.mouse.rawPoint.y * 0.01, 0.0f);
+	}
+	//while (!input.mouse.IsRawBufferEmpty())
+	//{
+	//	auto opt = input.mouse.ReadRawData();
+	//	if (opt.has_value())
+	//	{
+	//		auto rawData = opt.value();
+	//		if (input.mouse.IsRightDown())
+	//		{
+	//			this->gfx.Camera3D.AdjustRotation(rawData.x * 0.01f, rawData.y * 0.01, 0.0f);
+	//		}
+	//	}
+	//}
 
 	float Camera3DSpeed = 0.005f;
 
