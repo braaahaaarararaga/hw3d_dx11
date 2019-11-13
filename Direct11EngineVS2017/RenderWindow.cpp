@@ -1,4 +1,4 @@
-#include "WindowContainer.h"
+﻿#include "WindowContainer.h"
 
 bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {

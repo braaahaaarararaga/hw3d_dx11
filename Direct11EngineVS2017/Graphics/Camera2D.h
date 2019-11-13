@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "GameObject2D.h"
 class Camera2D :
 	public GameObject2D

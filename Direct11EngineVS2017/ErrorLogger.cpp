@@ -1,4 +1,4 @@
-#include "ErrorLogger.h"
+﻿#include "ErrorLogger.h"
 #include <comdef.h>
 
 void ErrorLogger::Log(std::string message)

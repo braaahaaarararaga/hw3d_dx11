@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "GameObject3D.h"
 
 class RenderableGameObject : public GameObject3D

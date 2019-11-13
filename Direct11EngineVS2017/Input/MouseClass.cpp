@@ -1,4 +1,4 @@
-#include "MouseClass.h"
+﻿#include "MouseClass.h"
 
 void MouseClass::OnLeftPressed(int x, int y)
 {

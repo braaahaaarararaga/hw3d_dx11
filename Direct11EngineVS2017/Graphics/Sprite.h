@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "GameObject2D.h"
 #include "Texture.h"
 #include "ConstantBuffer.h"

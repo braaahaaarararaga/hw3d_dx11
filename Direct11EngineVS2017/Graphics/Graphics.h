@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "AdapterReader.h"
 #include "Shaders.h"
 #include "GameObject.h"

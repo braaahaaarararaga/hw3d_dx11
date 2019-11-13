@@ -1,4 +1,4 @@
-#ifndef IndicesBuffer_h__
+﻿#ifndef IndicesBuffer_h__
 #define IndicesBuffer_h__
 #include <d3d11.h>
 #include <wrl/client.h>

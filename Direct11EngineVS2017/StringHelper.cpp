@@ -1,4 +1,4 @@
-#include "StringHelper.h"
+﻿#include "StringHelper.h"
 #include <algorithm>
 
 std::wstring StringHelper::StringToWide(std::string str)

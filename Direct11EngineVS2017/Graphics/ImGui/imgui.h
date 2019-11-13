@@ -1,4 +1,4 @@
-// dear imgui, v1.73 WIP
+﻿// dear imgui, v1.73 WIP
 // (headers)
 
 // See imgui.cpp file for documentation.

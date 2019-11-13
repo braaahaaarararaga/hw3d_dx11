@@ -1,4 +1,4 @@
-#ifndef ConstantBuffer_h__
+﻿#ifndef ConstantBuffer_h__
 #define ConstantBuffer_h__
 #include <d3d11.h>
 #include "ConstantBufferTypes.h"

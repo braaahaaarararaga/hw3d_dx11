@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 typedef unsigned char BYTE;
 
 class Color

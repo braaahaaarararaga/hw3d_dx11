@@ -1,4 +1,4 @@
-#include "Graphics.h"
+﻿#include "Graphics.h"
 
 bool Graphics::Initialize(HWND hwnd, int width, int height)
 {

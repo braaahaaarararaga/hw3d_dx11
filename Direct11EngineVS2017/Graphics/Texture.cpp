@@ -1,4 +1,4 @@
-#include "Texture.h"
+﻿#include "Texture.h"
 #include "..\\ErrorLogger.h"
 #include <DDSTextureLoader.h>
 #include <WICTextureLoader.h>

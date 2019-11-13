@@ -117,9 +117,6 @@
     <ClCompile Include="Input\MouseClass.cpp">
       <Filter>Source Files\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Input\MouseEvent.cpp">
-      <Filter>Source Files\Input</Filter>
-    </ClCompile>
     <ClCompile Include="Input\KeyboardClass.cpp">
       <Filter>Source Files\Input</Filter>
     </ClCompile>
@@ -231,9 +228,6 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Input\MouseClass.h">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Input\MouseEvent.h">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
     <ClInclude Include="Input\KeyboardClass.h">

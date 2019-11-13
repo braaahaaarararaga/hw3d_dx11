@@ -1,4 +1,4 @@
-#include "Light.h"
+﻿#include "Light.h"
 
 bool Light::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "RenderWindow.h"
 #include "Input/KeyboardClass.h"
 #include "Input/MouseClass.h"

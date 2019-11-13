@@ -1,4 +1,4 @@
-// dear imgui: Renderer for DirectX11
+﻿// dear imgui: Renderer for DirectX11
 // This needs to be used along with a Platform Binding (e.g. Win32)
 
 // Implemented features:

@@ -1,4 +1,4 @@
-#include "AdapterReader.h"
+﻿#include "AdapterReader.h"
 
 std::vector<AdapterData> AdapterReader::adapters;
 
