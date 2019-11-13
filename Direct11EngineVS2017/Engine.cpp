@@ -23,15 +23,16 @@ void Engine::Update()
 	float dt = timer.GetMiliseceondsElapsed();
 	timer.Restart();
 
-	while (!keyboard.CharBufferIsEmpty())
+	// input check
+	while (!input.keyboard.CharBufferIsEmpty())
 	{
-		auto opt = keyboard.Readchar();
+		auto opt = input.keyboard.Readchar();
 		if (opt.has_value())
 			unsigned char ch = opt.value();
 	}
-	while (!keyboard.KeyBufferIsEmpty())
+	while (!input.keyboard.KeyBufferIsEmpty())
 	{
-		auto opt = keyboard.ReadKey();
+		auto opt = input.keyboard.ReadKey();
 		if (opt.has_value())
 		{
 			auto kbe = opt.value();
@@ -39,9 +40,9 @@ void Engine::Update()
 		}
 	}
 
-	while (!mouse.EventBufferIsEmpty())
+	while (!input.mouse.EventBufferIsEmpty())
 	{
-		auto opt = mouse.ReadEvent();
+		auto opt = input.mouse.ReadEvent();
 		if (!opt.has_value())
 			continue;
 		MouseClass::Event me = opt.value();
@@ -53,7 +54,7 @@ void Engine::Update()
 		{
 			OutputDebugStringA("wheel down\n");
 		}
-		if (mouse.IsRightDown())
+		if (input.mouse.IsRightDown())
 		{
 			if (me.GetType() == MouseClass::Event::Type::RAW_MOVE)
 			{
@@ -64,36 +65,36 @@ void Engine::Update()
 
 	float Camera3DSpeed = 0.005f;
 
-	if (keyboard.KeyIsPressed(VK_SHIFT))
+	if (input.keyboard.KeyIsPressed(VK_SHIFT))
 	{
 		Camera3DSpeed = 0.5f;
 	}
 
-	if (keyboard.KeyIsPressed('W'))
+	if (input.keyboard.KeyIsPressed('W'))
 	{
 		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('S'))
+	if (input.keyboard.KeyIsPressed('S'))
 	{
 		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('A'))
+	if (input.keyboard.KeyIsPressed('A'))
 	{
 		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('D'))
+	if (input.keyboard.KeyIsPressed('D'))
 	{
 		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed(VK_SPACE))
+	if (input.keyboard.KeyIsPressed(VK_SPACE))
 	{
 		this->gfx.Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
 	}
-	if (keyboard.KeyIsPressed(VK_CONTROL))
+	if (input.keyboard.KeyIsPressed(VK_CONTROL))
 	{
 		this->gfx.Camera3D.AdjustPosition(0.0f, -Camera3DSpeed * dt, 0.0f);
 	}
-	if (keyboard.KeyIsPressed('C'))
+	if (input.keyboard.KeyIsPressed('C'))
 	{
 		XMVECTOR lightPosition = this->gfx.Camera3D.GetPositionVector();
 		lightPosition += this->gfx.Camera3D.GetForwardVector();

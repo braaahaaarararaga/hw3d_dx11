@@ -180,6 +180,7 @@
     <ClCompile Include="Graphics\RenderableGameObject.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
+    <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Input\KeyboardClass.cpp" />
     <ClCompile Include="Input\MouseClass.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="Graphics\RenderableGameObject.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Sprite.h" />
+    <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Input\KeyboardClass.h" />
     <ClInclude Include="Input\MouseClass.h" />
