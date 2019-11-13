@@ -7,6 +7,9 @@ class Input
 public:
 	Input();
 	~Input();
+	void Update();
+
+private:
 
 public:
 	MouseClass mouse;

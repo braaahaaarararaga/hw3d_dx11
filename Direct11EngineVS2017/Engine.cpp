@@ -23,22 +23,7 @@ void Engine::Update()
 	float dt = timer.GetMiliseceondsElapsed();
 	timer.Restart();
 
-	// input check
-	while (!input.keyboard.CharBufferIsEmpty())
-	{
-		auto opt = input.keyboard.Readchar();
-		if (opt.has_value())
-			unsigned char ch = opt.value();
-	}
-	while (!input.keyboard.KeyBufferIsEmpty())
-	{
-		auto opt = input.keyboard.ReadKey();
-		if (opt.has_value())
-		{
-			auto kbe = opt.value();
-			unsigned char Keycode = kbe.GetKeyCode();
-		}
-	}
+	input.Update();
 
 	while (!input.mouse.EventBufferIsEmpty())
 	{
