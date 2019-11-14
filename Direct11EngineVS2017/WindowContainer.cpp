@@ -1,5 +1,4 @@
 ﻿#include "WindowContainer.h"
-#include <sstream>
 
 WindowContainer::WindowContainer()
 {
@@ -219,9 +218,9 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		if (ri.header.dwType == RIM_TYPEMOUSE &&
 			(ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
 		{
-			std::wostringstream oss;
+			/*std::wostringstream oss;
 			oss << "(" << ri.data.mouse.lLastX << "," << ri.data.mouse.lLastY << ")";
-			SetWindowText(render_window.GetHWND(), oss.str().c_str());
+			SetWindowText(render_window.GetHWND(), oss.str().c_str());*/
 			input.mouse.OnMouseMoveRaw(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
 		}
 		break;
