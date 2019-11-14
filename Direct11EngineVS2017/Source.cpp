@@ -9,7 +9,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	Engine engine;
 	try
 	{
-		 engine.Initialize(hInstance, "Title", "MyWindowClass", 800, 600);
+		 engine.Initialize(hInstance, "Title", "MyWindowClass", 1200, 900);
 	}
 	catch (COMException& exception)
 	{

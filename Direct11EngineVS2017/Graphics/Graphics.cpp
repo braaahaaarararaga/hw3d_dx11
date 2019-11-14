@@ -57,6 +57,7 @@ void Graphics::RenderImGui()
 	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.01, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.01, 0.0f, 10.0f);
 	ImGui::End();
+
 	// Assemble Together Draw Data
 	ImGui::Render();
 	// Render Draw Data
@@ -75,8 +76,11 @@ void Graphics::RenderText()
 		fpsCounter = 0;
 		fpsTimer.Restart();
 	}
+	static std::wstring controlGuide = L"Controls\n Move: W/S/A/D/Shift/Ctrl\n Roll: Hold mouse right button\n Set light pos: C";
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), fpsString.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f,
+		DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(0.65f, 0.65f));
+	spriteFont->DrawString(spriteBatch.get(), controlGuide.c_str(), DirectX::XMFLOAT2(0, 16), DirectX::Colors::White, 0.0f,
 		DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
 }
