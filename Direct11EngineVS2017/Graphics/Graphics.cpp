@@ -33,6 +33,10 @@ void Graphics::RenderFrame()
 		this->gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 		//Square
 	}
+	{	// pinkSquare
+		this->gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		//Square
+	}
 	{
 		this->deviceContext->PSSetShader(this->pixelshader_nolight.GetShader(), NULL, 0);
 		this->light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
@@ -76,7 +80,7 @@ void Graphics::RenderText()
 		fpsCounter = 0;
 		fpsTimer.Restart();
 	}
-	static std::wstring controlGuide = L"Controls\n Move: W/S/A/D/Shift/Ctrl\n Roll: Hold mouse right button\n Set light pos: C";
+	static std::wstring controlGuide = L"Controls\n Move: W/S/A/D/Space/Ctrl/Shift\n Roll: Hold mouse right button\n Set light pos: C";
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), fpsString.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f,
 		DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(0.65f, 0.65f));
@@ -345,6 +349,11 @@ bool Graphics::InitializeScene()
 	
 
 	if (!gameObj.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader))
+	{
+		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
+		return false;
+	}
+	if (!gameObj2.Initialize("Data\\Objects\\akai_e_espiritu.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;

@@ -46,6 +46,7 @@ private:
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 
 	RenderableGameObject gameObj;
+	RenderableGameObject gameObj2;
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;

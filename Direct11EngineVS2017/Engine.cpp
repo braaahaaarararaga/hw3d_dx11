@@ -33,7 +33,7 @@ void Engine::Update()
 
 	if (input.keyboard.KeyIsPressed(VK_SHIFT))
 	{
-		Camera3DSpeed = 0.5f;
+		Camera3DSpeed = 0.05f;
 	}
 
 	if (input.keyboard.KeyIsPressed('W'))
