@@ -348,11 +348,12 @@ bool Graphics::InitializeScene()
 	this->cb_ps_light.data.ambientLightStrength = 1.0f;
 	
 
-	if (!gameObj.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader))
+	if (!gameObj.Initialize("Data\\Objects\\Sitting.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
+	gameObj.SetScale(0.07f, 0.07f, 0.07f);
 	if (!gameObj2.Initialize("Data\\Objects\\akai_e_espiritu.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");

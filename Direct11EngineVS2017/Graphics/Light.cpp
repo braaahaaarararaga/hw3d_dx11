@@ -7,6 +7,7 @@ bool Light::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContex
 
 	this->SetPosition(0.0f, 0.0f, 0.0f);
 	this->SetRotation(0.0f, 0.0f, 0.0f);
+	this->SetScale(1.0f, 1.0f, 1.0f);
 	this->UpdateMatrix();
 	return true;
 }
