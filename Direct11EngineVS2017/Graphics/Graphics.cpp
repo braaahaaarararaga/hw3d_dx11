@@ -304,7 +304,7 @@ bool Graphics::InitializeShaders()
 
 	UINT numElements = ARRAYSIZE(layout);
 
-	if (!vertexshader.Initialize(this->device, shaderfolder + L"vertexshader.cso", layout, numElements))
+	if (!vertexshader.Initialize(this->device, shaderfolder + L"vertexShader.cso", layout, numElements))
 	{
 		return false;
 	}

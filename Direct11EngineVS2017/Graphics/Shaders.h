@@ -6,7 +6,7 @@
 
 
 
-class VertexShader
+class VertexShader_
 {
 public:
 	bool Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::wstring shaderPath,
