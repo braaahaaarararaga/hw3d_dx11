@@ -3,8 +3,12 @@
 
 std::wstring StringHelper::StringToWide(std::string str)
 {
-	std::wstring wide_string(str.begin(), str.end());
-	return wide_string;
+	return std::wstring(str.begin(), str.end());
+}
+
+std::string StringHelper::WideToString(std::wstring_view wstr)
+{
+	return std::string(wstr.begin(), wstr.end());
 }
 
 std::string StringHelper::GetDirectoryFromPath(const std::string & filepath)

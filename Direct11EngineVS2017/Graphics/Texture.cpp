@@ -3,17 +3,17 @@
 #include <DDSTextureLoader.h>
 #include <WICTextureLoader.h>
 
-Texture::Texture(ID3D11Device * device, const Color & color, aiTextureType type)
+Texture_::Texture_(ID3D11Device * device, const Color & color, aiTextureType type)
 {
 	this->Initialize1x1ColorTexture(device, color, type);
 }
 
-Texture::Texture(ID3D11Device * device, const Color * colorData, UINT width, UINT height, aiTextureType type)
+Texture_::Texture_(ID3D11Device * device, const Color * colorData, UINT width, UINT height, aiTextureType type)
 {
 	this->InitializeColorTexture(device, colorData, width, height, type);
 }
 
-Texture::Texture(ID3D11Device * device, const std::string & filePath, aiTextureType type)
+Texture_::Texture_(ID3D11Device * device, const std::string & filePath, aiTextureType type)
 {
 	this->type = type;
 	if (StringHelper::GetFileExtension(filePath) == ".dds")
@@ -36,34 +36,34 @@ Texture::Texture(ID3D11Device * device, const std::string & filePath, aiTextureT
 	}
 }
 
-Texture::Texture(ID3D11Device * device, const uint8_t * pData, size_t size, aiTextureType type)
+Texture_::Texture_(ID3D11Device * device, const uint8_t * pData, size_t size, aiTextureType type)
 {
 	this->type = type;
 	HRESULT hr = DirectX::CreateWICTextureFromMemory(device, pData, size, this->texture.GetAddressOf(), this->textureView.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create Texture from memory.");
 }
 
-aiTextureType Texture::GetType()
+aiTextureType Texture_::GetType()
 {
 	return this->type;
 }
 
-ID3D11ShaderResourceView * Texture::GetTextureResourceView()
+ID3D11ShaderResourceView * Texture_::GetTextureResourceView()
 {
 	return this->textureView.Get();
 }
 
-ID3D11ShaderResourceView ** Texture::GetTextureResourceViewAddress()
+ID3D11ShaderResourceView ** Texture_::GetTextureResourceViewAddress()
 {
 	return this->textureView.GetAddressOf();
 }
 
-void Texture::Initialize1x1ColorTexture(ID3D11Device * device, const Color & colorData, aiTextureType type)
+void Texture_::Initialize1x1ColorTexture(ID3D11Device * device, const Color & colorData, aiTextureType type)
 {
 	InitializeColorTexture(device, &colorData, 1, 1, type);
 }
 
-void Texture::InitializeColorTexture(ID3D11Device * device, const Color * colorData, UINT width, UINT height, aiTextureType type)
+void Texture_::InitializeColorTexture(ID3D11Device * device, const Color * colorData, UINT width, UINT height, aiTextureType type)
 {
 	this->type = type;
 	CD3D11_TEXTURE2D_DESC textureDesc(DXGI_FORMAT_R8G8B8A8_UNORM, width, height);

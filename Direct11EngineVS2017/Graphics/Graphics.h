@@ -12,6 +12,7 @@
 #include "ImGui\\imgui_impl_dx11.h"
 #include "RenderableGameObject.h"
 #include "Light.h"
+#include "../VertexShader.h"
 
 class Graphics
 {
@@ -26,6 +27,9 @@ public:
 	void SetLight();
 	void RenderBegin();
 	void RenderEnd();
+
+	IVertexShader* CreateVertexShader(const std::string& filename);
+
 	Camera3D Camera3D;
 	Light light;
 private:
@@ -40,8 +44,8 @@ private:
 
 
 	VertexShader_ vertexshader;
-	PixelShader pixelshader;
-	PixelShader pixelshader_nolight;
+	PixelShader_ pixelshader;
+	PixelShader_ pixelshader_nolight;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 

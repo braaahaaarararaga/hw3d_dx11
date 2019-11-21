@@ -1,6 +1,6 @@
 ﻿#include "Mesh.h"
 
-Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, std::vector<Texture>& textures, const DirectX::XMMATRIX& matrixTransform)
+Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, std::vector<Texture_>& textures, const DirectX::XMMATRIX& matrixTransform)
 {
 	this->deviceContext = deviceContext;
 	this->textures = textures;

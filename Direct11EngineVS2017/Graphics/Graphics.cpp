@@ -134,6 +134,11 @@ void Graphics::RenderEnd()
 	this->swapchain->Present(0, NULL);
 }
 
+IVertexShader * Graphics::CreateVertexShader(const std::string & filename)
+{
+	return new D3DVertexShader(device.Get(), filename);
+}
+
 bool Graphics::InitializeDirectX(HWND hwnd)
 {
 	std::vector<AdapterData> adapters = AdapterReader::GetAdapters();

@@ -21,7 +21,7 @@ private:
 	ConstantBuffer<CB_VS_vertexshader_2d>* cb_vs_vertexshader_2d = nullptr;
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 
-	std::unique_ptr<Texture> texture;
+	std::unique_ptr<Texture_> texture;
 	ID3D11DeviceContext* deviceContext = nullptr;
 
 	IndexBuffer indices;

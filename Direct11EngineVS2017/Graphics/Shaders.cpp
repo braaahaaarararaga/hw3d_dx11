@@ -49,7 +49,7 @@ ID3D11InputLayout * VertexShader_::GetInputLayout()
 	return this->inputLayout.Get();
 }
 
-bool PixelShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std::wstring shaderpath)
+bool PixelShader_::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std::wstring shaderpath)
 {
 	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->shader_buffer.GetAddressOf());
 
@@ -74,12 +74,12 @@ bool PixelShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std::
 	return true;
 }
 
-ID3D11PixelShader * PixelShader::GetShader()
+ID3D11PixelShader * PixelShader_::GetShader()
 {
 	return this->shader.Get();
 }
 
-ID3D10Blob * PixelShader::GetBuffer()
+ID3D10Blob * PixelShader_::GetBuffer()
 {
 	return this->shader_buffer.Get();
 }

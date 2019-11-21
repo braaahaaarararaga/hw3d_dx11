@@ -182,6 +182,8 @@
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="MemoryStream.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Input\KeyboardClass.cpp" />
     <ClCompile Include="Input\MouseClass.cpp" />
@@ -224,7 +226,9 @@
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="MemoryStream.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderUtils.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Input\KeyboardClass.h" />
     <ClInclude Include="Input\MouseClass.h" />
