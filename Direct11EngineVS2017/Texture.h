@@ -147,6 +147,8 @@ class D3DTexture : public ITexture
 public:
 	D3DTexture(ID3D11Device* pDevice, const std::string& filename, aiTextureType type);
 	D3DTexture(ID3D11Device* pDevice, const char* pData, size_t size, aiTextureType type);
+	D3DTexture(ID3D11Device* pDevice, const Color& color, aiTextureType type);
+	D3DTexture(ID3D11Device* pDevice, const Color* colorData, UINT width, UINT height, aiTextureType type);
 
 	virtual size_t GetWidth() const override { return m_iWidth; }
 	virtual size_t GetHeight() const override { return m_iHeight; }

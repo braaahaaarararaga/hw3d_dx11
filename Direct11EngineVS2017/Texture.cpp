@@ -74,6 +74,16 @@ D3DTexture::D3DTexture(ID3D11Device* pDevice, const char* pData, size_t size, ai
 
 }
 
+D3DTexture::D3DTexture(ID3D11Device * pDevice, const Color & color, aiTextureType type)
+{
+	Initialize1x1ColorTexture(pDevice, color, type);
+}
+
+D3DTexture::D3DTexture(ID3D11Device * pDevice, const Color * colorData, UINT width, UINT height, aiTextureType type)
+{
+	InitializeColorTexture(pDevice, colorData, width, height, type);
+}
+
 void D3DTexture::Initialize1x1ColorTexture(ID3D11Device * device, const Color & colorData, aiTextureType type)
 {
 	InitializeColorTexture(device, &colorData, 1, 1, type);
