@@ -5,83 +5,6 @@
 #include "Graphics/Color.h"
 #include <assimp/material.h>
 
-enum GPUResourceUsage
-{
-	USAGE_DEFAULT = 0,
-	USAGE_IMMUTABLE = 1,
-	USAGE_DYNAMIC = 2,
-	USAGE_STAGING = 3
-};
-
-class ITexture
-{
-public:
-	virtual ~ITexture() = default;
-
-	virtual size_t GetWidth() const = 0;
-	virtual size_t GetHeight() const = 0;
-	virtual TexFormat GetFormat() const = 0;
-	virtual bool IsTranslucent() const = 0;
-};
-
-class D3DTexture : public ITexture
-{
-public:
-	D3DTexture(ID3D11Device* pDevice, const std::string& filename, aiTextureType type);
-	D3DTexture(ID3D11Device* pDevice, const char* pData, size_t size, aiTextureType type);
-	D3DTexture(ID3D11Device* pDevice,
-		const void* pPixels,
-		size_t pitch,
-		size_t width,
-		size_t height,
-		TexFormat format,
-		GPUResourceUsage usage = USAGE_DEFAULT);
-
-	virtual size_t GetWidth() const override { return m_iWidth; }
-	virtual size_t GetHeight() const override { return m_iHeight; }
-	virtual TexFormat GetFormat() const override { return m_Format; }
-	virtual bool IsTranslucent() const override { return m_bIsTranslucent; }
-	ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }
-private:
-	void Initialize1x1ColorTexture(ID3D11Device* device, const Color& colorData, aiTextureType type);
-	void InitializeColorTexture(ID3D11Device* device, const Color* colorData, UINT width, UINT height, aiTextureType type);
-private:
-	Microsoft::WRL::ComPtr<ID3D11Resource>				m_pTexture = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTextureView = nullptr;
-
-	TexFormat m_Format;
-	aiTextureType m_Type;
-	size_t m_iWidth = 0;
-	size_t m_iHeight = 0;
-	bool m_bIsTranslucent = false;
-};
-
-class Texture
-{
-public:
-	Texture() = default;
-	Texture(const std::string& filename);
-	Texture(const std::wstring& filename)
-		:
-		Texture(StringHelper::WideToString(filename))
-	{}
-	Texture(const char* pData, size_t size);
-	Texture(const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage = USAGE_DEFAULT);
-
-	ITexture* Get() { return m_pTexture.get(); }
-	const ITexture* Get() const { return m_pTexture.get(); }
-
-	operator ITexture*();
-	ITexture* operator->();
-	const ITexture* operator->() const;
-
-	static Texture FromColour(const Color* pPixels, int width, int height, GPUResourceUsage usage = USAGE_DEFAULT);
-
-	static size_t GetBPPForFormat(TexFormat fmt);
-
-private:
-	std::unique_ptr<ITexture> m_pTexture = nullptr;
-};
 
 enum TexFormat
 {
@@ -207,17 +130,60 @@ enum TexFormat
 	TEX_FORMAT_V408 = 132
 };
 
-struct TexFormatInfo_t
+
+class ITexture
 {
-	const char* name;
-	int num_bytes;
-	int num_red_bits;
-	int num_green_bits;
-	int num_blue_bits;
-	int num_alpha_bits;
-	bool compressed;
+public:
+	virtual ~ITexture() = default;
+
+	virtual size_t GetWidth() const = 0;
+	virtual size_t GetHeight() const = 0;
+	virtual TexFormat GetFormat() const = 0;
+	virtual bool IsTranslucent() const = 0;
 };
 
-const TexFormatInfo_t& TexFormatInfo(TexFormat format);
+class D3DTexture : public ITexture
+{
+public:
+	D3DTexture(ID3D11Device* pDevice, const std::string& filename, aiTextureType type);
+	D3DTexture(ID3D11Device* pDevice, const char* pData, size_t size, aiTextureType type);
 
+	virtual size_t GetWidth() const override { return m_iWidth; }
+	virtual size_t GetHeight() const override { return m_iHeight; }
+	virtual TexFormat GetFormat() const override { return m_Format; }
+	virtual bool IsTranslucent() const override { return m_bIsTranslucent; }
+	ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }
+private:
+	void Initialize1x1ColorTexture(ID3D11Device* device, const Color& colorData, aiTextureType type);
+	void InitializeColorTexture(ID3D11Device* device, const Color* colorData, UINT width, UINT height, aiTextureType type);
+private:
+	Microsoft::WRL::ComPtr<ID3D11Resource>				m_pTexture = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTextureView = nullptr;
 
+	TexFormat m_Format;
+	aiTextureType m_Type;
+	size_t m_iWidth = 0;
+	size_t m_iHeight = 0;
+	bool m_bIsTranslucent = false;
+};
+
+class Texture
+{
+public:
+	Texture() = default;
+	Texture(ID3D11Device * device, const std::string & filename, aiTextureType type);
+	Texture(ID3D11Device * device, const std::wstring& filename, aiTextureType type)
+		:
+		Texture(device,StringHelper::WideToString(filename),type)
+	{}
+	Texture(ID3D11Device* device, const char* pData, size_t size, aiTextureType type);
+
+	ITexture* Get() { return m_pTexture.get(); }
+	const ITexture* Get() const { return m_pTexture.get(); }
+
+	operator ITexture*();
+	ITexture* operator->();
+	const ITexture* operator->() const;
+private:
+	std::unique_ptr<ITexture> m_pTexture = nullptr;
+};

@@ -15,7 +15,7 @@ using Resource = std::shared_ptr<T>;
 class ResourceManager
 {
 public:
-	static Resource<Texture>        GetTexture(const std::string& filename);
+	static Resource<Texture>        GetTexture(ID3D11Device* device, const std::string& filename, aiTextureType type);
 	static Resource<IVertexShader>   GetVertexShader(const std::string& filename, Graphics& gfx);
 	//static Resource<IPixelShader>    GetPixelShader(const std::string& filename);
 

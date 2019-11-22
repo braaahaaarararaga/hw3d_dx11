@@ -8,6 +8,7 @@ public:
 	bool ProcessMessages();
 	void Update();
 	void RenderFrame();
+	void Finalize();
 private:
 	Timer timer;
 };

@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "GameObject2D.h"
-#include "Texture.h"
+#include "_Texture.h"
 #include "ConstantBuffer.h"
 #include <string>
 #include "IndexBuffer.h"

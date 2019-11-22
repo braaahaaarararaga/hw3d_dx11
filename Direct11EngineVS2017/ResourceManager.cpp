@@ -1,8 +1,7 @@
-#include "ResourceManager.h"
-
-#include "Graphics/Texture.h"
+#include "Texture.h"
 #include "VertexShader.h"
 #include "StringHelper.h"
+#include "ResourceManager.h"
 
 
 template<typename T>
@@ -11,12 +10,12 @@ using ResourceMap = std::unordered_map<std::string, Resource<T>>;
 static ResourceMap<Texture>        g_mapTextures;
 static ResourceMap<IVertexShader>   g_mapVShaders;
 
-Resource<Texture> ResourceManager::GetTexture(const std::string& filename)
+Resource<Texture> ResourceManager::GetTexture(ID3D11Device* device, const std::string& filename, aiTextureType type)
 {
 	auto it = g_mapTextures.find(filename);
 	if (it == g_mapTextures.end())
 	{
-		auto pResource = std::make_shared<Texture>(StringHelper::StringToWide(filename));
+		auto pResource = std::make_shared<Texture>(device, StringHelper::StringToWide(filename), type);
 		g_mapTextures[filename] = pResource;
 		return pResource;
 	}

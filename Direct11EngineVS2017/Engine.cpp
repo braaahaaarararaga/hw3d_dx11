@@ -1,4 +1,5 @@
 ﻿#include "Engine.h"
+#include "ResourceManager.h"
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
@@ -79,4 +80,9 @@ void Engine::RenderFrame()
 	gfx.RenderText();
 	gfx.RenderImGui();
 	gfx.RenderEnd();
+}
+
+void Engine::Finalize()
+{
+	ResourceManager::CleanUp();
 }
