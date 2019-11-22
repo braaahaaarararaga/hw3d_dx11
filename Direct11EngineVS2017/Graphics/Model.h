@@ -7,6 +7,17 @@
 
 using namespace DirectX;
 
+enum class TextureStorageType
+{
+	Invalid,
+	None,
+	EmbeddedIndexCompressed,
+	EmbeddedIndexNonCompressed,
+	EmbeddedCompressed,
+	EmbeddedNonCompressed,
+	Disk
+};
+
 class Model
 {
 public:

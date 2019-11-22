@@ -139,7 +139,9 @@ public:
 	virtual size_t GetWidth() const = 0;
 	virtual size_t GetHeight() const = 0;
 	virtual TexFormat GetFormat() const = 0;
+	virtual aiTextureType GetType() const = 0;
 	virtual bool IsTranslucent() const = 0;
+	virtual ID3D11ShaderResourceView* GetShaderResourceView() const = 0;
 };
 
 class D3DTexture : public ITexture
@@ -153,8 +155,9 @@ public:
 	virtual size_t GetWidth() const override { return m_iWidth; }
 	virtual size_t GetHeight() const override { return m_iHeight; }
 	virtual TexFormat GetFormat() const override { return m_Format; }
+	virtual aiTextureType GetType() const override { return m_Type; }
 	virtual bool IsTranslucent() const override { return m_bIsTranslucent; }
-	ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }
+	virtual ID3D11ShaderResourceView* GetShaderResourceView() const override { return m_pTextureView.Get(); }
 private:
 	void Initialize1x1ColorTexture(ID3D11Device* device, const Color& colorData, aiTextureType type);
 	void InitializeColorTexture(ID3D11Device* device, const Color* colorData, UINT width, UINT height, aiTextureType type);
@@ -179,6 +182,9 @@ public:
 		Texture(device,StringHelper::WideToString(filename),type)
 	{}
 	Texture(ID3D11Device* device, const char* pData, size_t size, aiTextureType type);
+	Texture(ID3D11Device* device, const Color* colorData, UINT width, UINT height, aiTextureType type);
+
+	aiTextureType GetType();
 
 	ITexture* Get() { return m_pTexture.get(); }
 	const ITexture* Get() const { return m_pTexture.get(); }

@@ -115,6 +115,17 @@ Texture::Texture(ID3D11Device* device, const char* pData, size_t size, aiTexture
 	m_pTexture(new D3DTexture(device, pData, size, type))
 {}
 
+Texture::Texture(ID3D11Device * device, const Color * colorData, UINT width, UINT height, aiTextureType type)
+	:
+	m_pTexture(new D3DTexture(device, colorData, width, height, type))
+{
+}
+
+aiTextureType Texture::GetType()
+{
+	return m_pTexture.GetType();
+}
+
 Texture::operator ITexture*()
 {
 	return m_pTexture.get();

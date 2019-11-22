@@ -1,6 +1,6 @@
 ﻿#include "Mesh.h"
 
-Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, std::vector<Texture_>& textures, const DirectX::XMMATRIX& matrixTransform)
+Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, std::vector<Resource<Texture>>& textures, const DirectX::XMMATRIX& matrixTransform)
 {
 	this->deviceContext = deviceContext;
 	this->textures = textures;
@@ -27,9 +27,9 @@ void Mesh::Draw()
 	UINT offset = 0;
 	for (int i = 0; i < textures.size(); i++)
 	{
-		if (textures[i].GetType() == aiTextureType::aiTextureType_DIFFUSE)
+		if (textures[i]->GetType() == aiTextureType::aiTextureType_DIFFUSE)
 		{
-			this->deviceContext->PSSetShaderResources(0, 1, textures[i].GetTextureResourceViewAddress());
+			this->deviceContext->PSSetShaderResources(0, 1, textures[i]->GetTextureResourceViewAddress());
 			break;
 		}
 	}
