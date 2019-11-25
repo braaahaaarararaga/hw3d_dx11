@@ -9,7 +9,7 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 		return false;
 	this->cb_vs_vertexshader_2d = &cb_vs_vertexshader_2d;
 
-	texture = std::make_unique<Texture_>(device, spritePath, aiTextureType::aiTextureType_DIFFUSE);
+	texture = ResourceManager::GetTexture(device, spritePath, aiTextureType::aiTextureType_DIFFUSE);
 
 	std::vector<Vertex2D> vertexData =
 	{
@@ -47,7 +47,7 @@ void Sprite::Draw(XMMATRIX orthoMatrix)
 	cb_vs_vertexshader_2d->data.wvpMatrix = mvpMatrix;
 	cb_vs_vertexshader_2d->ApplyChanges();
 
-	deviceContext->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
+	deviceContext->PSSetShaderResources(0, 1, texture->Get()->GetShaderResourceView());
 
 	const UINT offsets = 0;
 	deviceContext->IASetVertexBuffers(0, 1, vertices.GetAddressOf(), vertices.StridePtr(), &offsets);

@@ -34,7 +34,7 @@ private:
 	};
 };
 
-namespace Colors
+namespace Hw3d_Colors
 {
 	const Color UnloadedTextureColor(100, 100, 100);
 	const Color UnhandledTextureColor(250, 0, 0);

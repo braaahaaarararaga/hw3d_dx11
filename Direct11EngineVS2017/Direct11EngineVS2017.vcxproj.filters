@@ -129,11 +129,8 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="Graphics\Texture.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\_Texture.cpp">
-      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -263,11 +260,8 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="Graphics\Texture.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\_Texture.h">
-      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include "_Texture.h"
+#include "Texture.h"
 #include "../ResourceManager.h"
 
 class Mesh

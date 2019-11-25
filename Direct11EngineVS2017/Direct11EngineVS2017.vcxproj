@@ -176,14 +176,13 @@
     <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
-    <ClCompile Include="Graphics\_Texture.cpp" />
     <ClCompile Include="Graphics\RenderableGameObject.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="MemoryStream.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Input\KeyboardClass.cpp" />
     <ClCompile Include="Input\MouseClass.cpp" />
@@ -219,7 +218,6 @@
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
-    <ClInclude Include="Graphics\_Texture.h" />
     <ClInclude Include="Graphics\RenderableGameObject.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Sprite.h" />
@@ -228,7 +226,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderUtils.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Input\KeyboardClass.h" />
     <ClInclude Include="Input\MouseClass.h" />

@@ -1,5 +1,5 @@
-#include "Texture.h"
 #include <fstream>
+#include "Texture.h"
 #include "..\\ErrorLogger.h"
 #include <DDSTextureLoader.h>
 #include <WICTextureLoader.h>
@@ -15,7 +15,7 @@ D3DTexture::D3DTexture(ID3D11Device* pDevice, const std::string& filename, aiTex
 
 	if (!std::ifstream(filename))
 	{
-		this->Initialize1x1ColorTexture(pDevice, Colors::UnloadedTextureColor, type);
+		this->Initialize1x1ColorTexture(pDevice, Hw3d_Colors::UnloadedTextureColor, type);
 	}
 	else if (StringHelper::GetFileExtension(filename) != "dds")
 	{
@@ -121,9 +121,15 @@ Texture::Texture(ID3D11Device * device, const Color * colorData, UINT width, UIN
 {
 }
 
+Texture::Texture(ID3D11Device * device, const Color & color, aiTextureType type)
+	:
+	m_pTexture(new D3DTexture(device, color, type))
+{
+}
+
 aiTextureType Texture::GetType()
 {
-	return m_pTexture.GetType();
+	return m_pTexture->GetType();
 }
 
 Texture::operator ITexture*()

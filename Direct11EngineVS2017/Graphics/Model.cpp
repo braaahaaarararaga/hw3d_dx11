@@ -101,9 +101,9 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX& tr
 		}
 	}
 
-	std::vector<Texture_> textures;
+	std::vector<Resource<Texture>> textures;
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	std::vector<Texture_> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+	std::vector<Resource<Texture>> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
 
@@ -153,9 +153,9 @@ TextureStorageType Model::DetermineTextureStorageType(const aiScene * scene, aiM
 	return TextureStorageType::None; // No Texture exists
 }
 
-std::vector<Texture_> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
+std::vector<Resource<Texture>> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
 {
-	std::vector<Texture_> materialTextures;
+	std::vector<Resource<Texture>> materialTextures;
 	TextureStorageType storetype = TextureStorageType::Invalid;
 	unsigned int textureCount = pMaterial->GetTextureCount(textureType);
 
@@ -169,10 +169,10 @@ std::vector<Texture_> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiText
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 			if (aiColor.IsBlack())
 			{
-				materialTextures.push_back(Texture_(this->device, Colors::UnloadedTextureColor, textureType));
+				materialTextures.push_back(ResourceManager::GetTexture(this->device, std::string("UnloadedTextureColor"), Hw3d_Colors::UnloadedTextureColor, textureType));
 				return materialTextures;
 			}
-			materialTextures.push_back(Texture_(this->device, Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255),
+			materialTextures.push_back(ResourceManager::GetTexture(this->device, std::string("BlackTexture"), Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255),
 				textureType));
 			return materialTextures;
 		}
@@ -189,8 +189,9 @@ std::vector<Texture_> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiText
 			case TextureStorageType::EmbeddedIndexCompressed:
 			{
 				int index = GetTextureIndex(&path);
-				Texture_ embeddedIndexTexture(this->device,
-					reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
+				std::string filename = this->directory + '\\' + path.C_Str() + std::to_string(i) + std::to_string(index);
+				Resource<Texture> embeddedIndexTexture = ResourceManager::GetTexture(this->device, filename,
+					reinterpret_cast<char*>(pScene->mTextures[index]->pcData),
 					pScene->mTextures[index]->mWidth,
 					textureType);
 				materialTextures.push_back(embeddedIndexTexture);
@@ -199,8 +200,9 @@ std::vector<Texture_> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiText
 			case TextureStorageType::EmbeddedCompressed:
 			{
 				const aiTexture* pTexture = pScene->GetEmbeddedTexture(path.C_Str());
-				Texture_ embeddedTexture(this->device,
-					reinterpret_cast<uint8_t*>(pTexture->pcData),
+				std::string filename = this->directory + '\\' + path.C_Str() + std::to_string(i);
+				Resource<Texture> embeddedTexture = ResourceManager::GetTexture(this->device, filename,
+					reinterpret_cast<char*>(pTexture->pcData),
 					pTexture->mWidth,
 					textureType);
 				materialTextures.push_back(embeddedTexture);
@@ -209,7 +211,7 @@ std::vector<Texture_> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiText
 			case TextureStorageType::Disk:
 			{
 				std::string filename = this->directory + '\\' + path.C_Str();
-				Texture_ diskTexture(this->device, filename, textureType);
+				Resource<Texture> diskTexture = ResourceManager::GetTexture(this->device, filename, textureType);
 				materialTextures.push_back(diskTexture);
 				break;
 			}
@@ -220,7 +222,7 @@ std::vector<Texture_> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiText
 
 	if (materialTextures.size() == 0)
 	{
-		materialTextures.push_back(Texture_(this->device, Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+		materialTextures.push_back(ResourceManager::GetTexture(this->device,std::string("UnhandleTextureColor"), Hw3d_Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
 	}
 	return materialTextures;
 }

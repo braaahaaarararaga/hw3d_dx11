@@ -1,5 +1,7 @@
+#include "Graphics/Texture.h"
 #include "VertexShader.h"
 #include "StringHelper.h"
+#include "Graphics/Graphics.h"
 #include "ResourceManager.h"
 
 
@@ -28,6 +30,19 @@ Resource<Texture> ResourceManager::GetTexture(ID3D11Device * device, const std::
 	if (it == g_mapTextures.end())
 	{
 		auto pResource = std::make_shared<Texture>(device, pData, size, type);
+		g_mapTextures[texturename] = pResource;
+		return pResource;
+	}
+
+	return it->second;
+}
+
+Resource<Texture> ResourceManager::GetTexture(ID3D11Device * device, const std::string & texturename, const Color & color, aiTextureType type)
+{
+	auto it = g_mapTextures.find(texturename);
+	if (it == g_mapTextures.end())
+	{
+		auto pResource = std::make_shared<Texture>(device, color, type);
 		g_mapTextures[texturename] = pResource;
 		return pResource;
 	}

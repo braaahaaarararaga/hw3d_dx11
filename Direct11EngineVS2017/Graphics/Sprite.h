@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "GameObject2D.h"
-#include "_Texture.h"
+#include "Texture.h"
 #include "ConstantBuffer.h"
 #include <string>
 #include "IndexBuffer.h"
@@ -21,7 +21,8 @@ private:
 	ConstantBuffer<CB_VS_vertexshader_2d>* cb_vs_vertexshader_2d = nullptr;
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 
-	std::unique_ptr<Texture_> texture;
+	//std::unique_ptr<Texture_> texture;
+	Resource<Texture> texture;
 	ID3D11DeviceContext* deviceContext = nullptr;
 
 	IndexBuffer indices;
