@@ -29,7 +29,7 @@ void Mesh::Draw()
 	{
 		if (textures[i]->GetType() == aiTextureType::aiTextureType_DIFFUSE)
 		{
-			this->deviceContext->PSSetShaderResources(0, 1, textures[i]->Get()->GetShaderResourceView());
+			this->deviceContext->PSSetShaderResources(0, 1, textures[i]->GetShaderResourceView());
 			break;
 		}
 	}

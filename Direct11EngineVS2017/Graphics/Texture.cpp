@@ -132,6 +132,11 @@ aiTextureType Texture::GetType()
 	return m_pTexture->GetType();
 }
 
+ID3D11ShaderResourceView * const * Texture::GetShaderResourceView() const
+{ 
+	return m_pTexture->GetShaderResourceView(); 
+}
+
 Texture::operator ITexture*()
 {
 	return m_pTexture.get();

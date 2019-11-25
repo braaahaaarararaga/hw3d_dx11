@@ -47,7 +47,7 @@ void Sprite::Draw(XMMATRIX orthoMatrix)
 	cb_vs_vertexshader_2d->data.wvpMatrix = mvpMatrix;
 	cb_vs_vertexshader_2d->ApplyChanges();
 
-	deviceContext->PSSetShaderResources(0, 1, texture->Get()->GetShaderResourceView());
+	deviceContext->PSSetShaderResources(0, 1, texture->GetShaderResourceView());
 
 	const UINT offsets = 0;
 	deviceContext->IASetVertexBuffers(0, 1, vertices.GetAddressOf(), vertices.StridePtr(), &offsets);

@@ -186,6 +186,7 @@ public:
 	Texture(ID3D11Device* device, const Color& color, aiTextureType type);
 
 	aiTextureType GetType();
+	ID3D11ShaderResourceView* const* GetShaderResourceView() const;
 
 	ITexture* Get() { return m_pTexture.get(); }
 	const ITexture* Get() const { return m_pTexture.get(); }
