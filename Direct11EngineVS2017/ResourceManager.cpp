@@ -1,5 +1,5 @@
 #include "Graphics/Texture.h"
-#include "VertexShader.h"
+#include "Graphics/VertexShader.h"
 #include "StringHelper.h"
 #include "Graphics/Graphics.h"
 #include "ResourceManager.h"

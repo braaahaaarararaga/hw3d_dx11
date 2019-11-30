@@ -12,7 +12,7 @@
 #include "ImGui\\imgui_impl_dx11.h"
 #include "RenderableGameObject.h"
 #include "Light.h"
-#include "../VertexShader.h"
+#include "VertexShader.h"
 
 class Graphics
 {

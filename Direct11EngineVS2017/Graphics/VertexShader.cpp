@@ -1,6 +1,6 @@
 #include "VertexShader.h"
 #include <assert.h>
-#include "MemoryStream.h"
+#include "../MemoryStream.h"
 
 D3DVertexShader::D3DVertexShader(ID3D11Device* pDevice, const std::string& filename)
 	:

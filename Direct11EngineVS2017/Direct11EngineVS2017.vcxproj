@@ -190,7 +190,7 @@
     <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="StringHelper.cpp" />
-    <ClCompile Include="VertexShader.cpp" />
+    <ClCompile Include="Graphics\VertexShader.cpp" />
     <ClCompile Include="WindowContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -225,7 +225,7 @@
     <ClInclude Include="MemoryStream.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="ShaderUtils.h" />
+    <ClInclude Include="Graphics\ShaderUtils.h" />
     <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Input\KeyboardClass.h" />
@@ -235,7 +235,7 @@
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
-    <ClInclude Include="VertexShader.h" />
+    <ClInclude Include="Graphics\VertexShader.h" />
     <ClInclude Include="WindowContainer.h" />
   </ItemGroup>
   <ItemGroup>
