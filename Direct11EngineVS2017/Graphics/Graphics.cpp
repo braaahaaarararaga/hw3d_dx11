@@ -112,7 +112,7 @@ void Graphics::RenderBegin()
 	// Domain Shader
 	// Geometry Shader-GS
 	//   |- Stream Output---- output data to buffer
-	// Rasterizer------rasterization vector information to raster image
+	// Rasterizer------Rasterization vector information to raster image
 	// Pixel Shader----PS
 	// Output-Merger---OM
 
@@ -120,12 +120,12 @@ void Graphics::RenderBegin()
 	this->deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor);
 	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
+	this->deviceContext->IASetInputLayout(this->d3dvertexshader.get()->GetLayout());
 	this->deviceContext->RSSetState(this->rasterrizerState.Get());
 	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	this->deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
 	this->deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
-	this->deviceContext->VSSetShader(this->vertexshader.GetShader(), NULL, 0);
+	this->deviceContext->VSSetShader(this->d3dvertexshader.get()->GetShader(device.Get()), NULL, 0);
 	this->deviceContext->PSSetShader(this->pixelshader.GetShader(), NULL, 0);
 }
 
@@ -297,22 +297,9 @@ bool Graphics::InitializeShaders()
 #endif
 	}
 
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
-			0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-	};
 
-	UINT numElements = ARRAYSIZE(layout);
-
-	if (!vertexshader.Initialize(this->device, shaderfolder + L"vertexShader.cso", layout, numElements))
-	{
-		return false;
-	}
+	
+	d3dvertexshader = std::make_unique<D3DVertexShader>(device.Get(), std::string("..\\x64\\Debug\\vertexShader.cso"));
 	if (!pixelshader.Initialize(this->device, shaderfolder + L"pixelshader.cso"))
 	{
 		return false;

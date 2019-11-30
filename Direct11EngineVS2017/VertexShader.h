@@ -39,9 +39,6 @@ private:
 	std::atomic_bool m_bDirty = true;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pShader;
 
-#ifdef _DEBUG
-	FileWatchHandle_t m_hFileWatch;
-#endif
 };
 
 class VertexShader

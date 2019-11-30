@@ -7,19 +7,10 @@ D3DVertexShader::D3DVertexShader(ID3D11Device* pDevice, const std::string& filen
 	m_szName(filename)
 {
 	LoadFromFile(pDevice, filename, true);
-
-#ifdef _DEBUG
-	m_hFileWatch = FileWatchdog::AddFileChangeListener(filename, BIND_MEM_FN(D3DVertexShader::OnFileChanged));
-
-	D3D_SET_OBJECT_NAME_N_A(m_pShader, (UINT)filename.size(), filename.c_str());
-#endif
 }
 
 D3DVertexShader::~D3DVertexShader()
 {
-#ifdef _DEBUG
-	FileWatchdog::RemoveFileChangeListener(m_hFileWatch);
-#endif
 }
 
 ID3D11VertexShader* D3DVertexShader::GetShader(ID3D11Device* pDevice)
@@ -36,7 +27,7 @@ ID3D11VertexShader* D3DVertexShader::GetShader(ID3D11Device* pDevice)
 
 void D3DVertexShader::CreateInputLayoutDescFromVertexShaderSignature(ID3D11Device* pDevice, const void* pCodeBytes, const size_t size)
 {
-	// Reflect shader info ‚–‚‡‚”‚T
+	// Reflect shader info 
 	Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pVertexShaderReflection;
 
 	COM_ERROR_IF_FAILED(
@@ -58,7 +49,7 @@ void D3DVertexShader::CreateInputLayoutDescFromVertexShaderSignature(ID3D11Devic
 		D3D11_INPUT_ELEMENT_DESC elementDesc;
 		elementDesc.SemanticName = paramDesc.SemanticName;
 		elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-		elementDesc.InputSlot = i;
+		elementDesc.InputSlot = 0;
 		elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 		elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 		elementDesc.InstanceDataStepRate = 0;

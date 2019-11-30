@@ -43,7 +43,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
 
 
-	VertexShader_ vertexshader;
+	std::unique_ptr<D3DVertexShader> d3dvertexshader;
 	PixelShader_ pixelshader;
 	PixelShader_ pixelshader_nolight;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
