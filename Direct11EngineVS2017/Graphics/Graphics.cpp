@@ -192,7 +192,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	COM_ERROR_IF_FAILED(hr, "Failed to create device and swapchain.");
 
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+	ComPtr<ID3D11Texture2D> backBuffer;
 	hr = this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 	
 	COM_ERROR_IF_FAILED(hr, "Failed to get swapchain buffer.");
@@ -299,7 +299,7 @@ bool Graphics::InitializeShaders()
 
 
 	
-	d3dvertexshader = std::make_unique<D3DVertexShader>(device.Get(), std::string("..\\x64\\Debug\\vertexShader.cso"));
+	d3dvertexshader = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "vertexShader.cso");
 	if (!pixelshader.Initialize(this->device, shaderfolder + L"pixelshader.cso"))
 	{
 		return false;

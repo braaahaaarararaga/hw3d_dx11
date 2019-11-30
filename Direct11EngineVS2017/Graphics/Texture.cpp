@@ -9,7 +9,7 @@ D3DTexture::D3DTexture(ID3D11Device* pDevice, const std::string& filename, aiTex
 	m_Type = type;
 	std::wstring wfilename = StringHelper::StringToWide(filename);
 
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
+	ComPtr<ID3D11DeviceContext> pContext;
 	pDevice->GetImmediateContext(&pContext);
 
 
@@ -36,9 +36,9 @@ D3DTexture::D3DTexture(ID3D11Device* pDevice, const std::string& filename, aiTex
 	}
 
 	// get width/height
-	Microsoft::WRL::ComPtr<ID3D11Resource> pResource;
+	ComPtr<ID3D11Resource> pResource;
 	m_pTextureView->GetResource(&pResource);
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> pTexture2D;
+	ComPtr<ID3D11Texture2D> pTexture2D;
 	pResource.As(&pTexture2D);
 	D3D11_TEXTURE2D_DESC desc;
 	pTexture2D->GetDesc(&desc);
@@ -61,9 +61,9 @@ D3DTexture::D3DTexture(ID3D11Device* pDevice, const char* pData, size_t size, ai
 	);
 
 	// get width/height
-	Microsoft::WRL::ComPtr<ID3D11Resource> pResource;
+	ComPtr<ID3D11Resource> pResource;
 	m_pTextureView->GetResource(&pResource);
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> pTexture2D;
+	ComPtr<ID3D11Texture2D> pTexture2D;
 	pResource.As(&pTexture2D);
 
 	D3D11_TEXTURE2D_DESC desc;

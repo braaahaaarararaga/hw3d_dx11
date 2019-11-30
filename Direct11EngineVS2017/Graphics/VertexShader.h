@@ -18,6 +18,8 @@ public:
 class D3DVertexShader : public IVertexShader
 {
 public:
+	template<class T>
+	using ComPtr = Microsoft::WRL::ComPtr<T>;
 	D3DVertexShader(ID3D11Device* pDevice, const std::string& filename);
 	~D3DVertexShader();
 
@@ -34,9 +36,9 @@ private:
 	void SetDirty(bool dirty) { m_bDirty = dirty; }
 private:
 	std::string m_szName;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
+	ComPtr<ID3D11InputLayout>	m_pInputLayout;
 	bool m_bUsesAttribute[(int)AttributeInfo::VertexAttribute::TotalAttributes];
 	std::atomic_bool m_bDirty = true;
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pShader;
+	ComPtr<ID3D11VertexShader> m_pShader;
 
 };

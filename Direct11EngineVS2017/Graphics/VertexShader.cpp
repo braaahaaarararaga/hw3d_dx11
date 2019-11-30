@@ -28,7 +28,7 @@ ID3D11VertexShader* D3DVertexShader::GetShader(ID3D11Device* pDevice)
 void D3DVertexShader::CreateInputLayoutDescFromVertexShaderSignature(ID3D11Device* pDevice, const void* pCodeBytes, const size_t size)
 {
 	// Reflect shader info 
-	Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pVertexShaderReflection;
+	ComPtr<ID3D11ShaderReflection> pVertexShaderReflection;
 
 	COM_ERROR_IF_FAILED(
 		D3DReflect(pCodeBytes, size, IID_ID3D11ShaderReflection, (void**)&pVertexShaderReflection),
@@ -113,8 +113,8 @@ void D3DVertexShader::LoadFromFile(ID3D11Device* pDevice, const std::string& fil
 	// not compiled, lets compile ourselves
 	else
 	{
-		Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
-		Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
+		ComPtr<ID3DBlob> errorMessage;
+		ComPtr<ID3DBlob> vertexShaderBuffer;
 
 		UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
 #ifdef _DEBUG

@@ -17,6 +17,9 @@
 class Graphics
 {
 public:
+	template<class T>
+	using ComPtr = Microsoft::WRL::ComPtr<T>;
+
 	bool Initialize(HWND hwnd, int width, int height);
 	void RenderFrame();
 
@@ -37,10 +40,10 @@ private:
 	bool InitializeShaders();
 	bool InitializeScene();
 
-	Microsoft::WRL::ComPtr<ID3D11Device> device;
-	Microsoft::WRL::ComPtr <ID3D11DeviceContext> deviceContext;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
+	ComPtr<ID3D11Device> device;
+	ComPtr <ID3D11DeviceContext> deviceContext;
+	ComPtr<IDXGISwapChain> swapchain;
+	ComPtr<ID3D11RenderTargetView> renderTargetView;
 
 
 	std::unique_ptr<D3DVertexShader> d3dvertexshader;
@@ -52,22 +55,22 @@ private:
 	RenderableGameObject gameObj;
 	RenderableGameObject gameObj2;
 
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
+	ComPtr<ID3D11DepthStencilView> depthStencilView;
+	ComPtr<ID3D11Texture2D> depthStencilBuffer;
+	ComPtr<ID3D11DepthStencilState> depthStencilState;
 
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterrizerState;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterrizerState_CullFront;
+	ComPtr<ID3D11RasterizerState> rasterrizerState;
+	ComPtr<ID3D11RasterizerState> rasterrizerState_CullFront;
 
-	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
+	ComPtr<ID3D11BlendState> blendState;
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
 
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> pinkTexture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> grassTexture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> pavementTexture;
+	ComPtr<ID3D11SamplerState> samplerState;
+	ComPtr<ID3D11ShaderResourceView> pinkTexture;
+	ComPtr<ID3D11ShaderResourceView> grassTexture;
+	ComPtr<ID3D11ShaderResourceView> pavementTexture;
 
 	int window_width = 0;
 	int window_height = 0;

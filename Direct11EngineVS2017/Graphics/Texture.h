@@ -147,6 +147,8 @@ public:
 class D3DTexture : public ITexture
 {
 public:
+	template<class T>
+	using ComPtr = Microsoft::WRL::ComPtr<T>;
 	D3DTexture(ID3D11Device* pDevice, const std::string& filename, aiTextureType type);
 	D3DTexture(ID3D11Device* pDevice, const char* pData, size_t size, aiTextureType type);
 	D3DTexture(ID3D11Device* pDevice, const Color& color, aiTextureType type);
@@ -162,8 +164,8 @@ private:
 	void Initialize1x1ColorTexture(ID3D11Device* device, const Color& colorData, aiTextureType type);
 	void InitializeColorTexture(ID3D11Device* device, const Color* colorData, UINT width, UINT height, aiTextureType type);
 private:
-	Microsoft::WRL::ComPtr<ID3D11Resource>				m_pTexture = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTextureView = nullptr;
+	ComPtr<ID3D11Resource>				m_pTexture = nullptr;
+	ComPtr<ID3D11ShaderResourceView>	m_pTextureView = nullptr;
 
 	TexFormat m_Format;
 	aiTextureType m_Type = aiTextureType::aiTextureType_UNKNOWN;
