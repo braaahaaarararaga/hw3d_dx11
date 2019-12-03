@@ -131,7 +131,7 @@ void Graphics::RenderBegin()
 
 void Graphics::RenderEnd()
 {
-	this->swapchain->Present(0, NULL);
+	this->swapchain->Present(0u, NULL);
 }
 
 IVertexShader * Graphics::CreateVertexShader(const std::string & filename)
