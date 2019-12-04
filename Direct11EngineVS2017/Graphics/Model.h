@@ -23,7 +23,7 @@ class Model
 {
 public:
 	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext,
-		 ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
+		 ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, IVertexShader * pVertexShader);
 	void Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix);
 
 
@@ -41,6 +41,7 @@ private:
 	ID3D11Device* device = nullptr;
 	ID3D11DeviceContext* deviceContext = nullptr;
 	ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader = nullptr;
+	IVertexShader * pVertexShader = nullptr;
 	std::string directory = "";
 
 

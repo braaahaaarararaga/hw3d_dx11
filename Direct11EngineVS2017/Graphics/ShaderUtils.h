@@ -10,11 +10,13 @@ public:
 	{
 		Invalid = -1,
 		Position,
-		Colour,
+		Color,
 		Normal,
-		UV,
+		TexCoord,
 		Tangent,
 		Bitangent,
+		BoneName,
+		BoneWeight,
 		TotalAttributes
 	};
 
@@ -26,9 +28,9 @@ public:
 		{
 			initialized = true;
 			s_mapConvert["POSITION"] = VertexAttribute::Position;
-			s_mapConvert["COLOR"] = VertexAttribute::Colour;
+			s_mapConvert["COLOR"] = VertexAttribute::Color;
 			s_mapConvert["NORMAL"] = VertexAttribute::Normal;
-			s_mapConvert["TEXCOORD"] = VertexAttribute::UV;
+			s_mapConvert["TEXCOORD"] = VertexAttribute::TexCoord;
 			s_mapConvert["TANGENT"] = VertexAttribute::Tangent;
 			s_mapConvert["BITANGENT"] = VertexAttribute::Bitangent;
 		}
@@ -50,9 +52,9 @@ public:
 		{
 			initialized = true;
 			s_mapConvert[VertexAttribute::Position] = "POSITION";
-			s_mapConvert[VertexAttribute::Colour] = "COLOR";
+			s_mapConvert[VertexAttribute::Color] = "COLOR";
 			s_mapConvert[VertexAttribute::Normal] = "NORMAL";
-			s_mapConvert[VertexAttribute::UV] = "TEXCOORD";
+			s_mapConvert[VertexAttribute::TexCoord] = "TEXCOORD";
 			s_mapConvert[VertexAttribute::Tangent] = "TANGENT";
 			s_mapConvert[VertexAttribute::Bitangent] = "BITANGENT";
 		}

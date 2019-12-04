@@ -49,7 +49,7 @@ void D3DVertexShader::CreateInputLayoutDescFromVertexShaderSignature(ID3D11Devic
 		D3D11_INPUT_ELEMENT_DESC elementDesc;
 		elementDesc.SemanticName = paramDesc.SemanticName;
 		elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-		elementDesc.InputSlot = 0;
+		elementDesc.InputSlot = i;
 		elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 		elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 		elementDesc.InstanceDataStepRate = 0;

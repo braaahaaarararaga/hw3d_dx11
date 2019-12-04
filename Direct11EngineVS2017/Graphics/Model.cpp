@@ -1,10 +1,12 @@
 ﻿#include "Model.h"
 
-bool Model::Initialize(const std::string& filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext,  ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+bool Model::Initialize(const std::string& filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext,  ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,
+	IVertexShader * pVertexShader)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
+	this->pVertexShader = pVertexShader;
 	try 
 	{
 		if (!this->LoadModel(filePath))
@@ -29,7 +31,7 @@ void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix)
 		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * world * viewProjectionMatrix; // Calculate world-view-projection matrix
 		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * world;
 		this->cb_vs_vertexshader->ApplyChanges();
-		meshes[i].Draw();
+		meshes[i].Draw(pVertexShader);
 	}
 }
 
@@ -68,29 +70,79 @@ void Model::ProcessNode(aiNode * node,const aiScene * scene, const XMMATRIX& par
 
 Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX& transformMatirx)
 {
-	std::vector<Vertex> vertices;
+	MeshParameters params;
 	std::vector<DWORD> indices;
 	Material material;
 
-	for (UINT i = 0; i < mesh->mNumVertices; i++)
+	if (mesh->HasPositions())
+		params.position.reserve(mesh->mNumVertices);
+	if (mesh->HasVertexColors(0))       
+		params.color.reserve(mesh->mNumVertices);
+	if (mesh->HasNormals())
+		params.normal.reserve(mesh->mNumVertices);
+	if (mesh->HasTextureCoords(0))
+		params.texcoord.reserve(mesh->mNumVertices);
+	if (mesh->HasTangentsAndBitangents())
+		params.tangent.reserve(mesh->mNumVertices);
+	if (mesh->HasTangentsAndBitangents())
+		params.bitangent.reserve(mesh->mNumVertices);
+	//if (mesh->HasBones())
+	//	params.bone_names.resize(mesh->mNumVertices, { 0, 0, 0, 0 });
+	//if (mesh->HasBones())                 
+	//	params.bone_weights.resize(mesh->mNumVertices, { 0.0f, 0.0f, 0.0f, 0.0f });
+
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		Vertex vertex;
+		DirectX::XMFLOAT3 position;
+		position.x = mesh->mVertices[i].x;
+		position.y = mesh->mVertices[i].y;
+		position.z = mesh->mVertices[i].z;
+		params.position.emplace_back(position);
 
-		vertex.pos.x = mesh->mVertices[i].x;
-		vertex.pos.y = mesh->mVertices[i].y;
-		vertex.pos.z = mesh->mVertices[i].z;
+		DirectX::XMFLOAT3 normal;
+		normal.x = mesh->mNormals[i].x;
+		normal.y = mesh->mNormals[i].y;
+		normal.z = mesh->mNormals[i].z;
+		params.normal.emplace_back(normal);
 
-		vertex.normal.x = mesh->mNormals[i].x;
-		vertex.normal.y = mesh->mNormals[i].y;
-		vertex.normal.z = mesh->mNormals[i].z;
-
-		if (mesh->mTextureCoords[0])
+		DirectX::XMFLOAT2 texcoord;
+		if (mesh->HasTextureCoords(0))
 		{
-			vertex.texCoord.x = (float)mesh->mTextureCoords[0][i].x;
-			vertex.texCoord.y = (float)mesh->mTextureCoords[0][i].y;
+			texcoord.x = mesh->mTextureCoords[0][i].x;
+			texcoord.y = mesh->mTextureCoords[0][i].y;
 		}
-		vertices.push_back(vertex);
+		else
+		{
+			texcoord = { 0.0f, 0.0f };
+		}
+		params.texcoord.emplace_back(texcoord);
+
+		if (mesh->HasTangentsAndBitangents())
+		{
+			DirectX::XMFLOAT3 tangent;
+			tangent.x = mesh->mTangents[i].x;
+			tangent.y = mesh->mTangents[i].y;
+			tangent.z = mesh->mTangents[i].z;
+			params.tangent.emplace_back(tangent);
+
+			DirectX::XMFLOAT3 bitangent;
+			bitangent.x = mesh->mBitangents[i].x;
+			bitangent.y = mesh->mBitangents[i].y;
+			bitangent.z = mesh->mBitangents[i].z;
+			params.bitangent.emplace_back(bitangent);
+		}
+
+		if (mesh->HasVertexColors(0))
+		{
+			DirectX::XMFLOAT4 color;
+			color.x = mesh->mColors[0]->r;
+			color.y = mesh->mColors[0]->g;
+			color.z = mesh->mColors[0]->b;
+			color.w = mesh->mColors[0]->a;
+			params.color.emplace_back(color);
+		}
 	}
+
 
 	for (UINT i = 0; i < mesh->mNumFaces; i++)
 	{
@@ -106,7 +158,7 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX& tr
 	LoadMaterialTextures(material, pMaterial, aiTextureType::aiTextureType_DIFFUSE, scene);
 
 
-	return Mesh(this->device, this->deviceContext, vertices, indices, material, transformMatirx);
+	return Mesh(this->device, this->deviceContext, params, indices, material, transformMatirx);
 }
 
 TextureStorageType Model::DetermineTextureStorageType(const aiScene * scene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -130,7 +182,7 @@ TextureStorageType Model::DetermineTextureStorageType(const aiScene * scene, aiM
 			return TextureStorageType::EmbeddedIndexNonCompressed;
 		}
 	}
-	// check if texture is an embedded texture but no indexed (path will be the texture's name insead of #)
+	// check if texture is an embedded texture but no indexed (path will be the texture's name instead of #)
 	if (auto pTex = scene->GetEmbeddedTexture(texturePath.c_str()))
 	{
 		if (pTex->mHeight == 0)
