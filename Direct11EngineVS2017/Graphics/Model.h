@@ -3,6 +3,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
+#include "Material.h"
 #include "Mesh.h"
 
 using namespace DirectX;
@@ -34,7 +35,7 @@ private:
 	void ProcessNode(aiNode* node,const aiScene* scene, const XMMATRIX& parentTransformMatirx);
 	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene, const XMMATRIX& transformMatirx);
 	TextureStorageType DetermineTextureStorageType(const aiScene* scene, aiMaterial* pMat, unsigned int index, aiTextureType textureType);
-	std::vector<Resource<Texture>> LoadMaterialTextures(aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene);
+	void LoadMaterialTextures(Material& material, aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene);
 	int GetTextureIndex(aiString* pStr);
 
 	ID3D11Device* device = nullptr;

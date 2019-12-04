@@ -54,17 +54,17 @@ public:
 		return &this->stride;
 	}
 
-	HRESULT Initialize(ID3D11Device *device, T* data, UINT vertexCount)
+	HRESULT Initialize(ID3D11Device *device, T* data, UINT size)
 	{
 		if (buffer.Get() != nullptr)
 			buffer.Reset();
-		this->vertexCount = vertexCount;
+		this->vertexCount = size;
 
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
 
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = stride * vertexCount;
+		vertexBufferDesc.ByteWidth = stride * size;
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
