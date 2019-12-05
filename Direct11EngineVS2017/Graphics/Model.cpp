@@ -156,7 +156,18 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX& tr
 
 	aiMaterial* pMaterial = scene->mMaterials[mesh->mMaterialIndex];
 	LoadMaterialTextures(material, pMaterial, aiTextureType::aiTextureType_DIFFUSE, scene);
+	LoadMaterialTextures(material, pMaterial, aiTextureType::aiTextureType_NORMALS, scene);
+	LoadMaterialTextures(material, pMaterial, aiTextureType::aiTextureType_SPECULAR, scene);
+	LoadMaterialTextures(material, pMaterial, aiTextureType::aiTextureType_EMISSIVE, scene);
+	LoadMaterialTextures(material, pMaterial, aiTextureType::aiTextureType_AMBIENT, scene);
 
+	float shininess = 0.0f;
+	pMaterial->Get(AI_MATKEY_SHININESS, shininess);
+	if (shininess <= 1.0f)
+	{
+		shininess = 32.0f;
+	}
+	material.SetShininess(shininess);
 
 	return Mesh(this->device, this->deviceContext, params, indices, material, transformMatirx);
 }
