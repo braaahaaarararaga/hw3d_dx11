@@ -91,15 +91,19 @@ void Graphics::RenderText()
 
 void Graphics::SetLight()
 {
-	this->cb_ps_light.data.dynamicLightColor = light.lightColor;
-	this->cb_ps_light.data.dynamicLightStrength = light.lightStrenght;
-	this->cb_ps_light.data.dynamicPosition = light.GetPositionFloat3();
-	this->cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
-	this->cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
-	this->cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
+	cb_ps_common.data.eyePos = Camera3D.GetPositionFloat3();
+	cb_ps_common.ApplyChanges();
+	deviceContext->PSSetConstantBuffers(1, 1, cb_ps_common.GetAddressOf());
 
-	this->cb_ps_light.ApplyChanges();
-	this->deviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
+	cb_ps_light.data.dynamicLightColor = light.lightColor;
+	cb_ps_light.data.dynamicLightStrength = light.lightStrenght;
+	cb_ps_light.data.dynamicPosition = light.GetPositionFloat3();
+	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
+	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
+	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
+
+	cb_ps_light.ApplyChanges();
+	deviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 }
 
 void Graphics::RenderBegin()
@@ -334,18 +338,22 @@ bool Graphics::InitializeScene()
 
 	hr = this->cb_ps_light.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+
+	hr = this->cb_ps_common.Initialize(this->device.Get(), this->deviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+
 	// Initialize Model(s)
 	
 	this->cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	this->cb_ps_light.data.ambientLightStrength = 1.0f;
 	
 
-	if (!gameObj.Initialize("Data\\Objects\\Sitting.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	if (!gameObj.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
-	gameObj.SetScale(0.07f, 0.07f, 0.07f);
+	//gameObj.SetScale(0.07f, 0.07f, 0.07f);
 	if (!gameObj2.Initialize("Data\\Objects\\akai_e_espiritu.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");

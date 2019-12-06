@@ -28,7 +28,7 @@ void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix)
 	
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * world * viewProjectionMatrix; // Calculate world-view-projection matrix
+		this->cb_vs_vertexshader->data.vpMatrix = viewProjectionMatrix; // Calculate world-view-projection matrix
 		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * world;
 		this->cb_vs_vertexshader->ApplyChanges();
 		meshes[i].Draw(pVertexShader);
@@ -42,7 +42,10 @@ bool Model::LoadModel(const std::string & filePath)
 
 	const aiScene* pScene = importer.ReadFile(filePath,
 		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_ConvertToLeftHanded |
+		aiProcess_GenNormals |
+		aiProcess_CalcTangentSpace);
 
 	if (pScene == NULL)
 		return false;

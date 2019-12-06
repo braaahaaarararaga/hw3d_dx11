@@ -1,9 +1,11 @@
 struct PS_INPUT
 {
-	float4 inPosition : SV_POSITION;
-	float2 inTexCoord : TEXCOORD;
-	float3 inNormal : NORMAL;
-	float3 inWorldPos : WORLD_POSITION;
+    float4 inPosition : SV_POSITION;
+    float3 inWorldPos : WORLD_POSITION;
+    float3 inNormal : NORMAL;
+    float3 inTangent : TANGENT;
+    float3 inBitangent : BITANGENT;
+    float2 inTexCoord : TEXCOORD;
 };
 
 Texture2D objTexture : TEXTURE: register(t0);

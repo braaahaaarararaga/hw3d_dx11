@@ -54,20 +54,20 @@ void Mesh::Bind(IVertexShader * pVertexShader) const
 		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
 		slot++;
 	}
-	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::TexCoord))
-	{
-		assert(vBufTexCoord.VertexCount() > 0, "Shader requires model to have vertex UV data");
-		ID3D11Buffer* pVertexBuffer = vBufTexCoord.Get();
-		UINT stride = (UINT)vBufTexCoord.Stride();
-		UINT offset = 0;
-		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
-		slot++;
-	}
 	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::Normal))
 	{
 		assert(vBufNormal.VertexCount() > 0, "Shader requires model to have vertex normal data");
 		ID3D11Buffer* pVertexBuffer = vBufNormal.Get();
 		UINT stride = (UINT)vBufNormal.Stride();
+		UINT offset = 0;
+		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
+		slot++;
+	}
+	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::TexCoord))
+	{
+		assert(vBufTexCoord.VertexCount() > 0, "Shader requires model to have vertex UV data");
+		ID3D11Buffer* pVertexBuffer = vBufTexCoord.Get();
+		UINT stride = (UINT)vBufTexCoord.Stride();
 		UINT offset = 0;
 		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
 		slot++;

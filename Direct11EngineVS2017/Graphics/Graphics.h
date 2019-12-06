@@ -51,6 +51,7 @@ private:
 	PixelShader_ pixelshader_nolight;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
+	ConstantBuffer<CB_PS_common> cb_ps_common;
 
 	RenderableGameObject gameObj;
 	RenderableGameObject gameObj2;

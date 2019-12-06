@@ -12,40 +12,53 @@ cbuffer lightBuffer : register(b0)
 	float dynamicLightAttenuation_c;
 }
 
+cbuffer commonBuffer : register(b1)
+{
+    float3 eyePos;
+    float pad;
+}
+
 struct PS_INPUT
 {
 	float4 inPosition : SV_POSITION;
-	float2 inTexCoord : TEXCOORD;
-	float3 inNormal : NORMAL;
 	float3 inWorldPos : WORLD_POSITION;
+    float3 inNormal : NORMAL;
+    float3 inTangent : TANGENT;
+    float3 inBitangent : BITANGENT;
+	float2 inTexCoord : TEXCOORD;
 };
 
-Texture2D objTexture : TEXTURE: register(t0);
+Texture2D diffuseTexture : TEXTURE: register(t0);
+Texture2D normalTexture : TEXTURE: register(t1);
 SamplerState objSamplerState : SAMPLER: register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-	float3 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
+	float3 sampleColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
 	//float3 sampleColor = input.inNormal;
-
+    
+    float3 normal = input.inNormal;
+    // do normal mapping
+    float3 normal_sample = normalTexture.Sample(objSamplerState, input.inTexCoord).xyz;
+    normal = normal_sample * 2.0 - 1.0;
+    //normal.y = -normal.y;
+    
+    float3x3 tbn = float3x3(normalize(input.inTangent), normalize(input.inBitangent), normalize(input.inNormal));
+    normal = normalize(mul(normal, tbn));
+    
+    float3 worldPos = input.inWorldPos.xyz;
+    float3 viewDir = normalize(eyePos - worldPos);
+    
+    
 	float3 ambientLight = ambientLightColor * ambientLightStrength;
-
 	float3 appliedLight = ambientLight;
-
 	float3 vectorToLight = normalize(dynamicLightPosition - input.inWorldPos);
-
-	float3 diffuseLightIntensity = max(dot(vectorToLight, input.inNormal), 0);
-
+	float3 diffuseLightIntensity = max(dot(vectorToLight, normal), 0);
 	float distanceToLight = distance(dynamicLightPosition, input.inWorldPos);
-
 	float attenuationFactor = 1 / (dynamicLightAttenuation_a + dynamicLightAttenuation_b * distanceToLight + dynamicLightAttenuation_c * pow(distanceToLight , 2));
-
 	diffuseLightIntensity *= attenuationFactor;
-
 	float3 diffuseLight = diffuseLightIntensity * dynamicStrength * dynamicLight;
-
 	appliedLight += diffuseLight;
-
 	float3 finalColor = sampleColor * appliedLight;
 
 	return float4(finalColor, 1.0f);

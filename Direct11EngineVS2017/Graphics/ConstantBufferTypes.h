@@ -3,7 +3,7 @@
 
 struct CB_VS_vertexshader
 {
-	DirectX::XMMATRIX wvpMatrix;
+	DirectX::XMMATRIX vpMatrix;
 	DirectX::XMMATRIX worldMatrix;
 };
 
@@ -23,4 +23,10 @@ struct CB_PS_light
 	float dynamicLightAttenuation_a;
 	float dynamicLightAttenuation_b;
 	float dynamicLightAttenuation_c;
+};
+
+struct CB_PS_common
+{
+	DirectX::XMFLOAT3 eyePos;
+	float pad;
 };
