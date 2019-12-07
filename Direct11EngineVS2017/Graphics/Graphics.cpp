@@ -321,16 +321,16 @@ bool Graphics::InitializeScene()
 	
 	
 
-		
+	HRESULT hr;
 		// load texture
-	HRESULT hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_grass.jpg", nullptr, grassTexture.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
-
-	hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\pinksquare.jpg", nullptr, pinkTexture.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
-
-	hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_pavement.jpg", nullptr, pavementTexture.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
+	// hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_grass.jpg", nullptr, grassTexture.GetAddressOf());
+	// COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
+	// 
+	// hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\pinksquare.jpg", nullptr, pinkTexture.GetAddressOf());
+	// COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
+	// 
+	// hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_pavement.jpg", nullptr, pavementTexture.GetAddressOf());
+	// COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
 
 	//initialize constant buffer
 	hr = this->cb_vs_vertexshader.Initialize(this->device.Get(), this->deviceContext.Get());
@@ -348,13 +348,14 @@ bool Graphics::InitializeScene()
 	this->cb_ps_light.data.ambientLightStrength = 1.0f;
 	
 
-	if (!gameObj.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	if (!gameObj.Initialize("Data\\Objects\\Sitting.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
-	//gameObj.SetScale(0.07f, 0.07f, 0.07f);
-	if (!gameObj2.Initialize("Data\\Objects\\akai_e_espiritu.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	gameObj.SetScale(0.07f, 0.07f, 0.07f);
+	gameObj.AdjustPosition(0.0f, 0.0f, 3.0f);
+	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
