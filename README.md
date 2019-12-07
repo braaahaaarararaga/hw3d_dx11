@@ -2,8 +2,7 @@
 
 IDE: Visual Studio 2017
 
-## Directories
-- **ThidParty** - Contains all the dependencies of the engine:
+## ThidParty Libs
     - [Assimp](https://github.com/assimp/assimp)
         Mesh/scene loading.
     - [DirectXTK](https://github.com/Microsoft/DirectXTK)
