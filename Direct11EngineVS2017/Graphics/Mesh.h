@@ -34,6 +34,7 @@ public:
 
 	void Draw(IVertexShader* pVertexShader);
 	const DirectX::XMMATRIX& GetTransformMatrix();
+	bool HasTangentsAndBitangents() const { return vBufTangent.VertexCount() > 0; }
 private:
 	VertexBuffer<DirectX::XMFLOAT3> vBufPosition;
 	VertexBuffer<DirectX::XMFLOAT4> vBufColor;

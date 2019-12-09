@@ -41,11 +41,9 @@ bool Model::LoadModel(const std::string & filePath)
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |
-		aiProcess_JoinIdenticalVertices |
 		aiProcess_ConvertToLeftHanded |
-		aiProcess_GenNormals |
-		aiProcess_CalcTangentSpace);
+		aiProcessPreset_TargetRealtime_Fast |
+		aiProcess_TransformUVCoords);
 
 	if (pScene == NULL)
 		return false;

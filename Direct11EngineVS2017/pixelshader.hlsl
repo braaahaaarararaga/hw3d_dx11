@@ -1,3 +1,5 @@
+//#pragma pack_matrix( row_major )
+
 cbuffer lightBuffer : register(b0)
 {
 	float3 ambientLightColor;
@@ -35,13 +37,13 @@ SamplerState objSamplerState : SAMPLER: register(s0);
 float4 main(PS_INPUT input) : SV_TARGET
 {
 	float3 sampleColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
-	//float3 sampleColor = input.inNormal;
+    sampleColor = float3(1,1,1);
     
     float3 normal = input.inNormal;
     // do normal mapping
     float3 normal_sample = normalTexture.Sample(objSamplerState, input.inTexCoord).xyz;
     normal = normal_sample * 2.0 - 1.0;
-    //normal.y = -normal.y;
+    normal.y = -normal.y;
     
     float3x3 tbn = float3x3(normalize(input.inTangent), normalize(input.inBitangent), normalize(input.inNormal));
     normal = normalize(mul(normal, tbn));
@@ -49,6 +51,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 worldPos = input.inWorldPos.xyz;
     float3 viewDir = normalize(eyePos - worldPos);
     
+    //sampleColor = normal;
     
 	float3 ambientLight = ambientLightColor * ambientLightStrength;
 	float3 appliedLight = ambientLight;

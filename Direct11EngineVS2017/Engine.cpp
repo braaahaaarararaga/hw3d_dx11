@@ -68,6 +68,10 @@ void Engine::Update()
 		this->gfx.light.SetPosition(lightPosition);
 		this->gfx.light.SetRotation(this->gfx.Camera3D.GetRotationFloat3());
 	}
+	if (input.keyboard.KeyIsPressed('J'))
+	{
+		gfx.gameObj2.AdjustRotation(0.0f, 0.01f * dt, 0.0f);
+	}
 }
 
 void Engine::RenderFrame()

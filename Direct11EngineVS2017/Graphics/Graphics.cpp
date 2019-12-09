@@ -29,13 +29,14 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 void Graphics::RenderFrame()
 {
-	{	// pinkSquare
+	{	
 		this->gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-		//Square
 	}
-	{	// pinkSquare
+	{	
 		this->gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-		//Square
+	}
+	{	
+		this->gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
 		this->deviceContext->PSSetShader(this->pixelshader_nolight.GetShader(), NULL, 0);
@@ -52,10 +53,10 @@ void Graphics::RenderImGui()
 	ImGui::NewFrame();
 	// Create imGui Test Window
 	ImGui::Begin("Light Controls");
-	ImGui::DragFloat3("Ambient Light", &this->cb_ps_light.data.ambientLightColor.x, 0.01, 0.0f, 1.0f);
+	ImGui::ColorEdit3("Ambient Light", &this->cb_ps_light.data.ambientLightColor.x);
 	ImGui::DragFloat("Ambient Strength", &this->cb_ps_light.data.ambientLightStrength, 0.01, 0.0f, 1.0f);
 	ImGui::NewLine();
-	ImGui::DragFloat3("Dynamic Light Color", &this->light.lightColor.x, 0.01, 0.0f, 10.0f);
+	ImGui::ColorEdit3("Dynamic Light Color", &this->light.lightColor.x);
 	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.01, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light.attenuation_a, 0.01, 0.1f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.01, 0.0f, 10.0f);
@@ -269,12 +270,13 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
 
 	//Create sampler description for sampler state
-	CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	CD3D11_SAMPLER_DESC samplerDesc(D3D11_DEFAULT);
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
 
-	hr = this->device->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf());
+	hr = this->device->CreateSamplerState(&samplerDesc, this->samplerState.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 	
 	return true;
@@ -348,7 +350,7 @@ bool Graphics::InitializeScene()
 	this->cb_ps_light.data.ambientLightStrength = 1.0f;
 	
 
-	if (!gameObj.Initialize("Data\\Objects\\Sitting.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
@@ -360,6 +362,12 @@ bool Graphics::InitializeScene()
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
+	if (!gameObj3.Initialize("Data\\Objects\\rock\\rock.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	{
+		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
+		return false;
+	}
+	gameObj3.AdjustPosition(3.0f, 0.0f, 0.0f);
 
 	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
 	{

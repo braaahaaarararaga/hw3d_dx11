@@ -148,7 +148,10 @@ void Mesh::SetData(MeshParameters& params)
 
 void Mesh::Draw(IVertexShader * pVertexShader)
 {
-	this->deviceContext->PSSetShaderResources(0, 1, material.GetDiffuseTexture()->GetShaderResourceView());
+	if (material.GetDiffuseTexture() != nullptr)
+		this->deviceContext->PSSetShaderResources(0, 1, material.GetDiffuseTexture()->GetShaderResourceView());
+	if (material.GetNormalTexture() != nullptr)
+		this->deviceContext->PSSetShaderResources(1, 1, material.GetNormalTexture()->GetShaderResourceView());
 
 	Bind(pVertexShader);
 	this->deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);

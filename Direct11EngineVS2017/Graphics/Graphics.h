@@ -33,6 +33,7 @@ public:
 
 	IVertexShader* CreateVertexShader(const std::string& filename);
 
+	RenderableGameObject gameObj2;
 	Camera3D Camera3D;
 	Light light;
 private:
@@ -54,7 +55,7 @@ private:
 	ConstantBuffer<CB_PS_common> cb_ps_common;
 
 	RenderableGameObject gameObj;
-	RenderableGameObject gameObj2;
+	RenderableGameObject gameObj3;
 
 	ComPtr<ID3D11DepthStencilView> depthStencilView;
 	ComPtr<ID3D11Texture2D> depthStencilBuffer;
