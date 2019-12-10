@@ -37,19 +37,18 @@ SamplerState objSamplerState : SAMPLER: register(s0);
 float4 main(PS_INPUT input) : SV_TARGET
 {
 	float3 sampleColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
-    sampleColor = float3(1,1,1);
+    //sampleColor = float3(1,1,1);
     
     float3 normal = input.inNormal;
     // do normal mapping
     float3 normal_sample = normalTexture.Sample(objSamplerState, input.inTexCoord).xyz;
     normal = normal_sample * 2.0 - 1.0;
-    normal.y = -normal.y;
+    //normal.y = -normal.y;
     
     float3x3 tbn = float3x3(normalize(input.inTangent), normalize(input.inBitangent), normalize(input.inNormal));
     normal = normalize(mul(normal, tbn));
     
     float3 worldPos = input.inWorldPos.xyz;
-    float3 viewDir = normalize(eyePos - worldPos);
     
     //sampleColor = normal;
     
@@ -62,7 +61,16 @@ float4 main(PS_INPUT input) : SV_TARGET
 	diffuseLightIntensity *= attenuationFactor;
 	float3 diffuseLight = diffuseLightIntensity * dynamicStrength * dynamicLight;
 	appliedLight += diffuseLight;
-	float3 finalColor = sampleColor * appliedLight;
+    
+    float3 refv = reflect(vectorToLight, normal); // ”½ŽË‚ðŒvŽZ‚·‚é
+    refv = normalize(refv);
+    float3 eyev = normalize(eyePos - worldPos);
+    //float3 eyev = worldPos - eyePos;
+    float specular = -dot(eyev, refv);
+    specular = saturate(specular);
+    specular = pow(specular, 32);
+    
+    float3 finalColor = sampleColor * appliedLight + specular;
 
 	return float4(finalColor, 1.0f);
 }
