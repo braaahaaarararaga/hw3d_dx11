@@ -58,9 +58,6 @@ float4 main(PS_INPUT input) : SV_TARGET
 	float3 diffuseLightIntensity = max(dot(vectorToLight, normal), 0);
 	float distanceToLight = distance(dynamicLightPosition, input.inWorldPos);
 	float attenuationFactor = 1 / (dynamicLightAttenuation_a + dynamicLightAttenuation_b * distanceToLight + dynamicLightAttenuation_c * pow(distanceToLight , 2));
-	diffuseLightIntensity *= attenuationFactor;
-	float3 diffuseLight = diffuseLightIntensity * dynamicStrength * dynamicLight;
-	appliedLight += diffuseLight;
     
     float3 refv = reflect(vectorToLight, normal); // ”½ŽË‚ðŒvŽZ‚·‚é
     refv = normalize(refv);
@@ -70,7 +67,13 @@ float4 main(PS_INPUT input) : SV_TARGET
     specular = saturate(specular);
     specular = pow(specular, 32);
     
-    float3 finalColor = sampleColor * appliedLight + specular;
+    diffuseLightIntensity = (diffuseLightIntensity + specular) * attenuationFactor;
+	float3 diffuseLight = diffuseLightIntensity * dynamicStrength * dynamicLight;
+	appliedLight += diffuseLight;
+    
+    
+    
+    float3 finalColor = sampleColor * appliedLight;
 
 	return float4(finalColor, 1.0f);
 }
