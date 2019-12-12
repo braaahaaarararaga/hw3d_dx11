@@ -36,7 +36,7 @@ SamplerState objSamplerState : SAMPLER: register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-	float3 sampleColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
+    float3 sampleColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
     //sampleColor = float3(1,1,1);
     
     float3 normal = input.inNormal;
@@ -52,28 +52,36 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     //sampleColor = normal;
     
-	float3 ambientLight = ambientLightColor * ambientLightStrength;
-	float3 appliedLight = ambientLight;
-	float3 vectorToLight = normalize(dynamicLightPosition - input.inWorldPos);
-	float3 diffuseLightIntensity = max(dot(vectorToLight, normal), 0);
-	float distanceToLight = distance(dynamicLightPosition, input.inWorldPos);
-	float attenuationFactor = 1 / (dynamicLightAttenuation_a + dynamicLightAttenuation_b * distanceToLight + dynamicLightAttenuation_c * pow(distanceToLight , 2));
+    float3 ambientLight = ambientLightColor * ambientLightStrength;
+    float3 appliedLight = ambientLight;
+    float3 vectorToLight = normalize(dynamicLightPosition - input.inWorldPos);
+    float3 diffuseLightIntensity = max(dot(vectorToLight, normal), 0);
+    float distanceToLight = distance(dynamicLightPosition, input.inWorldPos);
+    float attenuationFactor = 1 / (dynamicLightAttenuation_a + dynamicLightAttenuation_b * distanceToLight + dynamicLightAttenuation_c * pow(distanceToLight, 2));
     
-    float3 refv = reflect(vectorToLight, normal); // ”½ŽË‚ðŒvŽZ‚·‚é
+    float3 refv = reflect(vectorToLight, normal);
     refv = normalize(refv);
     float3 eyev = normalize(eyePos - worldPos);
-    //float3 eyev = worldPos - eyePos;
     float specular = -dot(eyev, refv);
     specular = saturate(specular);
     specular = pow(specular, 32);
     
     diffuseLightIntensity = (diffuseLightIntensity + specular) * attenuationFactor;
-	float3 diffuseLight = diffuseLightIntensity * dynamicStrength * dynamicLight;
-	appliedLight += diffuseLight;
+    float3 diffuseLight = diffuseLightIntensity * dynamicStrength * dynamicLight;
+    appliedLight += diffuseLight;
     
     
     
     float3 finalColor = sampleColor * appliedLight;
 
-	return float4(finalColor, 1.0f);
+    return float4(finalColor, 1.0f);
 }
+
+// height map 
+// float3 eyev = inWorldPosition - CameraPosition;
+// eyev = normalize(eyev);
+// matrix mat = { inBitangent, -inTangent, inNormal, float4(0,0,0,0)};
+// matrix invmat = transpose(mat);
+// float3 invEyev = mul(eyev, invmat).xyz;
+// float heightMap = (heightTexture.Sample(..).radians - 0.5 * 0.2;
+// inTexCoord += invEyev.xy * heightMap;
