@@ -50,6 +50,7 @@ private:
 	std::unique_ptr<D3DVertexShader> d3dvertexshader;
 	PixelShader_ pixelshader;
 	PixelShader_ pixelshader_nolight;
+	PixelShader_ pixelshader_heightmapping;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 	ConstantBuffer<CB_PS_common> cb_ps_common;

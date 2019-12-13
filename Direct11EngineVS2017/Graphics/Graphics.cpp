@@ -30,17 +30,18 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 void Graphics::RenderFrame()
 {
 	{	
-		this->gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{	
-		this->gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{	
-		this->gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		deviceContext->PSSetShader(pixelshader_heightmapping.GetShader(), NULL, 0);
+		gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
-		this->deviceContext->PSSetShader(this->pixelshader_nolight.GetShader(), NULL, 0);
-		this->light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		deviceContext->PSSetShader(this->pixelshader_nolight.GetShader(), NULL, 0);
+		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 
 }
@@ -311,6 +312,10 @@ bool Graphics::InitializeShaders()
 		return false;
 	}
 	if (!pixelshader_nolight.Initialize(this->device, shaderfolder + L"pixelshader_nolight.cso"))
+	{
+		return false;
+	}
+	if (!pixelshader_heightmapping.Initialize(this->device, shaderfolder + L"PixelShader_HeightMapping.cso"))
 	{
 		return false;
 	}

@@ -77,11 +77,3 @@ float4 main(PS_INPUT input) : SV_TARGET
     return float4(finalColor, 1.0f);
 }
 
-// height map 
-// float3 eyev = inWorldPosition - CameraPosition;
-// eyev = normalize(eyev);
-// matrix mat = { inBitangent, -inTangent, inNormal, float4(0,0,0,0)};
-// matrix invmat = transpose(mat);
-// float3 invEyev = mul(eyev, invmat).xyz;
-// float heightMap = (heightTexture.Sample(..).radians - 0.5 * 0.2;
-// inTexCoord += invEyev.xy * heightMap;
