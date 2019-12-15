@@ -1,19 +1,32 @@
+#pragma pack_matrix( row_major )
+#include "CommonPS.hlsl"
+
+cbuffer Material : register(b2)
+{
+    Material Mat;
+}
+
 struct PS_INPUT
 {
     float4 inPosition : SV_POSITION;
-    float3 inWorldPos : WORLD_POSITION;
-    float3 inNormal : NORMAL;
-    float3 inTangent : TANGENT;
-    float3 inBitangent : BITANGENT;
     float2 inTexCoord : TEXCOORD;
 };
 
-Texture2D objTexture : TEXTURE: register(t0);
+Texture2D diffuseTexture : TEXTURE : register(t0);
+Texture2D normalTexture : TEXTURE : register(t1);
+Texture2D specularTexture : TEXTURE : register(t2);
+Texture2D emissiveTexture : TEXTURE : register(t3);
 SamplerState objSamplerState : SAMPLER: register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-	float3 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
+    Material material = Mat;
+    
+    if (material.HasDiffuseTexture)
+    {
+        material.DiffuseColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
+    }
+    float3 sampleColor = material.DiffuseColor;
 
 	return float4(sampleColor, 1.0f);
 }

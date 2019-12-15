@@ -293,7 +293,7 @@ void Model::LoadMaterialTextures(Material& material, aiMaterial * pMaterial, aiT
 					reinterpret_cast<char*>(pAiTex->pcData),
 					pAiTex->mWidth,
 					textureType);
-				break; 
+				break;
 			}
 			case TextureStorageType::EmbeddedNonCompressed:
 			{
@@ -313,29 +313,29 @@ void Model::LoadMaterialTextures(Material& material, aiMaterial * pMaterial, aiT
 			}
 
 		}
-	}
 
 
-	switch (textureType)
-	{
-	case aiTextureType_AMBIENT:
-		material.SetAmbientTexture(std::move(pTexture));
-		break;
-	case aiTextureType_DIFFUSE:
-		material.SetDiffuseTexture(std::move(pTexture));
-		break;
-	case aiTextureType_SPECULAR:
-		material.SetSpecularTexture(std::move(pTexture));
-		break;
-	case aiTextureType_EMISSIVE:
-		material.SetEmissiveTexture(std::move(pTexture));
-		break;
-	case aiTextureType_NORMALS:
-	case aiTextureType_HEIGHT:
-		material.SetNormalTexture(std::move(pTexture));
-		break;
-	default:
-		assert(false, "Unknown texture type");
+		switch (textureType)
+		{
+		case aiTextureType_AMBIENT:
+			material.SetAmbientTexture(std::move(pTexture));
+			break;
+		case aiTextureType_DIFFUSE:
+			material.SetDiffuseTexture(std::move(pTexture));
+			break;
+		case aiTextureType_SPECULAR:
+			material.SetSpecularTexture(std::move(pTexture));
+			break;
+		case aiTextureType_EMISSIVE:
+			material.SetEmissiveTexture(std::move(pTexture));
+			break;
+		case aiTextureType_NORMALS:
+		case aiTextureType_HEIGHT:
+			material.SetNormalTexture(std::move(pTexture));
+			break;
+		default:
+			assert(false, "Unknown texture type");
+		}
 	}
 }
 

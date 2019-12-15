@@ -41,6 +41,7 @@ void Graphics::RenderFrame()
 	}
 	{
 		deviceContext->PSSetShader(this->pixelshader_nolight.GetShader(), NULL, 0);
+		deviceContext->VSSetShader(this->d3dvertexshader_nolight.get()->GetShader(device.Get()), NULL, 0);
 		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 
@@ -307,6 +308,7 @@ bool Graphics::InitializeShaders()
 
 	
 	d3dvertexshader = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "vertexShader.cso");
+	d3dvertexshader_nolight = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_nolight.cso");
 	if (!pixelshader.Initialize(this->device, shaderfolder + L"pixelshader.cso"))
 	{
 		return false;
@@ -377,7 +379,7 @@ bool Graphics::InitializeScene()
 	}
 	gameObj3.AdjustPosition(3.0f, 0.0f, 0.0f);
 
-	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
+	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader_nolight.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
