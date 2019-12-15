@@ -24,11 +24,11 @@ public:
 
 	DirectX::XMFLOAT3 GetAmbientColour() const { return m_colAmbient; }
 	void SetAmbientColour(float r, float g, float b) { m_colAmbient = { r, g, b }; }
-	DirectX::XMFLOAT3 GetDiffuseColour() const { return m_colDiffuse; }
+	DirectX::XMFLOAT3 GetDiffuseColor() const { return m_colDiffuse; }
 	void SetDiffuseColour(float r, float g, float b) { m_colDiffuse = { r, g, b }; }
-	DirectX::XMFLOAT3 GetSpecularColour() const { return m_colSpecular; }
+	DirectX::XMFLOAT3 GetSpecularColor() const { return m_colSpecular; }
 	void SetSpecularColour(float r, float g, float b) { m_colSpecular = { r, g, b }; }
-	DirectX::XMFLOAT3 GetEmissiveColour() const { return m_colEmissive; }
+	DirectX::XMFLOAT3 GetEmissiveColor() const { return m_colEmissive; }
 	void SetEmissiveColour(float r, float g, float b) { m_colEmissive = { r, g, b }; }
 
 	float GetOpacity() const { return m_flOpacity; }

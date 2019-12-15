@@ -349,32 +349,35 @@ bool Graphics::InitializeScene()
 	hr = this->cb_ps_common.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
 
+	hr = this->cb_ps_material.Initialize(this->device.Get(), this->deviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+
 	// Initialize Model(s)
 	
 	this->cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	this->cb_ps_light.data.ambientLightStrength = 1.0f;
 	
 
-	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
 	gameObj.SetScale(0.07f, 0.07f, 0.07f);
 	gameObj.AdjustPosition(0.0f, 0.0f, 3.0f);
-	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
-	if (!gameObj3.Initialize("Data\\Objects\\rock\\rock.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	if (!gameObj3.Initialize("Data\\Objects\\rock\\rock.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
 	gameObj3.AdjustPosition(3.0f, 0.0f, 0.0f);
 
-	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, d3dvertexshader.get()))
+	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;

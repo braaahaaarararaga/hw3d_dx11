@@ -268,19 +268,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="vertexShader.hlsl">
+    <FxCompile Include="Graphics\Shaders\PixelShader_HeightMapping.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\pixelshader_nolight.hlsl">
+    <FxCompile Include="Graphics\Shaders\pixelshader_nolight.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\pixelshader.hlsl">
+    <FxCompile Include="Graphics\Shaders\pixelshader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\PixelShader_HeightMapping.hlsl">
+    <FxCompile Include="Graphics\Shaders\vertexShader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\VertexShaderAnim.hlsl" />
+    <FxCompile Include="Graphics\Shaders\VertexShaderAnim.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\CommonPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct11EngineVS2017.rc">

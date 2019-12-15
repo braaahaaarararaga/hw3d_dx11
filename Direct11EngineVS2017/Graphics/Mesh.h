@@ -25,10 +25,11 @@ struct MeshParameters
 class Mesh
 {
 public:
-	Mesh(ID3D11Device * device, ID3D11DeviceContext* deviceContext, MeshParameters& params, std::vector<DWORD>& indices, Material& material, const DirectX::XMMATRIX& matrixTransform);
+	Mesh(ID3D11Device * device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_PS_material>& cb_ps_material, MeshParameters& params, std::vector<DWORD>& indices, Material& material, const DirectX::XMMATRIX& matrixTransform);
 	Mesh(const Mesh& mesh);
 
 	void Bind(IVertexShader* pVertexShader) const;
+	void BindMaterial() const;
 
 	void SetData(MeshParameters& params);
 
@@ -45,6 +46,7 @@ private:
 	VertexBuffer<DirectX::XMFLOAT4> vBufBoneNames;
 	VertexBuffer<DirectX::XMFLOAT4> vBufBoneWeights;
 	IndexBuffer indexBuffer;
+	ConstantBuffer<CB_PS_material>* cb_ps_material;
 	ID3D11Device* device;
 	ID3D11DeviceContext* deviceContext;
 	Material material;

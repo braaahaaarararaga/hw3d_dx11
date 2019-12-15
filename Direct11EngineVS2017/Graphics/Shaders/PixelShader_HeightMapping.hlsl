@@ -1,4 +1,5 @@
 #pragma pack_matrix( row_major )
+#include "CommonPS.hlsl"
 
 cbuffer lightBuffer : register(b0)
 {
@@ -20,6 +21,12 @@ cbuffer commonBuffer : register(b1)
 	float pad;
 }
 
+cbuffer Material : register(b2)
+{
+    Material Mat;
+}
+
+
 struct PS_INPUT
 {
 	float4 inPosition : SV_POSITION;
@@ -32,6 +39,8 @@ struct PS_INPUT
 
 Texture2D diffuseTexture : TEXTURE : register(t0);
 Texture2D normalTexture : TEXTURE : register(t1);
+Texture2D specularTexture : TEXTURE : register(t2);
+Texture2D emissiveTexture : TEXTURE : register(t3);
 SamplerState objSamplerState : SAMPLER : register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET

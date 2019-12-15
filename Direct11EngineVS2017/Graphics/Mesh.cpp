@@ -1,10 +1,11 @@
 ﻿#include "Mesh.h"
 #include "VertexShader.h"
 
-Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, MeshParameters& params, std::vector<DWORD>& indices, Material& material, const DirectX::XMMATRIX& matrixTransform)
+Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_PS_material>& cb_ps_material, MeshParameters& params, std::vector<DWORD>& indices, Material& material, const DirectX::XMMATRIX& matrixTransform)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
+	this->cb_ps_material = &cb_ps_material;
 	this->material = material;
 	this->transformMatrix = matrixTransform;
 	SetData(params);
@@ -27,6 +28,7 @@ Mesh::Mesh(const Mesh & mesh)
 	this->vBufBitangent = mesh.vBufBitangent;
 	this->vBufBoneNames = mesh.vBufBoneNames;
 	this->vBufBoneWeights = mesh.vBufBoneWeights;
+	this->cb_ps_material = mesh.cb_ps_material;
 	this->material = mesh.material;
 	this->transformMatrix = mesh.transformMatrix;
 }
@@ -110,6 +112,35 @@ void Mesh::Bind(IVertexShader * pVertexShader) const
 	}
 }
 
+void Mesh::BindMaterial() const
+{
+	cb_ps_material->data.GlobalAmbient = { 1.0f, 1.0f, 1.0f, 1.0f };
+	cb_ps_material->data.AmbientColor = { 0.005f, 0.005f, 0.005f, 1.0f };
+	cb_ps_material->data.DiffuseColor = DirectX::XMFLOAT4(material.GetDiffuseColor().x, material.GetDiffuseColor().y, material.GetDiffuseColor().z, 1.0f);
+	cb_ps_material->data.SpecularColor = DirectX::XMFLOAT4(material.GetSpecularColor().x, material.GetSpecularColor().y, material.GetSpecularColor().z, 1.0f); 
+	cb_ps_material->data.EmissiveColor = DirectX::XMFLOAT4(material.GetEmissiveColor().x, material.GetEmissiveColor().y, material.GetEmissiveColor().z, 1.0f);
+	cb_ps_material->data.Opacity = material.GetOpacity();
+	cb_ps_material->data.HasAmbientTexture = (material.GetAmbientTexture() != nullptr);
+	cb_ps_material->data.HasDiffuseTexture = (material.GetDiffuseTexture() != nullptr);
+	cb_ps_material->data.HasSpecularTexture = (material.GetSpecularTexture() != nullptr);
+	cb_ps_material->data.HasEmissiveTexture = (material.GetEmissiveTexture() != nullptr);
+	cb_ps_material->data.HasNormalTexture = (material.GetNormalTexture() != nullptr);
+	cb_ps_material->data.HasBumpTexture = false;
+	cb_ps_material->data.SpecularPower = material.GetShininess();
+
+	cb_ps_material->ApplyChanges();
+	deviceContext->PSSetConstantBuffers(2, 1, cb_ps_material->GetAddressOf());
+
+	if (material.GetDiffuseTexture() != nullptr)
+		this->deviceContext->PSSetShaderResources(0, 1, material.GetDiffuseTexture()->GetShaderResourceView());
+	if (material.GetNormalTexture() != nullptr)
+		this->deviceContext->PSSetShaderResources(1, 1, material.GetNormalTexture()->GetShaderResourceView());
+	if (material.GetSpecularTexture() != nullptr)
+		this->deviceContext->PSSetShaderResources(2, 1, material.GetSpecularTexture()->GetShaderResourceView());
+	if (material.GetEmissiveTexture() != nullptr)
+		this->deviceContext->PSSetShaderResources(3, 1, material.GetEmissiveTexture()->GetShaderResourceView());
+}
+
 void Mesh::SetData(MeshParameters& params)
 {
 	if (!params.position.empty())
@@ -148,11 +179,7 @@ void Mesh::SetData(MeshParameters& params)
 
 void Mesh::Draw(IVertexShader * pVertexShader)
 {
-	if (material.GetDiffuseTexture() != nullptr)
-		this->deviceContext->PSSetShaderResources(0, 1, material.GetDiffuseTexture()->GetShaderResourceView());
-	if (material.GetNormalTexture() != nullptr)
-		this->deviceContext->PSSetShaderResources(1, 1, material.GetNormalTexture()->GetShaderResourceView());
-
+	BindMaterial();
 	Bind(pVertexShader);
 	this->deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	this->deviceContext->DrawIndexed(this->indexBuffer.IndexCount(), 0, 0);

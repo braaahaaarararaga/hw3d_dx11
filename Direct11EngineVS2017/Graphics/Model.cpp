@@ -1,11 +1,12 @@
 ﻿#include "Model.h"
 
 bool Model::Initialize(const std::string& filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext,  ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,
-	IVertexShader * pVertexShader)
+	ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
+	this->cb_ps_material = &cb_ps_material;
 	this->pVertexShader = pVertexShader;
 	try 
 	{
@@ -87,10 +88,10 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX& tr
 		params.tangent.reserve(mesh->mNumVertices);
 	if (mesh->HasTangentsAndBitangents())
 		params.bitangent.reserve(mesh->mNumVertices);
-	//if (mesh->HasBones())
-	//	params.bone_names.resize(mesh->mNumVertices, { 0, 0, 0, 0 });
-	//if (mesh->HasBones())                 
-	//	params.bone_weights.resize(mesh->mNumVertices, { 0.0f, 0.0f, 0.0f, 0.0f });
+	if (mesh->HasBones())
+		params.bone_names.resize(mesh->mNumVertices, { 0, 0, 0, 0 });
+	if (mesh->HasBones())                 
+		params.bone_weights.resize(mesh->mNumVertices, { 0.0f, 0.0f, 0.0f, 0.0f });
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -170,7 +171,7 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX& tr
 	}
 	material.SetShininess(shininess);
 
-	return Mesh(this->device, this->deviceContext, params, indices, material, transformMatirx);
+	return Mesh(this->device, this->deviceContext, *cb_ps_material, params, indices, material, transformMatirx);
 }
 
 TextureStorageType Model::DetermineTextureStorageType(const aiScene * scene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -228,15 +229,34 @@ void Model::LoadMaterialTextures(Material& material, aiMaterial * pMaterial, aiT
 		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
 		switch (textureType)
 		{
+		case aiTextureType_AMBIENT:
+			pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, aiColor);
+			material.SetAmbientColour(aiColor.r, aiColor.g, aiColor.b);
+			break;
 		case aiTextureType_DIFFUSE:
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
+			material.SetDiffuseColour(aiColor.r, aiColor.g, aiColor.b);
+			break;
+		case aiTextureType_SPECULAR:
+			pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, aiColor);
 			if (aiColor.IsBlack())
 			{
-				pTexture = ResourceManager::GetTexture(this->device, std::string("UnloadedTextureColor"), Hw3d_Colors::UnloadedTextureColor, textureType);
+				material.SetSpecularColour(1.0f, 1.0f, 1.0f);
 			}
-			pTexture = ResourceManager::GetTexture(this->device, std::string("BlackTexture"), Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255),
-				textureType);
+			else
+			{
+				material.SetSpecularColour(aiColor.r, aiColor.g, aiColor.b);
+			}
 			break;
+		case aiTextureType_EMISSIVE:
+			pMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, aiColor);
+			material.SetEmissiveColour(aiColor.r, aiColor.g, aiColor.b);
+			break;
+		case aiTextureType_NORMALS:
+		case aiTextureType_HEIGHT:
+			return; 
+		default:
+			assert(false, "Unknown texture type");
 		}
 	}
 	else
