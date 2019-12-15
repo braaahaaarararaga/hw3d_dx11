@@ -118,9 +118,9 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 refv = reflect(vectorToLight, normal);
     refv = normalize(refv);
     float3 eyev = normalize(eyePos - worldPos);
-    float specular = -dot(eyev, refv);
-    specular = saturate(specular);
-    specular = material.SpecularColor.rgb * pow(specular, material.SpecularPower);
+    float rv = dot(-refv, eyev);
+    rv = saturate(rv);
+    float3 specular = material.SpecularColor.rgb * pow(rv, material.SpecularPower);
     
     diffuseLightIntensity = (diffuseLightIntensity + specular) * attenuationFactor;
     float3 diffuseLight = diffuseLightIntensity * dynamicStrength * dynamicLight;

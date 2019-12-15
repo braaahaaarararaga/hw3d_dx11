@@ -283,7 +283,9 @@
     <FxCompile Include="Graphics\Shaders\VertexShaderAnim.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\VS_nolight.hlsl" />
+    <FxCompile Include="Graphics\Shaders\VS_nolight.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct11EngineVS2017.rc">
@@ -296,6 +298,8 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Graphics\Shaders\CommonPS.hlsl" />
+    <None Include="Graphics\Shaders\CommonPS.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
