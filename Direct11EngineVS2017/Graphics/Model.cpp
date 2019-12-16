@@ -49,6 +49,7 @@ bool Model::LoadModel(const std::string & filePath)
 	if (pScene == NULL)
 		return false;
 
+	meshes.reserve(pScene->mNumMeshes);
 	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
 	return true;
 }
@@ -61,7 +62,7 @@ void Model::ProcessNode(aiNode * node,const aiScene * scene, const XMMATRIX& par
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(this->ProcessMesh(mesh, scene, nodeTransformMatrix));
+		meshes.emplace_back(this->ProcessMesh(mesh, scene, nodeTransformMatrix));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)

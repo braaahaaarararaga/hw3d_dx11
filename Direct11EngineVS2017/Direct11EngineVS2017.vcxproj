@@ -214,6 +214,7 @@
     <ClCompile Include="WindowContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\AnimationSkeleton.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
     <ClInclude Include="Graphics\GameObject2D.h" />
     <ClInclude Include="Graphics\GameObject3D.h" />

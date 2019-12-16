@@ -28,5 +28,5 @@ float4 main(PS_INPUT input) : SV_TARGET
     }
     float3 sampleColor = material.DiffuseColor;
 
-	return float4(sampleColor, 1.0f);
+	return float4(sampleColor, 1.0f) * material.Opacity;
 }

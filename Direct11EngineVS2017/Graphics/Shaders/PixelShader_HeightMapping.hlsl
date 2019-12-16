@@ -50,10 +50,10 @@ float4 main(PS_INPUT input) : SV_TARGET
 	float3 eyev = normalize(eyePos - worldPos);
 	float3x3 mat = { input.inTangent, -input.inBitangent, input.inNormal};
 	float3 invEyev = mul(eyev, mat).xyz;
-	float heightMap = (diffuseTexture.Sample(objSamplerState, input.inTexCoord).r - 0.5) * 0.25;
+    float heightMap = (specularTexture.Sample(objSamplerState, input.inTexCoord).r - 0.5) * 0.25;
 	input.inTexCoord += invEyev.xy * heightMap;
 	float3 sampleColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
-    sampleColor = float3(1,1,1);
+    //sampleColor = float3(1,1,1);
     
 	float3x3 tbn = float3x3(normalize(-input.inTangent), normalize(input.inBitangent), normalize(input.inNormal));
 	float3 normal = input.inNormal;
