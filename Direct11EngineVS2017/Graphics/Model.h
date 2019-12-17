@@ -5,6 +5,8 @@
 #include "ConstantBuffer.h"
 #include "Material.h"
 #include "Mesh.h"
+#include "AnimationSkeleton.h"
+#include <unordered_map>
 
 using namespace DirectX;
 
@@ -38,6 +40,15 @@ private:
 	void LoadMaterialTextures(Material& material, aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene);
 	int GetTextureIndex(aiString* pStr);
 
+	int AddBone(aiNode* node, aiBone* bone, int parent_index);
+	void AddAiBone(aiBone* pBone);
+	int FindBoneByName(const std::string& name) const;
+	void AddBoneWeight(std::vector<XMFLOAT4>* ids, std::vector<XMFLOAT4>* weights, unsigned int vertex_id,
+		unsigned int bone_id, float weight);
+	int AddSkeletonNode(aiNode* node, int parent_index);
+	void BuildSkeleton(aiNode* pNode, int parent_index);
+	aiBone* GetAiBoneByName(const std::string& name);
+
 	ID3D11Device* device = nullptr;
 	ID3D11DeviceContext* deviceContext = nullptr;
 	ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader = nullptr;
@@ -45,5 +56,9 @@ private:
 	IVertexShader * pVertexShader = nullptr;
 	std::string directory = "";
 
-
+	std::vector<BoneData> m_Bones;
+	std::vector<BoneNode> m_OriginalSkeleton;
+	std::unordered_map<std::string, aiBone*> m_mapBoneNameToAiBone;
+	std::unordered_map<std::string, int> m_mapBoneNameToIndex;
+	std::unordered_map<std::string, int> m_mapNodeNameToIndex;
 };

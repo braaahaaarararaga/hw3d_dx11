@@ -12,4 +12,9 @@ struct BoneData
 	int index;
 	DirectX::XMMATRIX inverse_transform;
 };
+struct BoneNode
+{
+	DirectX::XMMATRIX local_transform;
+	int parent_index;
+};
 

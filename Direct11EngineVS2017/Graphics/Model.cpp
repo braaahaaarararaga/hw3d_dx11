@@ -1,5 +1,11 @@
 ﻿#include "Model.h"
 
+static DirectX::XMMATRIX AiToDxMatrix(const aiMatrix4x4& aimat)
+{
+	return DirectX::XMMatrixTranspose(DirectX::XMMATRIX(&aimat.a1));
+}
+
+
 bool Model::Initialize(const std::string& filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext,  ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,
 	ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader)
 {
@@ -50,6 +56,18 @@ bool Model::LoadModel(const std::string & filePath)
 		return false;
 
 	meshes.reserve(pScene->mNumMeshes);
+	for (unsigned int mesh_index = 0; mesh_index < pScene->mNumMeshes; mesh_index++)
+	{
+		aiMesh* pMesh = pScene->mMeshes[mesh_index];
+		for (unsigned int bone_index = 0; bone_index < pMesh->mNumBones; bone_index++)
+		{
+			aiBone* pBone = pMesh->mBones[bone_index];
+			AddAiBone(pBone);
+		}
+	}
+
+	BuildSkeleton(pScene->mRootNode, -1);
+
 	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
 	return true;
 }
@@ -154,6 +172,19 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX& tr
 		for (UINT j = 0; j < face.mNumIndices; j++)
 		{
 			indices.push_back(face.mIndices[j]);
+		}
+	}
+
+	//
+	for (unsigned int i = 0; i < mesh->mNumBones; i++)
+	{
+		aiBone* pBone = mesh->mBones[i];
+		int bone_index = FindBoneByName(pBone->mName.C_Str());
+		assert(bone_index != -1, "referencing invalid bone");
+		for (unsigned int weight_index = 0; weight_index < pBone->mNumWeights; weight_index++)
+		{
+			const aiVertexWeight& pWeight = pBone->mWeights[weight_index];
+			AddBoneWeight(&params.bone_names, &params.bone_weights, pWeight.mVertexId, bone_index, pWeight.mWeight);
 		}
 	}
 
@@ -345,4 +376,109 @@ int Model::GetTextureIndex(aiString * pStr)
 	assert(pStr->length >= 2);
 
 	return atoi(&pStr->C_Str()[1]);
+}
+
+int Model::AddBone(aiNode * node, aiBone * bone, int parent_index)
+{
+	int node_index = AddSkeletonNode(node, parent_index);
+
+	BoneData boneData;
+	boneData.index = node_index;
+	boneData.name = bone->mName.C_Str();
+	boneData.inverse_transform = AiToDxMatrix(bone->mOffsetMatrix);
+
+	m_mapBoneNameToIndex[boneData.name] = (int)m_Bones.size();
+
+	m_Bones.push_back(boneData);
+
+	return node_index;
+}
+
+void Model::AddAiBone(aiBone * pBone)
+{
+	m_mapBoneNameToAiBone[pBone->mName.C_Str()] = pBone;
+}
+
+int Model::FindBoneByName(const std::string & name) const
+{
+	auto it = m_mapBoneNameToIndex.find(name);
+	if (it == m_mapBoneNameToIndex.end())
+	{
+		return -1;
+	}
+	return it->second;
+}
+
+void Model::AddBoneWeight(std::vector<XMFLOAT4>* ids, std::vector<XMFLOAT4>* weights, unsigned int vertex_id, unsigned int bone_id, float weight)
+{
+	XMFLOAT4& curr_id = (*ids)[vertex_id];
+	XMFLOAT4& curr_weight = (*weights)[vertex_id];
+
+	if (curr_weight.x == 0.0f)
+	{
+		curr_id.x = bone_id;
+		curr_weight.x = weight;
+	}
+	else if (curr_weight.y == 0.0f)
+	{
+		curr_id.y = bone_id;
+		curr_weight.y = weight;
+	}
+	else if (curr_weight.z == 0.0f)
+	{
+		curr_id.z = bone_id;
+		curr_weight.z = weight;
+	}
+	else if (curr_weight.w == 0.0f)
+	{
+		curr_id.w = bone_id;
+		curr_weight.w = weight;
+	}
+	else
+	{
+		assert(false, "bone weights only support 0~4");
+	}
+}
+
+int Model::AddSkeletonNode(aiNode * node, int parent_index)
+{
+	int index = (int)m_OriginalSkeleton.size();
+	m_mapNodeNameToIndex[node->mName.C_Str()] = index;
+
+	BoneNode boneNode;
+	boneNode.local_transform = AiToDxMatrix(node->mTransformation);
+	boneNode.parent_index = parent_index;
+
+	m_OriginalSkeleton.push_back(boneNode);
+
+	return index;
+}
+
+void Model::BuildSkeleton(aiNode * pNode, int parent_index)
+{
+	aiBone* pBone = GetAiBoneByName(pNode->mName.C_Str());
+
+	int index;
+	if (!pBone)
+	{
+		index = AddSkeletonNode(pNode, parent_index);
+	}
+	else
+	{
+		index = AddBone(pNode, pBone, parent_index);
+	}
+	for (unsigned int i = 0; i < pNode->mNumChildren; i++)
+	{
+		BuildSkeleton(pNode->mChildren[i], index);
+	}
+}
+
+aiBone * Model::GetAiBoneByName(const std::string & name)
+{
+	auto it = m_mapBoneNameToAiBone.find(name);
+	if (it == m_mapBoneNameToAiBone.end())
+	{
+		return nullptr;
+	}
+	return it->second;
 }
