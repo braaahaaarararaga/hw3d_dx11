@@ -14,7 +14,7 @@ bool RenderableGameObject::Initialize(const std::string & filePath, ID3D11Device
 
 bool RenderableGameObject::InitAnimation(ConstantBuffer<CB_Bones>& cbufBones)
 {
-	return model.InitAnimation(&cbufBones, animator_out.get());
+	return model.InitAnimation(&cbufBones, animator_out);
 }
 
 void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)

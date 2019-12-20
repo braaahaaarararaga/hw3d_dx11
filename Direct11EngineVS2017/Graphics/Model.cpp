@@ -42,7 +42,7 @@ void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix)
 	}
 }
 
-bool Model::InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, MeshAnimator* animator_out)
+bool Model::InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, std::unique_ptr<MeshAnimator>& animator_out)
 {
 	LoadAnimations(animator_out, cbufBone);
 	return true;
@@ -496,7 +496,7 @@ aiBone * Model::GetAiBoneByName(const std::string & name)
 	return it->second;
 }
 
-void Model::LoadAnimations(MeshAnimator * animator_out, ConstantBuffer<CB_Bones>* cbufBone)
+void Model::LoadAnimations(std::unique_ptr<MeshAnimator>& animator_out, ConstantBuffer<CB_Bones>* cbufBone)
 {
 	m_Animations.reserve(m_pScene->mNumAnimations);
 
@@ -563,5 +563,5 @@ void Model::LoadAnimations(MeshAnimator * animator_out, ConstantBuffer<CB_Bones>
 		}
 		m_Animations.push_back(animation);
 	}
-	*animator_out = MeshAnimator(std::move(m_OriginalSkeleton), std::move(m_Bones), std::move(m_Animations), cbufBone);
+	animator_out = std::make_unique<MeshAnimator>(std::move(m_OriginalSkeleton), std::move(m_Bones), std::move(m_Animations), cbufBone);
 }

@@ -354,6 +354,9 @@ bool Graphics::InitializeScene()
 	hr = this->cb_ps_material.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
 
+	hr = this->cb_bones.Initialize(this->device.Get(), this->deviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+
 	// Initialize Model(s)
 	
 	this->cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -367,6 +370,8 @@ bool Graphics::InitializeScene()
 	}
 	gameObj.SetScale(0.07f, 0.07f, 0.07f);
 	gameObj.AdjustPosition(0.0f, 0.0f, 3.0f);
+	gameObj.InitAnimation(cb_bones);
+
 	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
