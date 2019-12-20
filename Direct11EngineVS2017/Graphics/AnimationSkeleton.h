@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
+#include "ConstantBuffer.h"
 
 static constexpr size_t MAX_BONES = 256;
 
@@ -18,6 +19,11 @@ struct BoneNode
 	int parent_index;
 };
 
+struct CB_Bones
+{
+	DirectX::XMMATRIX bone_Transforms[MAX_BONES];
+};
+
 template <typename T>
 struct KeyFrame
 {
@@ -25,17 +31,29 @@ struct KeyFrame
 	float timestamp;
 	
 	bool operator==(const KeyFrame& rhs)
+	{
 		return value == rhs.value;
+	}
 	bool operator!=(const KeyFrame& rhs)
+	{
 		return value != rhs.value;
+	}
 	bool operator<(const KeyFrame& rhs)
+	{
 		return timestamp < rhs.timestamp;
+	}
 	bool operator<=(const KeyFrame& rhs)
+	{
 		return timestamp <= rhs.timestamp;
+	}
 	bool operator>(const KeyFrame& rhs)
+	{
 		return timestamp > rhs.timestamp;
+	}
 	bool operator>=(const KeyFrame& rhs)
+	{
 		return timestamp >= rhs.timestamp;
+	}
 		
 };
 
@@ -67,4 +85,41 @@ struct MeshAnimation
 
 	// Returns bone space transforms for each node in the skeleton at the given timestamp
 	std::vector<DirectX::XMMATRIX> GetSample(float timestamp, const std::vector<BoneNode>& original_skeleton) const;
+};
+
+class MeshAnimator
+{
+public:
+	MeshAnimator() = default;
+	MeshAnimator(std::vector<BoneNode> original_skeleton, std::vector<BoneData> bones, std::vector<MeshAnimation> animations, ConstantBuffer<CB_Bones>* cbuf_bone)
+		:
+		m_OriginalSkeleton(std::move(original_skeleton)),
+		m_Bones(std::move(bones)),
+		m_Animations(std::move(animations)),
+		m_cbufBones(cbuf_bone)
+	{}
+
+	void Bind(ID3D11DeviceContext* deviceContext);
+
+	size_t GetNumAnimations() const { return m_Animations.size(); }
+	const MeshAnimation& GetAnimation(size_t index) const { return m_Animations[index]; }
+	const MeshAnimation* GetAnimationByName(const std::string& name) const;
+
+	size_t GetCurrentAnimationIndex() const { return m_iCurrentAnimation; }
+	void SetCurrentAnimationIndex(size_t index) { m_iCurrentAnimation = index; }
+	const MeshAnimation& GetCurrentAnimation() const { return GetAnimation(GetCurrentAnimationIndex()); }
+
+	float GetTimestamp() const { return m_flTimestamp; }
+	void SetTimestamp(float timestamp) { m_flTimestamp = timestamp; }
+private:
+	void GetPoseOffsetTransforms(DirectX::XMMATRIX* out, const MeshAnimation& animation, float timestamp) const;
+
+private:
+	std::vector<BoneData> m_Bones;
+	std::vector<BoneNode> m_OriginalSkeleton;
+	std::vector<MeshAnimation> m_Animations;
+
+	ConstantBuffer<CB_Bones>* m_cbufBones;
+	size_t m_iCurrentAnimation = 0;
+	float m_flTimestamp = 0.0f;
 };

@@ -42,23 +42,28 @@ void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix)
 	}
 }
 
+bool Model::InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, MeshAnimator* animator_out)
+{
+	LoadAnimations(animator_out, cbufBone);
+	return true;
+}
+
 bool Model::LoadModel(const std::string & filePath)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filePath);
-	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile(filePath,
+	m_pScene = m_Importer.ReadFile(filePath,
 		aiProcess_ConvertToLeftHanded |
 		aiProcessPreset_TargetRealtime_Fast |
 		aiProcess_TransformUVCoords);
 
-	if (pScene == NULL)
+	if (m_pScene == NULL)
 		return false;
 
-	meshes.reserve(pScene->mNumMeshes);
-	for (unsigned int mesh_index = 0; mesh_index < pScene->mNumMeshes; mesh_index++)
+	meshes.reserve(m_pScene->mNumMeshes);
+	for (unsigned int mesh_index = 0; mesh_index < m_pScene->mNumMeshes; mesh_index++)
 	{
-		aiMesh* pMesh = pScene->mMeshes[mesh_index];
+		aiMesh* pMesh = m_pScene->mMeshes[mesh_index];
 		for (unsigned int bone_index = 0; bone_index < pMesh->mNumBones; bone_index++)
 		{
 			aiBone* pBone = pMesh->mBones[bone_index];
@@ -66,9 +71,9 @@ bool Model::LoadModel(const std::string & filePath)
 		}
 	}
 
-	BuildSkeleton(pScene->mRootNode, -1);
+	BuildSkeleton(m_pScene->mRootNode, -1);
 
-	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
+	this->ProcessNode(m_pScene->mRootNode, m_pScene, DirectX::XMMatrixIdentity());
 	return true;
 }
 
@@ -409,6 +414,14 @@ int Model::FindBoneByName(const std::string & name) const
 	return it->second;
 }
 
+int Model::FindNodeByName(const std::string & name) const
+{
+	auto it = m_mapNodeNameToIndex.find(name);
+	if (it == m_mapNodeNameToIndex.end())
+		return -1;
+	return it->second;
+}
+
 void Model::AddBoneWeight(std::vector<XMFLOAT4>* ids, std::vector<XMFLOAT4>* weights, unsigned int vertex_id, unsigned int bone_id, float weight)
 {
 	XMFLOAT4& curr_id = (*ids)[vertex_id];
@@ -481,4 +494,74 @@ aiBone * Model::GetAiBoneByName(const std::string & name)
 		return nullptr;
 	}
 	return it->second;
+}
+
+void Model::LoadAnimations(MeshAnimator * animator_out, ConstantBuffer<CB_Bones>* cbufBone)
+{
+	m_Animations.reserve(m_pScene->mNumAnimations);
+
+	for (unsigned int anim_index = 0; anim_index < m_pScene->mNumAnimations; anim_index++)
+	{
+		aiAnimation* pAnimation = m_pScene->mAnimations[anim_index];
+
+		float ticks_per_second = (float)pAnimation->mTicksPerSecond;
+		if (directory.find(".gltf") != std::string::npos || directory.find(".glb") != std::string::npos)
+		{
+			ticks_per_second = 1000.0f;
+		}
+		if (ticks_per_second == 0.0f)
+		{
+			ticks_per_second = 1.0f;
+		}
+
+		MeshAnimation animation;
+		animation.name = pAnimation->mName.C_Str();
+		animation.channels.resize(pAnimation->mNumChannels);
+		animation.duration = (float)pAnimation->mDuration / ticks_per_second;
+
+		for (unsigned int channel_index = 0; channel_index < pAnimation->mNumChannels; channel_index++)
+		{
+			aiNodeAnim* pNodeAnim = pAnimation->mChannels[channel_index];
+			int node_index = FindNodeByName(pNodeAnim->mNodeName.C_Str());
+			if (node_index == -1)
+			{
+				COM_ERROR_IF_FAILED(-1, "Missing animated node.");
+				continue;
+			}
+
+			AnimationChannel& channel = animation.channels[channel_index];
+			channel.node_index = node_index;
+
+			channel.position_keyframes.reserve(pNodeAnim->mNumPositionKeys);
+			for (unsigned int keyframe_index = 0; keyframe_index < pNodeAnim->mNumPositionKeys; keyframe_index++)
+			{
+				const aiVectorKey& ai_key = pNodeAnim->mPositionKeys[keyframe_index];
+
+				PosKeyFrame keyframe;
+				keyframe.timestamp = (float)ai_key.mTime / ticks_per_second;
+				keyframe.value.x = ai_key.mValue.x;
+				keyframe.value.y = ai_key.mValue.y;
+				keyframe.value.z = ai_key.mValue.z;
+
+				channel.position_keyframes.push_back(keyframe);
+			}
+
+			channel.rotation_keyframes.reserve(pNodeAnim->mNumRotationKeys);
+			for (unsigned int keyframe_index = 0; keyframe_index < pNodeAnim->mNumRotationKeys; keyframe_index++)
+			{
+				const aiQuatKey& ai_key = pNodeAnim->mRotationKeys[keyframe_index];
+
+				RotKeyFrame keyframe;
+				keyframe.timestamp = (float)ai_key.mTime / ticks_per_second;
+				keyframe.value.x = ai_key.mValue.x;
+				keyframe.value.y = ai_key.mValue.y;
+				keyframe.value.z = ai_key.mValue.z;
+				keyframe.value.w = ai_key.mValue.w;
+
+				channel.rotation_keyframes.push_back(keyframe);
+			}
+		}
+		m_Animations.push_back(animation);
+	}
+	*animator_out = MeshAnimator(std::move(m_OriginalSkeleton), std::move(m_Bones), std::move(m_Animations), cbufBone);
 }

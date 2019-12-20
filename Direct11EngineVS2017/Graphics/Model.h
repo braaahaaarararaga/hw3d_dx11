@@ -27,7 +27,7 @@ public:
 	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		 ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader);
 	void Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix);
-
+	bool InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, MeshAnimator* animator_out);
 
 
 	
@@ -43,11 +43,17 @@ private:
 	int AddBone(aiNode* node, aiBone* bone, int parent_index);
 	void AddAiBone(aiBone* pBone);
 	int FindBoneByName(const std::string& name) const;
+	int FindNodeByName(const std::string& name) const;
 	void AddBoneWeight(std::vector<XMFLOAT4>* ids, std::vector<XMFLOAT4>* weights, unsigned int vertex_id,
 		unsigned int bone_id, float weight);
 	int AddSkeletonNode(aiNode* node, int parent_index);
 	void BuildSkeleton(aiNode* pNode, int parent_index);
 	aiBone* GetAiBoneByName(const std::string& name);
+
+	void LoadAnimations(MeshAnimator* animator_out, ConstantBuffer<CB_Bones>* cbufBone);
+
+	Assimp::Importer m_Importer;
+	const aiScene* m_pScene;
 
 	ID3D11Device* device = nullptr;
 	ID3D11DeviceContext* deviceContext = nullptr;
@@ -61,4 +67,6 @@ private:
 	std::unordered_map<std::string, aiBone*> m_mapBoneNameToAiBone;
 	std::unordered_map<std::string, int> m_mapBoneNameToIndex;
 	std::unordered_map<std::string, int> m_mapNodeNameToIndex;
+
+	std::vector<MeshAnimation> m_Animations;
 };
