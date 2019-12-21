@@ -15,7 +15,7 @@ public:
 		TexCoord,
 		Tangent,
 		Bitangent,
-		BoneName,
+		BoneId,
 		BoneWeight,
 		TotalAttributes
 	};
@@ -33,6 +33,8 @@ public:
 			s_mapConvert["TEXCOORD"] = VertexAttribute::TexCoord;
 			s_mapConvert["TANGENT"] = VertexAttribute::Tangent;
 			s_mapConvert["BITANGENT"] = VertexAttribute::Bitangent;
+			s_mapConvert["BONEID"] = VertexAttribute::BoneId;
+			s_mapConvert["BONEWEIGHT"] = VertexAttribute::BoneWeight;
 		}
 
 		auto it = s_mapConvert.find(semantic);
@@ -57,6 +59,8 @@ public:
 			s_mapConvert[VertexAttribute::TexCoord] = "TEXCOORD";
 			s_mapConvert[VertexAttribute::Tangent] = "TANGENT";
 			s_mapConvert[VertexAttribute::Bitangent] = "BITANGENT";
+			s_mapConvert[VertexAttribute::BoneId] = "BONEID";
+			s_mapConvert[VertexAttribute::BoneWeight] = "BONEWEIGHT";
 		}
 
 		auto it = s_mapConvert.find(attribute);

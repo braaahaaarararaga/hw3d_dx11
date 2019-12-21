@@ -92,7 +92,7 @@ void Mesh::Bind(IVertexShader * pVertexShader) const
 		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
 		slot++;
 	}
-	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::BoneName))
+	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::BoneId))
 	{
 		assert(vBufBoneNames.VertexCount() > 0, "Shader requires model to have bone name data");
 		ID3D11Buffer* pVertexBuffer = vBufBoneNames.Get();
@@ -110,6 +110,8 @@ void Mesh::Bind(IVertexShader * pVertexShader) const
 		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
 		slot++;
 	}
+
+
 }
 
 void Mesh::BindMaterial() const

@@ -19,6 +19,7 @@ public:
 	void SetRotation(const XMVECTOR& rot);
 	void SetRotation(const XMFLOAT3& rot);
 	void SetRotation(float x, float y, float z);
+	void SetQuaternionRotation(const XMVECTOR& vquat);
 	void AdjustRotation(const XMVECTOR& rot);
 	void AdjustRotation(const XMFLOAT3& rot);
 	void AdjustRotation(float x, float y, float z);

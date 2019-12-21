@@ -48,6 +48,7 @@ private:
 
 
 	std::unique_ptr<D3DVertexShader> d3dvertexshader;
+	std::unique_ptr<D3DVertexShader> d3dvertexshader_animation;
 	std::unique_ptr<D3DVertexShader> d3dvertexshader_nolight;
 	PixelShader_ pixelshader;
 	PixelShader_ pixelshader_nolight;

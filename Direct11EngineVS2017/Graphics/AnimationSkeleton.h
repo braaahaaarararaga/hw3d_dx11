@@ -123,3 +123,64 @@ private:
 	size_t m_iCurrentAnimation = 0;
 	float m_flTimestamp = 0.0f;
 };
+
+class AnimationComponent
+{
+public:
+	AnimationComponent(MeshAnimator* animator)
+		:
+		m_pAnimator(animator)
+	{}
+
+	void AddChannel(const std::string& anim_name, size_t channel_idx)
+	{
+		m_Channels.emplace_back(anim_name, channel_idx);
+	}
+
+	const AnimationChannel* GetChannel(const std::string& name)
+	{
+		for (const AnimationNameAndChannel& channel : m_Channels)
+		{
+			if (channel.name == name)
+			{
+				const MeshAnimation& curr_anim = m_pAnimator->GetCurrentAnimation();
+				return &curr_anim.channels[channel.index];
+			}
+		}
+		return nullptr;
+	}
+
+	const AnimationChannel* GetCurrentChannel()
+	{
+		const MeshAnimation& curr_anim = m_pAnimator->GetCurrentAnimation();
+		return GetChannel(curr_anim.name);
+	}
+
+	DirectX::XMMATRIX GetSample()
+	{
+		const AnimationChannel* channel = GetCurrentChannel();
+		float timestamp = m_pAnimator->GetTimestamp();
+		return channel->GetSample(timestamp);
+	}
+
+	MeshAnimator* GetAnimator()
+	{
+		return m_pAnimator;
+	}
+
+private:
+	struct AnimationNameAndChannel
+	{
+		AnimationNameAndChannel(const std::string& name, size_t channel_idx)
+			:
+			name(name),
+			index(channel_idx)
+		{}
+
+		std::string name;
+		size_t index;
+	};
+
+	std::vector<AnimationNameAndChannel> m_Channels;
+	MeshAnimator* m_pAnimator;
+};

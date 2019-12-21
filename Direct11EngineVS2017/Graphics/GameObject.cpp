@@ -97,6 +97,33 @@ void GameObject::SetRotation(float x, float y, float z)
 	this->UpdateMatrix();
 }
 
+void GameObject::SetQuaternionRotation(const XMVECTOR & vquat)
+{
+	XMFLOAT4 quat;
+	XMStoreFloat4(&quat, vquat);
+	XMFLOAT3 angle;
+
+	float sinr_cosp = +2.0f * (quat.w * quat.x + quat.y * quat.z);
+	float cosr_cosp = +1.0f - 2.0f * (quat.x * quat.x + quat.y * quat.y);
+	angle.z = atan2(sinr_cosp, cosr_cosp);
+
+	float sinp = +2.0f * (quat.w * quat.y - quat.z * quat.x);
+	if (fabs(sinp) >= 1.0f)
+	{
+		angle.x = copysign(XM_PI / 2, sinp);
+	}
+	else
+	{
+		angle.x = asin(sinp);
+	}
+
+	float siny_cosp = +2.0f * (quat.w * quat.z + quat.x * quat.y);
+	float cosy_cosp = +1.0f - 2.0f * (quat.y * quat.y + quat.z * quat.z);
+	angle.y = atan2(siny_cosp, cosy_cosp);
+
+	SetRotation(angle);
+}
+
 void GameObject::AdjustRotation(const XMVECTOR & rot)
 {
 	this->rotVector += rot;

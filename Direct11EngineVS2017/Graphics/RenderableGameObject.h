@@ -16,6 +16,10 @@ protected:
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 private:
-	std::unique_ptr<MeshAnimator> animator_out;
+	ID3D11DeviceContext* deviceContext;
+
+	bool mPlayAnimtion = false;
+	MeshAnimator mAnimator;
+	std::unique_ptr<AnimationComponent> mAnimComp;
 };
 

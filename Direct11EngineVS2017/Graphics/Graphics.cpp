@@ -29,13 +29,14 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 void Graphics::RenderFrame()
 {
-	{	
+	{
+		this->deviceContext->VSSetShader(this->d3dvertexshader_animation.get()->GetShader(device.Get()), NULL, 0);
 		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
-	{	
+	{
+		this->deviceContext->VSSetShader(this->d3dvertexshader.get()->GetShader(device.Get()), NULL, 0);
 		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-	}
-	{	
+
 		deviceContext->PSSetShader(pixelshader_heightmapping.GetShader(), NULL, 0);
 		gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
@@ -308,6 +309,7 @@ bool Graphics::InitializeShaders()
 
 	
 	d3dvertexshader = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "vertexShader.cso");
+	d3dvertexshader_animation = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VertexShaderAnim.cso");
 	d3dvertexshader_nolight = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_nolight.cso");
 	if (!pixelshader.Initialize(this->device, shaderfolder + L"pixelshader.cso"))
 	{
@@ -363,14 +365,15 @@ bool Graphics::InitializeScene()
 	this->cb_ps_light.data.ambientLightStrength = 1.0f;
 	
 
-	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
+	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(),
+		cb_vs_vertexshader, cb_ps_material, d3dvertexshader_animation.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
 	gameObj.SetScale(0.07f, 0.07f, 0.07f);
 	gameObj.AdjustPosition(0.0f, 0.0f, 3.0f);
-	gameObj.InitAnimation(cb_bones);
+	//gameObj.InitAnimation(cb_bones);
 
 	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{

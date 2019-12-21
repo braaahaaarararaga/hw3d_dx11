@@ -2,6 +2,7 @@
 
 bool RenderableGameObject::Initialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader)
 {
+	this->deviceContext = deviceContext;
 	if (!model.Initialize(filePath, device, deviceContext, cb_vs_vertexshader, cb_ps_material, pVertexShader))
 		return false;
 
@@ -14,12 +15,30 @@ bool RenderableGameObject::Initialize(const std::string & filePath, ID3D11Device
 
 bool RenderableGameObject::InitAnimation(ConstantBuffer<CB_Bones>& cbufBones)
 {
-	return model.InitAnimation(&cbufBones, animator_out);
+	mAnimComp = std::make_unique<AnimationComponent>(&mAnimator);
+	mPlayAnimtion = true;
+	return model.InitAnimation(&cbufBones, &mAnimator, mAnimComp.get());
 }
 
 void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 {
-	
+	if (0)
+	{
+		const AnimationChannel* channel = mAnimComp->GetCurrentChannel();
+		if (channel)
+		{
+			DirectX::XMMATRIX sample = mAnimComp->GetSample();
+			DirectX::XMVECTOR trans, quat, scale;
+			DirectX::XMMatrixDecompose(&scale, &quat, &trans, sample);
+			SetPosition(trans);
+			SetQuaternionRotation(quat);
+			float tempScale;
+			DirectX::XMStoreFloat(&tempScale, scale);
+			SetScale(tempScale, tempScale, tempScale);
+
+			mAnimator.Bind(deviceContext);
+		}
+	}
 	model.Draw(this->worldMatrix, viewProjectionMatrix);
 	
 }

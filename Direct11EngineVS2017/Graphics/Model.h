@@ -27,7 +27,7 @@ public:
 	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		 ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader);
 	void Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix);
-	bool InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, std::unique_ptr<MeshAnimator>& animator_out);
+	bool InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, MeshAnimator* animator_out, AnimationComponent* animComp);
 
 
 	
@@ -50,7 +50,7 @@ private:
 	void BuildSkeleton(aiNode* pNode, int parent_index);
 	aiBone* GetAiBoneByName(const std::string& name);
 
-	void LoadAnimations(std::unique_ptr<MeshAnimator>& animator_out, ConstantBuffer<CB_Bones>* cbufBone);
+	void LoadAnimations(MeshAnimator* animator_out, ConstantBuffer<CB_Bones>* cbufBone, AnimationComponent* animComp);
 
 	Assimp::Importer m_Importer;
 	const aiScene* m_pScene;
