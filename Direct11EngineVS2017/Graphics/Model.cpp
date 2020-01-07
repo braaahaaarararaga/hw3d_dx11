@@ -422,9 +422,9 @@ int Model::FindNodeByName(const std::string & name) const
 	return it->second;
 }
 
-void Model::AddBoneWeight(std::vector<XMFLOAT4>* ids, std::vector<XMFLOAT4>* weights, unsigned int vertex_id, unsigned int bone_id, float weight)
+void Model::AddBoneWeight(std::vector<XMUINT4>* ids, std::vector<XMFLOAT4>* weights, unsigned int vertex_id, unsigned int bone_id, float weight)
 {
-	XMFLOAT4& curr_id = (*ids)[vertex_id];
+	XMUINT4& curr_id = (*ids)[vertex_id];
 	XMFLOAT4& curr_weight = (*weights)[vertex_id];
 
 	if (curr_weight.x == 0.0f)

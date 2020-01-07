@@ -30,11 +30,14 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 void Graphics::RenderFrame()
 {
 	{
+		this->deviceContext->PSSetShader(this->pixelshader.GetShader(), NULL, 0);
 		this->deviceContext->VSSetShader(this->d3dvertexshader_animation.get()->GetShader(device.Get()), NULL, 0);
+		this->deviceContext->IASetInputLayout(this->d3dvertexshader_animation.get()->GetLayout());
 		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
 		this->deviceContext->VSSetShader(this->d3dvertexshader.get()->GetShader(device.Get()), NULL, 0);
+		this->deviceContext->IASetInputLayout(this->d3dvertexshader.get()->GetLayout());
 		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		deviceContext->PSSetShader(pixelshader_heightmapping.GetShader(), NULL, 0);
@@ -128,13 +131,10 @@ void Graphics::RenderBegin()
 	this->deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor);
 	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	this->deviceContext->IASetInputLayout(this->d3dvertexshader.get()->GetLayout());
 	this->deviceContext->RSSetState(this->rasterrizerState.Get());
 	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	this->deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
 	this->deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
-	this->deviceContext->VSSetShader(this->d3dvertexshader.get()->GetShader(device.Get()), NULL, 0);
-	this->deviceContext->PSSetShader(this->pixelshader.GetShader(), NULL, 0);
 }
 
 void Graphics::RenderEnd()
@@ -346,18 +346,23 @@ bool Graphics::InitializeScene()
 	//initialize constant buffer
 	hr = this->cb_vs_vertexshader.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_vs_vertexshader.SetDebugName("cb_vs_world");
 
 	hr = this->cb_ps_light.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_ps_light.SetDebugName("cb_ps_light");
 
 	hr = this->cb_ps_common.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_ps_common.SetDebugName("cb_ps_common");
 
 	hr = this->cb_ps_material.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_ps_material.SetDebugName("ps_material");
 
 	hr = this->cb_bones.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_bones.SetDebugName("vs_bone_transforms");
 
 	// Initialize Model(s)
 	
@@ -373,7 +378,7 @@ bool Graphics::InitializeScene()
 	}
 	gameObj.SetScale(0.07f, 0.07f, 0.07f);
 	gameObj.AdjustPosition(0.0f, 0.0f, 3.0f);
-	//gameObj.InitAnimation(cb_bones);
+	gameObj.InitAnimation(cb_bones);
 
 	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{

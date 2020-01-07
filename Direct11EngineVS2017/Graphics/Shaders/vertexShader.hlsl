@@ -34,7 +34,6 @@ VS_OUTPUT main(VS_INPUT input)
     float4 tangent = float4(input.inTangent, 0.0);
     float4 bitangent = float4(input.inBitangent, 0.0);
     
-    // TODO: BONE TRANSFORM
     
     output.outWorldPos = mul(pos, worldMatrix);
     output.outPosition = mul(output.outWorldPos, vpMatrix);

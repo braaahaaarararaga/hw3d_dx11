@@ -4,6 +4,7 @@
 #include "ConstantBufferTypes.h"
 #include <wrl/client.h>
 #include "..\\ErrorLogger.h"
+#include "..\\d3dUtil.h"
 
 template<class T>
 class ConstantBuffer
@@ -48,6 +49,12 @@ public:
 		
 		HRESULT hr = device->CreateBuffer(&bd, 0, buffer.GetAddressOf());
 		return hr;
+	}
+
+	template<UINT TNameLength>
+	void SetDebugName(const char(&name)[TNameLength])
+	{
+		D3D11SetDebugObjectName(buffer.Get(), name);
 	}
 
 	bool ApplyChanges()

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "GameObject3D.h"
+#include "..\\Timer.h"
 
 class RenderableGameObject : public GameObject3D
 {
@@ -17,6 +18,8 @@ protected:
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 private:
 	ID3D11DeviceContext* deviceContext;
+
+	Timer mAnimTimer;
 
 	bool mPlayAnimtion = false;
 	MeshAnimator mAnimator;

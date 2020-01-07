@@ -18,7 +18,7 @@ struct MeshParameters
 	std::vector<DirectX::XMFLOAT2> texcoord;
 	std::vector<DirectX::XMFLOAT3> tangent;
 	std::vector<DirectX::XMFLOAT3> bitangent;
-	std::vector<DirectX::XMFLOAT4> bone_names;
+	std::vector<DirectX::XMUINT4> bone_names;
 	std::vector<DirectX::XMFLOAT4> bone_weights;
 };
 
@@ -43,7 +43,7 @@ private:
 	VertexBuffer<DirectX::XMFLOAT2> vBufTexCoord;
 	VertexBuffer<DirectX::XMFLOAT3> vBufTangent;
 	VertexBuffer<DirectX::XMFLOAT3> vBufBitangent;
-	VertexBuffer<DirectX::XMFLOAT4> vBufBoneNames;
+	VertexBuffer<DirectX::XMUINT4> vBufBoneNames;
 	VertexBuffer<DirectX::XMFLOAT4> vBufBoneWeights;
 	IndexBuffer indexBuffer;
 	ConstantBuffer<CB_PS_material>* cb_ps_material;

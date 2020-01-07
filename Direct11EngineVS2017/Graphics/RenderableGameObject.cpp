@@ -17,24 +17,28 @@ bool RenderableGameObject::InitAnimation(ConstantBuffer<CB_Bones>& cbufBones)
 {
 	mAnimComp = std::make_unique<AnimationComponent>(&mAnimator);
 	mPlayAnimtion = true;
+	mAnimTimer.Start();
 	return model.InitAnimation(&cbufBones, &mAnimator, mAnimComp.get());
 }
 
 void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 {
-	if (0)
+	if (mPlayAnimtion)
 	{
+		if ((float)mAnimTimer.GetMiliseceondsElapsed() / 1000.0f >= mAnimator.GetCurrentAnimation().duration)
+			mAnimTimer.Restart();
+		mAnimator.SetTimestamp((float)mAnimTimer.GetMiliseceondsElapsed() / 1000.0f);
 		const AnimationChannel* channel = mAnimComp->GetCurrentChannel();
 		if (channel)
 		{
-			DirectX::XMMATRIX sample = mAnimComp->GetSample();
-			DirectX::XMVECTOR trans, quat, scale;
-			DirectX::XMMatrixDecompose(&scale, &quat, &trans, sample);
-			SetPosition(trans);
-			SetQuaternionRotation(quat);
-			float tempScale;
-			DirectX::XMStoreFloat(&tempScale, scale);
-			SetScale(tempScale, tempScale, tempScale);
+			//DirectX::XMMATRIX sample = mAnimComp->GetSample();
+			//DirectX::XMVECTOR trans, quat, scale;
+			//DirectX::XMMatrixDecompose(&scale, &quat, &trans, sample);
+			//SetPosition(trans);
+			//SetQuaternionRotation(quat);
+			//float tempScale;
+			//DirectX::XMStoreFloat(&tempScale, scale);
+			//SetScale(tempScale, tempScale, tempScale);
 
 			mAnimator.Bind(deviceContext);
 		}

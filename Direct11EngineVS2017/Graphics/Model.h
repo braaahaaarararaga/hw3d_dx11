@@ -44,7 +44,7 @@ private:
 	void AddAiBone(aiBone* pBone);
 	int FindBoneByName(const std::string& name) const;
 	int FindNodeByName(const std::string& name) const;
-	void AddBoneWeight(std::vector<XMFLOAT4>* ids, std::vector<XMFLOAT4>* weights, unsigned int vertex_id,
+	void AddBoneWeight(std::vector<XMUINT4>* ids, std::vector<XMFLOAT4>* weights, unsigned int vertex_id,
 		unsigned int bone_id, float weight);
 	int AddSkeletonNode(aiNode* node, int parent_index);
 	void BuildSkeleton(aiNode* pNode, int parent_index);
