@@ -98,7 +98,8 @@ std::vector<DirectX::XMMATRIX> MeshAnimation::GetSample(float timestamp, const s
 	new_transforms.reserve(original_skeleton.size());
 	std::transform(original_skeleton.begin(), original_skeleton.end(), std::back_inserter(new_transforms), [](const BoneNode& node)
 	{
-		return node.local_transform;
+		return DirectX::XMMatrixIdentity();
+		//return node.local_transform;
 	});
 
 	for (const AnimationChannel& channel : channels)
