@@ -38,8 +38,9 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 
 	XMMATRIX lightViewMat = XMMatrixLookAtLH(light.GetPositionVector(), light.GetPositionVector() + light.GetForwardVector(true), { 0.0f, 1.0f, 0.0f });
 	float aspect = (float)shadow_width / (float)shadow_height;
-	XMMATRIX lightProjMat = XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(90.0f), aspect, 0.1f, 100.0f);
+	XMMATRIX lightProjMat = XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(90.0f), aspect, 0.1f, 400.0f);
 
+	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
 	cb_ps_shadowmat.data.shadowMatrix = lightViewMat * lightProjMat;
 	cb_ps_shadowmat.ApplyChanges();
 	{

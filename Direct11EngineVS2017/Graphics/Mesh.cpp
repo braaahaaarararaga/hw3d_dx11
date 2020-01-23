@@ -47,6 +47,24 @@ void Mesh::Bind(IVertexShader * pVertexShader) const
 		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
 		slot++;
 	}
+	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::BoneId))
+	{
+		assert(vBufBoneNames.VertexCount() > 0, "Shader requires model to have bone name data");
+		ID3D11Buffer* pVertexBuffer = vBufBoneNames.Get();
+		UINT stride = (UINT)vBufBoneNames.Stride();
+		UINT offset = 0;
+		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
+		slot++;
+	}
+	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::BoneWeight))
+	{
+		assert(vBufBoneWeights.VertexCount() > 0, "Shader requires model to have bone weight data");
+		ID3D11Buffer* pVertexBuffer = vBufBoneWeights.Get();
+		UINT stride = (UINT)vBufBoneWeights.Stride();
+		UINT offset = 0;
+		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
+		slot++;
+	}
 	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::Color))
 	{
 		assert(vBufColor.VertexCount() > 0, "Shader requires model to have vertex color data");
@@ -92,24 +110,7 @@ void Mesh::Bind(IVertexShader * pVertexShader) const
 		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
 		slot++;
 	}
-	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::BoneId))
-	{
-		assert(vBufBoneNames.VertexCount() > 0, "Shader requires model to have bone name data");
-		ID3D11Buffer* pVertexBuffer = vBufBoneNames.Get();
-		UINT stride = (UINT)vBufBoneNames.Stride();
-		UINT offset = 0;
-		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
-		slot++;
-	}
-	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::BoneWeight))
-	{
-		assert(vBufBoneWeights.VertexCount() > 0, "Shader requires model to have bone weight data");
-		ID3D11Buffer* pVertexBuffer = vBufBoneWeights.Get();
-		UINT stride = (UINT)vBufBoneWeights.Stride();
-		UINT offset = 0;
-		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
-		slot++;
-	}
+	
 
 
 }

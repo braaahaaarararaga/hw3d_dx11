@@ -55,7 +55,7 @@ float Shadow(float3 worldPos, float3 normal, float3 light_dir)
     float4 lightPorjCoord = mul(float4(worldPos, 1.0f), ShadowMatrix);
     lightPorjCoord.xyz /= lightPorjCoord.w;
     
-    float2 shadowmapUV = lightPorjCoord.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+    float2 shadowmapUV = lightPorjCoord.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f); // NDC coordian to texture coordian
     float closestDepth = shadowTexture.Sample(objSamplerState, shadowmapUV).r;
     float fragDepth = lightPorjCoord.z;
     

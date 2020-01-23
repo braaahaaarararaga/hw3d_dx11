@@ -17,12 +17,12 @@ cbuffer perObjectBuffer : register(b0)
 struct VS_INPUT
 {
     float3 inPos : POSITION;
+    uint4 boneids : BONEID;
+    float4 boneweights : BONEWEIGHT;
     float3 inNormal : NORMAL;
     float2 inTexCoord : TEXCOORD;
     float3 inTangent : TANGENT;
     float3 inBitangent : BITANGENT;
-	uint4  boneids : BONEID;
-	float4 boneweights : BONEWEIGHT;
 };
 
 struct VS_OUTPUT
