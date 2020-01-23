@@ -114,7 +114,6 @@ void MeshAnimator::Bind(ID3D11DeviceContext * deviceContext)
 {
 	const MeshAnimation& animation = GetAnimation(GetCurrentAnimationIndex());
 
-	// TODO: Share cbuf between all animators
 
 	GetPoseOffsetTransforms(m_cbufBones->data.bone_Transforms, animation, GetTimestamp());
 

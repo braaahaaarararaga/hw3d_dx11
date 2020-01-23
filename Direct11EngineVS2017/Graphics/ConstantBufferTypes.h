@@ -12,6 +12,11 @@ struct CB_VS_vertexshader_2d
 	DirectX::XMMATRIX wvpMatrix;
 };
 
+struct CB_PS_shadowmat
+{
+	DirectX::XMMATRIX shadowMatrix;
+};
+
 struct CB_PS_material
 {
 	DirectX::XMFLOAT4  GlobalAmbient;

@@ -26,6 +26,11 @@ cbuffer Material : register(b2)
     Material Mat;
 }
 
+cbuffer Matrices : register(b3)
+{
+    float4x4 ShadowMatrix;
+}
+
 
 struct PS_INPUT
 {
@@ -41,7 +46,28 @@ Texture2D diffuseTexture : TEXTURE : register(t0);
 Texture2D normalTexture : TEXTURE : register(t1);
 Texture2D specularTexture : TEXTURE : register(t2);
 Texture2D emissiveTexture : TEXTURE : register(t3);
+Texture2D shadowTexture : TEXTURE : register(t4);
 SamplerState objSamplerState : SAMPLER : register(s0);
+
+float Shadow(float3 worldPos, float3 normal, float3 light_dir)
+{
+    float4 lightPorjCoord = mul(float4(worldPos, 1.0f), ShadowMatrix);
+    lightPorjCoord.xyz /= lightPorjCoord.w;
+    
+    float2 shadowmapUV = lightPorjCoord.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+    float closestDepth = shadowTexture.Sample(objSamplerState, shadowmapUV).r;
+    float fragDepth = lightPorjCoord.z;
+    
+    if (fragDepth > 1.0f)
+    {
+        return 1.0f;
+    }
+    
+    float bias = 0.005f;
+    float shadow = fragDepth - bias > closestDepth ? 0.0f : 1.0f;
+    
+    return shadow;
+}
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
@@ -80,7 +106,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 	specular = saturate(specular);
 	specular = pow(specular, 64);
     
-	diffuseLightIntensity = (diffuseLightIntensity + specular) * attenuationFactor;
+    diffuseLightIntensity = (diffuseLightIntensity + specular) * attenuationFactor * Shadow(worldPos, normal, vectorToLight);
 	float3 diffuseLight = diffuseLightIntensity * dynamicStrength * dynamicLight;
 	appliedLight += diffuseLight;
     
