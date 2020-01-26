@@ -36,9 +36,9 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 
 	deviceContext->PSSetShader(NULL, NULL, 0);
 
-	XMMATRIX lightViewMat = XMMatrixLookAtLH(light.GetPositionVector(), light.GetPositionVector() + light.GetForwardVector(true), { 0.0f, 1.0f, 0.0f });
+	XMMATRIX lightViewMat = XMMatrixLookAtLH(light.GetPositionVector(), light.GetPositionVector() + light.GetForwardVector(), { 0.0f, 1.0f, 0.0f });
 	float aspect = (float)shadow_width / (float)shadow_height;
-	XMMATRIX lightProjMat = XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(90.0f), aspect, 0.1f, 400.0f);
+	XMMATRIX lightProjMat = XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(90.0f), aspect, 0.1f, 800.0f);
 
 	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
 	cb_ps_shadowmat.data.shadowMatrix = lightViewMat * lightProjMat;
@@ -54,7 +54,6 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 		gameObj2.Draw(lightViewMat * lightProjMat);
 		gameObj3.Draw(lightViewMat * lightProjMat);
 	}
-	deviceContext->PSSetShaderResources(4, 1, shadowmap_resourceView.GetAddressOf());
 }
 
 void Graphics::RenderFrame()
@@ -62,6 +61,7 @@ void Graphics::RenderFrame()
 	deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 	//Set the Viewport
 	deviceContext->RSSetViewports(1, viewport.get());
+	deviceContext->PSSetShaderResources(4, 1, shadowmap_resourceView.GetAddressOf());
 
 
 	{	// TODO: refactory render pipelines
@@ -307,6 +307,24 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 	// shadow viewport
 	shadowmap_viewport = std::make_unique<CD3D11_VIEWPORT>(0.0f, 0.0f, static_cast<float>(shadow_width), static_cast<float>(shadow_height));
+
+	// shadow sampler
+
+	CD3D11_SAMPLER_DESC shadow_samplerDesc(D3D11_DEFAULT);
+	shadow_samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	shadow_samplerDesc.BorderColor[0] = 0.0f;
+	shadow_samplerDesc.BorderColor[1] = 1.0f;
+	shadow_samplerDesc.BorderColor[2] = 0.0f;
+	shadow_samplerDesc.BorderColor[3] = 1.0f;
+	shadow_samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadow_samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadow_samplerDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
+
+	hr = device->CreateSamplerState(&shadow_samplerDesc, shadowSampler.GetAddressOf());
+	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
+	deviceContext->PSSetSamplers(1, 1, this->shadowSampler.GetAddressOf());
+
+
 
 	// Create Rasterizer State
 	CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);

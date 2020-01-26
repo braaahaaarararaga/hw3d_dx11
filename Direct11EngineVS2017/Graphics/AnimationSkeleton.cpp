@@ -46,8 +46,14 @@ static DirectX::XMFLOAT3 GetPosKeyFrameAt(const std::vector<PosKeyFrame>& keyfra
 
 static DirectX::XMFLOAT4 InterpolateRotKeyFrames(const RotKeyFrame& prev_key, const RotKeyFrame& next_key, float timestamp)
 {
-	const float range = next_key.timestamp - prev_key.timestamp;
-	const float pct = (timestamp - prev_key.timestamp) / range;
+	float pct;
+	if (next_key.timestamp == prev_key.timestamp)
+		pct == 0.0f;
+	else
+	{
+		const float range = next_key.timestamp - prev_key.timestamp;
+		pct = (timestamp - prev_key.timestamp) / range;
+	}
 	DirectX::XMFLOAT4 ret;
 	DirectX::XMStoreFloat4( &ret, DirectX::XMQuaternionSlerp(DirectX::XMLoadFloat4(&prev_key.value), DirectX::XMLoadFloat4(&next_key.value), pct));
 	return ret;

@@ -48,32 +48,29 @@ Texture2D emissiveTexture : TEXTURE : register(t3);
 Texture2D shadowTexture : TEXTURE : register(t4);
 
 SamplerState objSamplerState : SAMPLER: register(s0);
+SamplerState shadowSamplerState : SAMPLER: register(s1);
 
 
 float Shadow(float3 worldPos, float3 normal, float3 light_dir)
 {
-    float4 lightPorjCoord = mul(float4(worldPos, 1.0f), ShadowMatrix);
-    lightPorjCoord.xyz /= lightPorjCoord.w;
-    
-    float2 shadowmapUV = lightPorjCoord.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f); // NDC coordian to texture coordian
-    float closestDepth = shadowTexture.Sample(objSamplerState, shadowmapUV).r;
-    float fragDepth = lightPorjCoord.z;
-    
-    if(fragDepth > 1.0f)
-    {
-        return 1.0f;
-    }
-    
-    float bias = 0.005f;
-    float shadow = fragDepth - bias > closestDepth ? 0.0f : 1.0f;
-    
+    float4 proj_coords = mul(float4(worldPos, 1.0f), ShadowMatrix);
+    proj_coords.xyz /= proj_coords.w;
+	
+    float2 shadow_uv = proj_coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+    float closest_depth = shadowTexture.Sample(shadowSamplerState, shadow_uv).r;
+    float current_depth = proj_coords.z;
+	
+   
+    float bias = 0.00005f;
+    float shadow = current_depth - bias > closest_depth ? 0.0f : 1.0f;
+	
     return shadow;
 }
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
     Material material = Mat;
-    
+    float4 inpos = input.inPosition;
     float3 normal = input.inNormal;
     // do normal mapping
     if(material.HasNormalTexture)
@@ -155,7 +152,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     
     finalColor = material.DiffuseColor.xyz * appliedLight;
-
+    
     return float4(finalColor, 1.0f) * material.Opacity;
 }
 
