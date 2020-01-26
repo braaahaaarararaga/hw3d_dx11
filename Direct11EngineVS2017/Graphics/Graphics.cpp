@@ -100,9 +100,9 @@ void Graphics::RenderImGui()
 	ImGui::NewLine();
 	ImGui::ColorEdit3("Dynamic Light Color", &this->light.lightColor.x);
 	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.01, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light.attenuation_a, 0.01, 0.1f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.01, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.01, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light.attenuation_a, 0.001, 0.1f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.001, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.001, 0.0f, 10.0f);
 	ImGui::End();
 
 	// Assemble Together Draw Data
@@ -459,7 +459,7 @@ bool Graphics::InitializeScene()
 	// Initialize Model(s)
 	
 	this->cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	this->cb_ps_light.data.ambientLightStrength = 1.0f;
+	this->cb_ps_light.data.ambientLightStrength = 0.3f;
 	
 
 	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(),
@@ -492,6 +492,8 @@ bool Graphics::InitializeScene()
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
+	light.AdjustPosition(0.0f, 10.0f, -6.0f);
+	light.AdjustRotation(DirectX::XMConvertToRadians(20.0f), 0.0f, 0.0f);
 
 
 	Camera3D.SetPosition(0.0f, 5.0f, -2.0f);
