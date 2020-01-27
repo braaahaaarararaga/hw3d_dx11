@@ -3,12 +3,12 @@
 bool Light::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,
 	ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader)
 {
-	if (!model.Initialize("Data\\Objects\\light.fbx", device, deviceContext, cb_vs_vertexshader, cb_ps_material, pVertexShader))
+	if (!model.Initialize("Data\\Objects\\sphere.gltf", device, deviceContext, cb_vs_vertexshader, cb_ps_material, pVertexShader))
 		return false;
 
 	this->SetPosition(0.0f, 0.0f, 0.0f);
 	this->SetRotation(0.0f, 0.0f, 0.0f);
-	this->SetScale(0001.f, 0001.f, 0001.f);
+	this->SetScale(0.25f, 0.25f, 0.25f);
 	this->UpdateMatrix();
 	return true;
 }
