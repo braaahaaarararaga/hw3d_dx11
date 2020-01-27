@@ -4,6 +4,7 @@ template<typename T>
 static void GetPrevAndNextKeyFrame(const std::vector<KeyFrame<T>>& keyframes, float timestamp, size_t start_at, size_t* pPrevKeyFrame, size_t* pNextKeyFrame)
 {
 	*pPrevKeyFrame = start_at;
+	*pNextKeyFrame = *pPrevKeyFrame;
 	for (size_t i = start_at + 1; i < keyframes.size(); i++)
 	{
 		*pNextKeyFrame = i;
@@ -48,7 +49,7 @@ static DirectX::XMFLOAT4 InterpolateRotKeyFrames(const RotKeyFrame& prev_key, co
 {
 	float pct;
 	if (next_key.timestamp == prev_key.timestamp)
-		pct == 0.0f;
+		pct = 0.0f;
 	else
 	{
 		const float range = next_key.timestamp - prev_key.timestamp;

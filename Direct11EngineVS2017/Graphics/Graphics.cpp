@@ -62,20 +62,30 @@ void Graphics::RenderFrame()
 	//Set the Viewport
 	deviceContext->RSSetViewports(1, viewport.get());
 	deviceContext->PSSetShaderResources(4, 1, shadowmap_resourceView.GetAddressOf());
+	deviceContext->PSSetShaderResources(5, 1, toneTexture.GetAddressOf());
 
+	ImGui::Begin("Shader Settings");
+	ImGui::Checkbox("Tone Shading", &enableToneshading);
+	ImGui::NewLine();
+	ImGui::End();
 
 	{	// TODO: refactory render pipelines
-		deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
+		if(enableToneshading)
+			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
+		else
+			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 		deviceContext->VSSetShader(d3dvertexshader_animation.get()->GetShader(device.Get()), NULL, 0);
 		deviceContext->IASetInputLayout(d3dvertexshader_animation.get()->GetLayout());
 		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
+		deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 		deviceContext->VSSetShader(d3dvertexshader.get()->GetShader(device.Get()), NULL, 0);
 		deviceContext->IASetInputLayout(d3dvertexshader.get()->GetLayout());
 		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
-		deviceContext->PSSetShader(pixelshader_heightmapping.GetShader(), NULL, 0);
+		//deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
+
 		gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
@@ -89,10 +99,6 @@ void Graphics::RenderFrame()
 
 void Graphics::RenderImGui()
 {
-	// Start the Dear ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
 	// Create imGui Test Window
 	ImGui::Begin("Light Controls");
 	ImGui::ColorEdit3("Ambient Light", &this->cb_ps_light.data.ambientLightColor.x);
@@ -104,6 +110,7 @@ void Graphics::RenderImGui()
 	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.001, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.001, 0.0f, 10.0f);
 	ImGui::End();
+
 
 	// Assemble Together Draw Data
 	ImGui::Render();
@@ -163,6 +170,10 @@ void Graphics::RenderBegin()
 	// Pixel Shader----PS
 	// Output-Merger---OM
 
+	// Start the Dear ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 	float bgcolor[] = { .0f, .0f, .0f, 1.0f };
 	deviceContext->ClearRenderTargetView(renderTargetView.Get(), bgcolor);
 	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -407,6 +418,10 @@ bool Graphics::InitializeShaders()
 	{
 		return false;
 	}
+	if (!pixelshader_tonemapping.Initialize(this->device, shaderfolder + L"pixelshader_tonemapping.cso"))
+	{
+		return false;
+	}
 	if (!pixelshader_heightmapping.Initialize(this->device, shaderfolder + L"PixelShader_HeightMapping.cso"))
 	{
 		return false;
@@ -430,6 +445,8 @@ bool Graphics::InitializeScene()
 	// 
 	// hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_pavement.jpg", nullptr, pavementTexture.GetAddressOf());
 	// COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
+	hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data\\Textures\\tone_.png", nullptr, toneTexture.GetAddressOf());
+	COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
 
 	//initialize constant buffer
 	hr = this->cb_vs_vertexshader.Initialize(this->device.Get(), this->deviceContext.Get());
@@ -480,12 +497,12 @@ bool Graphics::InitializeScene()
 	gameObj2.AdjustRotation(DirectX::XMConvertToRadians(90.0f), 0.0f, 0.0f);
 	gameObj2.SetScale(10.0f, 10.0f, 10.0f);
 
-	if (!gameObj3.Initialize("Data\\Objects\\rock\\rock.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
+	if (!gameObj3.Initialize("Data\\Objects\\sphere.gltf", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
-	gameObj3.AdjustPosition(3.0f, 0.0f, 0.0f);
+	gameObj3.AdjustPosition(3.0f, 3.0f, 0.0f);
 
 	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader_nolight.get()))
 	{

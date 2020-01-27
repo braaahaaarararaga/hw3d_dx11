@@ -59,7 +59,10 @@ private:
 	std::unique_ptr<D3DVertexShader> d3dvertexshader_shadowmap_anim;
 	PixelShader_ pixelshader;
 	PixelShader_ pixelshader_nolight;
+	PixelShader_ pixelshader_tonemapping;
 	PixelShader_ pixelshader_heightmapping;
+
+	bool enableToneshading = false;
 	// c_buffers
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
@@ -100,6 +103,7 @@ private:
 	//ComPtr<ID3D11ShaderResourceView> pinkTexture;
 	//ComPtr<ID3D11ShaderResourceView> grassTexture;
 	//ComPtr<ID3D11ShaderResourceView> pavementTexture;
+	ComPtr<ID3D11ShaderResourceView> toneTexture;
 
 	int window_width = 0;
 	int window_height = 0;

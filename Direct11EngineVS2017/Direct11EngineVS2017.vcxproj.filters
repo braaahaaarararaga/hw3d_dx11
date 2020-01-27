@@ -297,6 +297,7 @@
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\VS_shadowmap_anim.hlsl" />
     <FxCompile Include="Graphics\Shaders\VS_shadowmap.hlsl" />
+    <FxCompile Include="Graphics\Shaders\pixelshader_tonemapping.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct11EngineVS2017.rc">

@@ -20,6 +20,7 @@ private:
 	ID3D11DeviceContext* deviceContext;
 
 	Timer mAnimTimer;
+	float mAnimTimeScale = 1.0f;
 
 	bool mPlayAnimtion = false;
 	MeshAnimator mAnimator;

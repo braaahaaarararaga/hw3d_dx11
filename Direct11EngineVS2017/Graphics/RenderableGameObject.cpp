@@ -1,4 +1,5 @@
 ﻿#include "RenderableGameObject.h"
+#include "ImGui\\imgui.h"
 
 bool RenderableGameObject::Initialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader)
 {
@@ -25,9 +26,12 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 {
 	if (mPlayAnimtion)
 	{
-		if ((float)mAnimTimer.GetMiliseceondsElapsed() / 1000.0f >= mAnimator.GetCurrentAnimation().duration)
+		ImGui::Begin(mAnimator.GetCurrentAnimation().name.c_str());
+		ImGui::DragFloat("anim speed", &mAnimTimeScale, 0.001, 0.001f, 1.0f);
+		ImGui::End();
+		if ((float)mAnimTimer.GetMiliseceondsElapsed() / (1000.0f / mAnimTimeScale)  >= mAnimator.GetCurrentAnimation().duration)
 			mAnimTimer.Restart();
-		mAnimator.SetTimestamp((float)mAnimTimer.GetMiliseceondsElapsed() / 1000.0f);
+		mAnimator.SetTimestamp((float)mAnimTimer.GetMiliseceondsElapsed() / (1000.0f / mAnimTimeScale));
 		const AnimationChannel* channel = mAnimComp->GetCurrentChannel();
 		if (channel)
 		{
