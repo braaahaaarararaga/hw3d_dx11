@@ -84,7 +84,10 @@ void Graphics::RenderFrame()
 		deviceContext->IASetInputLayout(d3dvertexshader.get()->GetLayout());
 		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
-		//deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
+		if (enableToneshading)
+			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
+		else
+			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 
 		gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
@@ -497,7 +500,7 @@ bool Graphics::InitializeScene()
 	gameObj2.AdjustRotation(DirectX::XMConvertToRadians(90.0f), 0.0f, 0.0f);
 	gameObj2.SetScale(10.0f, 10.0f, 10.0f);
 
-	if (!gameObj3.Initialize("Data\\Objects\\sphere.gltf", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
+	if (!gameObj3.Initialize("Data\\Objects\\sphere_smooth.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;

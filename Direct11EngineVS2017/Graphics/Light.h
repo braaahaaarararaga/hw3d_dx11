@@ -10,7 +10,7 @@ public:
 	DirectX::XMFLOAT3 lightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	float lightStrenght = 3.0f;
 	float attenuation_a = 1.0f;
-	float attenuation_b = 0.1f;
+	float attenuation_b = 0.02f;
 	float attenuation_c = 0.01f;
 };
 
