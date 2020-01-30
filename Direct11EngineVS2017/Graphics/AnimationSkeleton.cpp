@@ -150,6 +150,6 @@ void MeshAnimator::GetPoseOffsetTransforms(DirectX::XMMATRIX * out, const MeshAn
 	}
 	for (size_t i = 0; i < m_Bones.size(); i++)
 	{
-		out[i] = m_Bones[i].inverse_transform * transforms[m_Bones[i].index];
+		out[i] = XMMatrixTranspose(m_Bones[i].inverse_transform * transforms[m_Bones[i].index]);
 	}
 }

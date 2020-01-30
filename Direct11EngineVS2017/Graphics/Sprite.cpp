@@ -44,7 +44,7 @@ void Sprite::Draw(XMMATRIX orthoMatrix)
 {
 	XMMATRIX mvpMatrix = worldMatrix * orthoMatrix;
 	deviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader_2d->GetAddressOf());
-	cb_vs_vertexshader_2d->data.wvpMatrix = mvpMatrix;
+	cb_vs_vertexshader_2d->data.wvpMatrix = XMMatrixTranspose(mvpMatrix);
 	cb_vs_vertexshader_2d->ApplyChanges();
 
 	deviceContext->PSSetShaderResources(0, 1, texture->GetShaderResourceView());

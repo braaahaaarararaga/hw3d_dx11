@@ -1,4 +1,3 @@
-#pragma pack_matrix( row_major )
 
 #define MAX_BONES 256
 

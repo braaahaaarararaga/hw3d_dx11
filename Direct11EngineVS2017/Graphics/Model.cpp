@@ -35,8 +35,8 @@ void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix)
 	
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		this->cb_vs_vertexshader->data.vpMatrix = viewProjectionMatrix; // Calculate world-view-projection matrix
-		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * world;
+		this->cb_vs_vertexshader->data.vpMatrix = XMMatrixTranspose(viewProjectionMatrix); // Calculate world-view-projection matrix
+		this->cb_vs_vertexshader->data.worldMatrix = XMMatrixTranspose(meshes[i].GetTransformMatrix() * world);
 		this->cb_vs_vertexshader->ApplyChanges();
 		meshes[i].Draw(pVertexShader);
 	}

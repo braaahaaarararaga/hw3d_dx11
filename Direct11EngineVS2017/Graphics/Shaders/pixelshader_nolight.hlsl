@@ -1,4 +1,3 @@
-#pragma pack_matrix( row_major )
 #include "CommonPS.hlsl"
 
 cbuffer Material : register(b2)
