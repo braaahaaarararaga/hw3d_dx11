@@ -190,7 +190,7 @@ void Graphics::RenderBegin()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	deltaTime = deltaTimer.GetMiliseceondsElapsed() / 1000.0f;
+	deltaTime = deltaTimer.GetTimeElapsed();
 	deltaTimer.Restart();
 	launchTime += deltaTime;
 

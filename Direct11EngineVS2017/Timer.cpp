@@ -20,6 +20,20 @@ double Timer::GetMiliseceondsElapsed()
 	}
 }
 
+float Timer::GetTimeElapsed()
+{
+	if (isrunning)
+	{
+		auto elapsed = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start);
+		return elapsed.count();
+	}
+	else
+	{
+		auto elapsed = std::chrono::duration<double>(stop - start);
+		return elapsed.count();
+	}
+}
+
 void Timer::Restart()
 {
 	isrunning = true;
