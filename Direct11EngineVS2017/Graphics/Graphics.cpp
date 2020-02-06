@@ -156,7 +156,7 @@ void Graphics::SetLight()
 	cb_ps_common.data.time = launchTime;
 	cb_ps_common.data.deltaTime = deltaTime;
 	cb_ps_common.data.eyePos = Camera3D.GetPositionFloat3();
-	cb_ps_common.data.cameraInvVP = DirectX::XMMatrixInverse(NULL, Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+	cb_ps_common.data.cameraInvVP = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix()));
 	cb_ps_common.ApplyChanges();
 	deviceContext->PSSetConstantBuffers(1, 1, cb_ps_common.GetAddressOf());
 

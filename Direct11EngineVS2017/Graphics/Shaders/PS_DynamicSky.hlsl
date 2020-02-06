@@ -179,6 +179,6 @@ float4 main(PixelInputType input) : SV_TARGET
 	
     float3 dir = normalize(pos_ws.xyz - Globals.CameraPos);
     float3 sky_colour = GetDynamicSkyColor(dir, true, true);
-	
+    
     return float4(sky_colour, 1.0f);
 }
