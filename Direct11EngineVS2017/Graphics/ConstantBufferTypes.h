@@ -67,6 +67,10 @@ struct CB_PS_light
 
 struct CB_PS_common
 {
+	DirectX::XMFLOAT2 resolution;
+	float time;
+	float deltaTime;
 	DirectX::XMFLOAT3 eyePos;
 	float pad;
+	DirectX::XMMATRIX cameraInvVP;
 };

@@ -5,6 +5,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	window_height = height;
 	window_width = width;
 	fpsTimer.Start();
+	deltaTimer.Start();
 
 	if (!InitializeDirectX(hwnd))
 		return false;
@@ -97,6 +98,12 @@ void Graphics::RenderFrame()
 		deviceContext->IASetInputLayout(d3dvertexshader_nolight.get()->GetLayout());
 		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
+	{
+		deviceContext->PSSetShader(pixelshader_dynamic_sky.GetShader(), NULL, 0);
+		deviceContext->VSSetShader(d3dvertexshader_dynamic_sky.get()->GetShader(device.Get()), NULL, 0);
+		deviceContext->IASetInputLayout(d3dvertexshader_dynamic_sky.get()->GetLayout());
+		deviceContext->Draw(3, 0);
+	}
 
 }
 
@@ -144,7 +151,12 @@ void Graphics::RenderText()
 
 void Graphics::SetLight()
 {
+	cb_ps_common.data.resolution.x = window_width;
+	cb_ps_common.data.resolution.y = window_height;
+	cb_ps_common.data.time = launchTime;
+	cb_ps_common.data.deltaTime = deltaTime;
 	cb_ps_common.data.eyePos = Camera3D.GetPositionFloat3();
+	cb_ps_common.data.cameraInvVP = DirectX::XMMatrixInverse(NULL, Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	cb_ps_common.ApplyChanges();
 	deviceContext->PSSetConstantBuffers(1, 1, cb_ps_common.GetAddressOf());
 
@@ -177,6 +189,11 @@ void Graphics::RenderBegin()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+
+	deltaTime = deltaTimer.GetMiliseceondsElapsed() / 1000.0f;
+	deltaTimer.Restart();
+	launchTime += deltaTime;
+
 	float bgcolor[] = { .0f, .0f, .0f, 1.0f };
 	deviceContext->ClearRenderTargetView(renderTargetView.Get(), bgcolor);
 	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -413,6 +430,7 @@ bool Graphics::InitializeShaders()
 	d3dvertexshader_nolight = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_nolight.cso");
 	d3dvertexshader_shadowmap = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_shadowmap.cso");
 	d3dvertexshader_shadowmap_anim = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_shadowmap_anim.cso");
+	d3dvertexshader_dynamic_sky = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_DynamicSky.cso");
 	if (!pixelshader.Initialize(this->device, shaderfolder + L"pixelshader.cso"))
 	{
 		return false;
@@ -426,6 +444,10 @@ bool Graphics::InitializeShaders()
 		return false;
 	}
 	if (!pixelshader_heightmapping.Initialize(this->device, shaderfolder + L"PixelShader_HeightMapping.cso"))
+	{
+		return false;
+	}
+	if (!pixelshader_dynamic_sky.Initialize(this->device, shaderfolder + L"PS_DynamicSky.cso"))
 	{
 		return false;
 	}

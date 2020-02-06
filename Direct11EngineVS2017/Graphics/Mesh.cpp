@@ -83,7 +83,7 @@ void Mesh::Bind(IVertexShader * pVertexShader) const
 		deviceContext->IASetVertexBuffers((UINT)slot, 1, &pVertexBuffer, &stride, &offset);
 		slot++;
 	}
-	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::TexCoord))
+	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::UV))
 	{
 		assert(vBufTexCoord.VertexCount() > 0, "Shader requires model to have vertex UV data");
 		ID3D11Buffer* pVertexBuffer = vBufTexCoord.Get();

@@ -1,3 +1,10 @@
+#define PI 3.1415926254f
+
+#define B_SLOT_LIGHT    b0
+#define B_SLOT_GLOBALS  b1
+#define B_SLOT_MATERIAL b2
+#define B_SLOT_SHADOW   b3 
+
 struct Material
 {
     float4 GlobalAmbient;
@@ -30,4 +37,26 @@ struct Material
     float SpecularScale;
     float AlphaThreshold;
     float2 Padding;
+};
+
+struct GlobalsBuf
+{
+	// width/height of screen
+    float2 Resolution;
+	// time in seconds since program was launched
+    float Time;
+	// time since last frame
+    float DeltaTime;
+	// camera position in world space
+    float3 CameraPos;
+    float pad0;
+	
+    float4x4 CameraInvVP;
+};
+
+
+// Global buffers
+cbuffer GlobalsBuf : register(B_SLOT_GLOBALS)
+{
+    GlobalsBuf Globals;
 };

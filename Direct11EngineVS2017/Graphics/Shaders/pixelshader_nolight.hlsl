@@ -1,6 +1,6 @@
 #include "CommonPS.hlsl"
 
-cbuffer Material : register(b2)
+cbuffer Material : register(B_SLOT_MATERIAL)
 {
     Material Mat;
 }

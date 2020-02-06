@@ -57,10 +57,12 @@ private:
 	std::unique_ptr<D3DVertexShader> d3dvertexshader_nolight;
 	std::unique_ptr<D3DVertexShader> d3dvertexshader_shadowmap;
 	std::unique_ptr<D3DVertexShader> d3dvertexshader_shadowmap_anim;
+	std::unique_ptr<D3DVertexShader> d3dvertexshader_dynamic_sky;
 	PixelShader_ pixelshader;
 	PixelShader_ pixelshader_nolight;
 	PixelShader_ pixelshader_tonemapping;
 	PixelShader_ pixelshader_heightmapping;
+	PixelShader_ pixelshader_dynamic_sky;
 
 	bool enableToneshading = false;
 	// c_buffers
@@ -109,4 +111,7 @@ private:
 	int window_height = 0;
 
 	Timer fpsTimer;
+	Timer deltaTimer;
+	float deltaTime = 0;
+	float launchTime = 0;
 };

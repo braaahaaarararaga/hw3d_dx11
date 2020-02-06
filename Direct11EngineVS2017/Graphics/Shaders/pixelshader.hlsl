@@ -1,6 +1,6 @@
 #include "CommonPS.hlsl"
 
-cbuffer lightBuffer : register(b0)
+cbuffer lightBuffer : register(B_SLOT_LIGHT)
 {
 	float3 ambientLightColor;
 	float ambientLightStrength;
@@ -14,18 +14,13 @@ cbuffer lightBuffer : register(b0)
 	float dynamicLightAttenuation_c;
 }
 
-cbuffer commonBuffer : register(b1)
-{
-    float3 eyePos;
-    float pad;
-}
 
-cbuffer Material : register(b2)
+cbuffer Material : register(B_SLOT_MATERIAL)
 {
     Material Mat;
 }
 
-cbuffer Matrices : register(b3)
+cbuffer Matrices : register(B_SLOT_SHADOW)
 {
     float4x4 ShadowMatrix;
 }
@@ -153,7 +148,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float3 refv = reflect(vectorToLight, normal);
     refv = normalize(refv);
-    float3 eyev = normalize(eyePos - worldPos);
+    float3 eyev = normalize(Globals.CameraPos - worldPos);
     float rv = dot(-refv, eyev);
     rv = saturate(rv);
     float3 specular = material.SpecularColor.rgb * pow(rv, material.SpecularPower);

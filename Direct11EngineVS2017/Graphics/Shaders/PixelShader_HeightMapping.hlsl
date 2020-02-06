@@ -1,6 +1,6 @@
 #include "CommonPS.hlsl"
 
-cbuffer lightBuffer : register(b0)
+cbuffer lightBuffer : register(B_SLOT_LIGHT)
 {
 	float3 ambientLightColor;
 	float ambientLightStrength;
@@ -14,18 +14,12 @@ cbuffer lightBuffer : register(b0)
 	float dynamicLightAttenuation_c;
 }
 
-cbuffer commonBuffer : register(b1)
-{
-	float3 eyePos;
-	float pad;
-}
-
-cbuffer Material : register(b2)
+cbuffer Material : register(B_SLOT_MATERIAL)
 {
     Material Mat;
 }
 
-cbuffer Matrices : register(b3)
+cbuffer Matrices : register(B_SLOT_SHADOW)
 {
     float4x4 ShadowMatrix;
 }
@@ -72,7 +66,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 {
 	// height mapping
 	float3 worldPos = input.inWorldPos.xyz;
-	float3 eyev = normalize(eyePos - worldPos);
+	float3 eyev = normalize(Globals.CameraPos - worldPos);
 	float3x3 mat = { input.inTangent, -input.inBitangent, input.inNormal};
 	float3 invEyev = mul(eyev, mat).xyz;
     float heightMap = (specularTexture.Sample(objSamplerState, input.inTexCoord).r - 0.5) * 0.25;
