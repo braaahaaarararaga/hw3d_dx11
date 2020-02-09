@@ -30,12 +30,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 {	
-	deviceContext->ClearDepthStencilView(shadowmap_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	ID3D11RenderTargetView* shadowRenderTargetView[1] = { 0 };
-	deviceContext->OMSetRenderTargets(1, shadowRenderTargetView, shadowmap_depthStencilView.Get());
-	deviceContext->RSSetViewports(1, shadowmap_viewport.get());
-
-	deviceContext->PSSetShader(NULL, NULL, 0);
+	shadowMapRTT->SetUpToRender(deviceContext.Get());
 
 	XMMATRIX lightViewMat = XMMatrixLookAtLH(light.GetPositionVector(), light.GetPositionVector() + light.GetForwardVector(), { 0.0f, 1.0f, 0.0f });
 	float aspect = (float)shadow_width / (float)shadow_height;
@@ -62,8 +57,9 @@ void Graphics::RenderFrame()
 	deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 	//Set the Viewport
 	deviceContext->RSSetViewports(1, viewport.get());
-	deviceContext->PSSetShaderResources(4, 1, shadowmap_resourceView.GetAddressOf());
 	deviceContext->PSSetShaderResources(5, 1, toneTexture.GetAddressOf());
+	
+	shadowMapRTT->BindTexture(deviceContext.Get(), 4);
 
 	ImGui::Begin("Shader Settings");
 	ImGui::Checkbox("Tone Shading", &enableToneshading);
@@ -304,41 +300,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	//Create the Viewport
 	viewport = std::make_unique<CD3D11_VIEWPORT>(0.0f, 0.0f, static_cast<float>(window_width), static_cast<float>(window_height));
 
-	// shadow map
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
-	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
-	depthBufferDesc.Width = shadow_width;
-	depthBufferDesc.Height = shadow_height;
-	depthBufferDesc.MipLevels = 1;
-	depthBufferDesc.ArraySize = 1;
-	depthBufferDesc.Format = DXGI_FORMAT_R24G8_TYPELESS; 
-	depthBufferDesc.SampleDesc.Count = 1;
-	depthBufferDesc.SampleDesc.Quality = 0;
-	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE; 
-	depthBufferDesc.CPUAccessFlags = 0;
-	depthBufferDesc.MiscFlags = 0;
-	hr = device->CreateTexture2D(&depthBufferDesc, NULL, shadowmap_depthStencilBuffer.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil buffer for shadow.");
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
-	depthStencilViewDesc.Flags = 0;
-	hr = device->CreateDepthStencilView(shadowmap_depthStencilBuffer.Get(), &depthStencilViewDesc, shadowmap_depthStencilView.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil view for shadow.");
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = depthBufferDesc.MipLevels;
-	hr = device->CreateShaderResourceView(shadowmap_depthStencilBuffer.Get(), &shaderResourceViewDesc, shadowmap_resourceView.GetAddressOf());
-
-	// shadow viewport
-	shadowmap_viewport = std::make_unique<CD3D11_VIEWPORT>(0.0f, 0.0f, static_cast<float>(shadow_width), static_cast<float>(shadow_height));
-
+	
 	// shadow sampler
 
 	CD3D11_SAMPLER_DESC samplerDesc(D3D11_DEFAULT);
@@ -357,8 +319,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	hr = device->CreateSamplerState(&samplerDesc, depthCmpSampler.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 	deviceContext->PSSetSamplers(1, 1, this->depthCmpSampler.GetAddressOf());
-
-	
 
 	// Create Rasterizer State
 	CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
@@ -403,6 +363,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 	deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
 	
+	shadowMapRTT = std::make_unique<ShadowMapRTT>(device.Get(), shadow_width, shadow_height);
 	
 
 	return true;
