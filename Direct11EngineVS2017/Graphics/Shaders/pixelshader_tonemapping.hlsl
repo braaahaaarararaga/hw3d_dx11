@@ -95,8 +95,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     if (material.HasDiffuseTexture)
     {
         material.DiffuseColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
+        material.DiffuseColor = ToLinearSpace(material.DiffuseColor);
     }
-    //sampleColor = float3(1,1,1);
     
     if (material.HasSpecularTexture)
     {
@@ -124,7 +124,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     if (material.HasEmissiveTexture)
     {
         float3 sample = emissiveTexture.Sample(objSamplerState, input.inTexCoord).rgb;
-		
+        sample = ToLinearSpace(sample);
         if (any(emissive))
         {
             emissive *= emissiveTexture.Sample(objSamplerState, input.inTexCoord).rgb;

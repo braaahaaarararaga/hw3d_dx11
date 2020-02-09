@@ -120,6 +120,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     if (material.HasEmissiveTexture)
     {
         float3 sample = emissiveTexture.Sample(objSamplerState, input.inTexCoord).rgb;
+        sample = ToLinearSpace(sample);
 		
         if (any(emissive))
         {
