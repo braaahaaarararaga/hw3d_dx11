@@ -60,3 +60,28 @@ cbuffer GlobalsBuf : register(B_SLOT_GLOBALS)
 {
     GlobalsBuf Globals;
 };
+
+SamplerComparisonState sampler_cmp_depth : register(s1);
+
+
+#define GAMMA 2.2f
+
+float3 TosRGBSpace(float3 color)
+{
+    return pow(color, 1.0 / GAMMA);
+}
+
+float4 TosRGBSpace(float4 color)
+{
+    return float4(TosRGBSpace(color.rgb), color.a);
+}
+
+float3 ToLinearSpace(float3 color)
+{
+    return pow(color, GAMMA);
+}
+
+float4 ToLinearSpace(float4 color)
+{
+    return float4(ToLinearSpace(color.rgb), color.a);
+}

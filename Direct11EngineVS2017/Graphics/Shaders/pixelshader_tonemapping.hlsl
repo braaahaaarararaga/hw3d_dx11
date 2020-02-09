@@ -43,7 +43,6 @@ Texture2D shadowTexture : TEXTURE : register(t4);
 Texture2D toneTexture : TEXTURE : register(t5);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
-SamplerState shadowSamplerState : SAMPLER : register(s1);
 
 
 float Shadow(float3 worldPos, float3 normal, float3 light_dir)
@@ -57,23 +56,21 @@ float Shadow(float3 worldPos, float3 normal, float3 light_dir)
     float bias = 0.005f;
     float current_depth = proj_coords.z - bias;
 	
-    float shadow = 0.0f;
-    int range = 2;
+    float2 shadow = 0.0f;
+    const float range = 1.5;
     float2 texelSize = 1.0 / 1024.0;
-    
-    for (int y = -range; y <= range; y++)
-    {
-        for (int x = -range; x <= range; x++)
-        {
-            float pcfDepth = shadowTexture.Sample(shadowSamplerState, shadow_uv + float2(x, y) * texelSize).r;
-            shadow += current_depth > pcfDepth ? 0.0f : 1.0f;
 
+    for (float y = -range; y <= range; y += 1.0)
+    {
+        for (float x = -range; x <= range; x += 1.0)
+        {
+            shadow.x += shadowTexture.SampleCmpLevelZero(sampler_cmp_depth, shadow_uv + float2(x, y) * texelSize, current_depth).r;
+            shadow.y++;
         }
     }
-    shadow /= (range * 2 + 1) * (range * 2 + 1);
-    //shadow = current_depth > closest_depth ? 0.0f : 1.0f;
+    shadow = shadow.x / shadow.y;
 	
-    return shadow;
+    return shadow.x;
 }
 
 

@@ -44,22 +44,28 @@ SamplerState objSamplerState : SAMPLER : register(s0);
 
 float Shadow(float3 worldPos, float3 normal, float3 light_dir)
 {
-    float4 lightPorjCoord = mul(float4(worldPos, 1.0f), ShadowMatrix);
-    lightPorjCoord.xyz /= lightPorjCoord.w;
-    
-    float2 shadowmapUV = lightPorjCoord.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
-    float closestDepth = shadowTexture.Sample(objSamplerState, shadowmapUV).r;
-    float fragDepth = lightPorjCoord.z;
-    
-    if (fragDepth > 1.0f)
+    float4 proj_coords = mul(float4(worldPos, 1.0f), ShadowMatrix);
+    proj_coords.xyz /= proj_coords.w;
+	
+    float2 shadow_uv = proj_coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+    float bias = 0.00025f;
+    float current_depth = proj_coords.z - bias;
+	
+    float2 shadow = 0.0f;
+    const float range = 1.5;
+    float2 texelSize = 1.0 / 1024.0;
+
+    for (float y = -range; y <= range; y += 1.0)
     {
-        return 1.0f;
+        for (float x = -range; x <= range; x += 1.0)
+        {
+            shadow.x += shadowTexture.SampleCmpLevelZero(sampler_cmp_depth, shadow_uv + float2(x, y) * texelSize, current_depth).r;
+            shadow.y++;
+        }
     }
-    
-    float bias = 0.005f;
-    float shadow = fragDepth - bias > closestDepth ? 0.0f : 1.0f;
-    
-    return shadow;
+    shadow = shadow.x / shadow.y;
+	
+    return shadow.x;
 }
 
 float4 main(PS_INPUT input) : SV_TARGET

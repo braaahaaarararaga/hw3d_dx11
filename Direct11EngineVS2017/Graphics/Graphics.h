@@ -90,7 +90,7 @@ private:
 	ComPtr<ID3D11Texture2D> shadowmap_depthStencilBuffer;
 	ComPtr<ID3D11DepthStencilView> shadowmap_depthStencilView;
 
-	ComPtr<ID3D11SamplerState> shadowSampler;
+	ComPtr<ID3D11SamplerState> depthCmpSampler;
 
 	// rasterizer
 	ComPtr<ID3D11RasterizerState> rasterrizerState;

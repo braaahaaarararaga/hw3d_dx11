@@ -42,7 +42,6 @@ Texture2D emissiveTexture : TEXTURE : register(t3);
 Texture2D shadowTexture : TEXTURE : register(t4);
 
 SamplerState objSamplerState : SAMPLER: register(s0);
-SamplerState shadowSamplerState : SAMPLER: register(s1);
 
 
 float Shadow(float3 worldPos, float3 normal, float3 light_dir)
@@ -51,28 +50,24 @@ float Shadow(float3 worldPos, float3 normal, float3 light_dir)
     proj_coords.xyz /= proj_coords.w;
 	
     float2 shadow_uv = proj_coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
-    //float closest_depth = shadowTexture.Sample(shadowSamplerState, shadow_uv).r;
-    //float bias = max(0.005 * (1.0 - dot(normal, light_dir)), 0.0005f);
     float bias = 0.00025f;
     float current_depth = proj_coords.z - bias;
 	
-    float shadow = 0.0f;
-    int range = 2;
+    float2 shadow = 0.0f;
+    const float range = 1.5;
     float2 texelSize = 1.0 / 1024.0;
-    
-    for (int y = -range; y <= range; y++)
-    {
-        for (int x = -range; x <= range; x++)
-        {
-            float pcfDepth = shadowTexture.Sample(shadowSamplerState, shadow_uv + float2(x, y) * texelSize).r;
-            shadow += current_depth > pcfDepth ? 0.0f : 1.0f;
 
+    for (float y = -range; y <= range; y += 1.0)
+    {
+        for (float x = -range; x <= range; x += 1.0)
+        {
+            shadow.x += shadowTexture.SampleCmpLevelZero(sampler_cmp_depth, shadow_uv + float2(x, y) * texelSize, current_depth).r;
+            shadow.y++;
         }
     }
-    shadow /= (range * 2 + 1) * (range * 2 + 1);
-    //shadow = current_depth > closest_depth ? 0.0f : 1.0f;
+    shadow = shadow.x / shadow.y;
 	
-    return shadow;
+    return shadow.x;
 }
 
 float4 main(PS_INPUT input) : SV_TARGET
@@ -96,8 +91,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     if (material.HasDiffuseTexture)
     {
         material.DiffuseColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
+        material.DiffuseColor = ToLinearSpace(material.DiffuseColor);
     }
-    //sampleColor = float3(1,1,1);
     
     if (material.HasSpecularTexture)
     {
@@ -160,6 +155,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     
     finalColor = material.DiffuseColor.xyz * appliedLight;
+    
+    finalColor = TosRGBSpace(finalColor);
     
     return float4(finalColor, 1.0f) * material.Opacity;
 }

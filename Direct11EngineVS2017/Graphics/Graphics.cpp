@@ -112,7 +112,7 @@ void Graphics::RenderImGui()
 	// Create imGui Test Window
 	ImGui::Begin("Light Controls");
 	ImGui::ColorEdit3("Ambient Light", &this->cb_ps_light.data.ambientLightColor.x);
-	ImGui::DragFloat("Ambient Strength", &this->cb_ps_light.data.ambientLightStrength, 0.01, 0.0f, 1.0f);
+	ImGui::DragFloat("Ambient Strength", &this->cb_ps_light.data.ambientLightStrength, 0.001, 0.0f, 1.0f);
 	ImGui::NewLine();
 	ImGui::ColorEdit3("Dynamic Light Color", &this->light.lightColor.x);
 	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.01, 0.0f, 10.0f);
@@ -341,21 +341,24 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 	// shadow sampler
 
-	CD3D11_SAMPLER_DESC shadow_samplerDesc(D3D11_DEFAULT);
-	shadow_samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	shadow_samplerDesc.BorderColor[0] = 0.0f;
-	shadow_samplerDesc.BorderColor[1] = 1.0f;
-	shadow_samplerDesc.BorderColor[2] = 0.0f;
-	shadow_samplerDesc.BorderColor[3] = 1.0f;
-	shadow_samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	shadow_samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	shadow_samplerDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
+	CD3D11_SAMPLER_DESC samplerDesc(D3D11_DEFAULT);
+	// compare sampler
+	samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	samplerDesc.BorderColor[0] = 1.0f;
+	samplerDesc.BorderColor[1] = 1.0f;
+	samplerDesc.BorderColor[2] = 0.0f;
+	samplerDesc.BorderColor[3] = 1.0f;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.MaxAnisotropy = 0;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 
-	hr = device->CreateSamplerState(&shadow_samplerDesc, shadowSampler.GetAddressOf());
+	hr = device->CreateSamplerState(&samplerDesc, depthCmpSampler.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
-	deviceContext->PSSetSamplers(1, 1, this->shadowSampler.GetAddressOf());
+	deviceContext->PSSetSamplers(1, 1, this->depthCmpSampler.GetAddressOf());
 
-
+	
 
 	// Create Rasterizer State
 	CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
@@ -389,16 +392,19 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	spriteFont = std::make_unique<DirectX::SpriteFont>(device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
 
 	//Create sampler description for sampler state
-	CD3D11_SAMPLER_DESC samplerDesc(D3D11_DEFAULT);
+	//CD3D11_SAMPLER_DESC samplerDesc(D3D11_DEFAULT);
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
 
 	hr = device->CreateSamplerState(&samplerDesc, samplerState.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 	deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
 	
+	
+
 	return true;
 }
 
@@ -500,8 +506,8 @@ bool Graphics::InitializeScene()
 
 	// Initialize Model(s)
 	
-	this->cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	this->cb_ps_light.data.ambientLightStrength = 0.3f;
+	cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	cb_ps_light.data.ambientLightStrength = 0.04f;
 	
 
 	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(),
