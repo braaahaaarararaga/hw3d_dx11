@@ -167,6 +167,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     finalColor = material.DiffuseColor.xyz * appliedLight;
     
+    finalColor = TosRGBSpace(finalColor);
+    
     return float4(finalColor, 1.0f) * material.Opacity;
 }
 
