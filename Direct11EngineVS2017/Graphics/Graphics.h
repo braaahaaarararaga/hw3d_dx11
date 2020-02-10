@@ -66,6 +66,8 @@ private:
 	PixelShader_ pixelshader_dynamic_sky;
 
 	bool enableToneshading = false;
+	bool enableProcSky = true;
+
 	// c_buffers
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;

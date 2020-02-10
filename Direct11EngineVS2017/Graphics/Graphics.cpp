@@ -63,6 +63,8 @@ void Graphics::RenderFrame()
 
 	ImGui::Begin("Shader Settings");
 	ImGui::Checkbox("Tone Shading", &enableToneshading);
+	ImGui::Checkbox("ProcSky", &enableProcSky);
+
 	ImGui::NewLine();
 	ImGui::End();
 
@@ -95,10 +97,13 @@ void Graphics::RenderFrame()
 		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
-		deviceContext->PSSetShader(pixelshader_dynamic_sky.GetShader(), NULL, 0);
-		deviceContext->VSSetShader(d3dvertexshader_dynamic_sky.get()->GetShader(device.Get()), NULL, 0);
-		deviceContext->IASetInputLayout(d3dvertexshader_dynamic_sky.get()->GetLayout());
-		deviceContext->Draw(3, 0);
+		if (enableProcSky)
+		{
+			deviceContext->PSSetShader(pixelshader_dynamic_sky.GetShader(), NULL, 0);
+			deviceContext->VSSetShader(d3dvertexshader_dynamic_sky.get()->GetShader(device.Get()), NULL, 0);
+			deviceContext->IASetInputLayout(d3dvertexshader_dynamic_sky.get()->GetLayout());
+			deviceContext->Draw(3, 0);
+		}
 	}
 
 }
