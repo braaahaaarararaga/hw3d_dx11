@@ -13,7 +13,7 @@ public:
 
 protected:
 	Model model;
-	void UpdateMatrix() override;
+	virtual void UpdateMatrix() override;
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 private:

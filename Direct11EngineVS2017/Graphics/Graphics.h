@@ -13,7 +13,6 @@
 #include "RenderableGameObject.h"
 #include "Light.h"
 #include "VertexShader.h"
-#include "ShadowMapRTT.h"
 
 class Graphics
 {
@@ -83,11 +82,6 @@ private:
 	ComPtr<ID3D11DepthStencilState> depthStencilState;
 
 	// shadow map
-	const int shadow_width = 1024;
-	const int shadow_height = 1024;
-
-	std::unique_ptr<ShadowMapRTT> shadowMapRTT;
-
 	ConstantBuffer<CB_PS_shadowmat> cb_ps_shadowmat;
 
 

@@ -30,25 +30,21 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 {	
-	shadowMapRTT->SetUpToRender(deviceContext.Get());
-
-	XMMATRIX lightViewMat = XMMatrixLookAtLH(light.GetPositionVector(), light.GetPositionVector() + light.GetForwardVector(), { 0.0f, 1.0f, 0.0f });
-	float aspect = (float)shadow_width / (float)shadow_height;
-	XMMATRIX lightProjMat = XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(90.0f), aspect, 0.1f, 800.0f);
+	light.SetUpShadowMap();
 
 	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
-	cb_ps_shadowmat.data.shadowMatrix = XMMatrixTranspose(lightViewMat * lightProjMat);
+	cb_ps_shadowmat.data.shadowMatrix = XMMatrixTranspose(light.GetVpMatrix());
 	cb_ps_shadowmat.ApplyChanges();
 	{
 		deviceContext->VSSetShader(d3dvertexshader_shadowmap_anim.get()->GetShader(device.Get()), NULL, 0);
 		deviceContext->IASetInputLayout(d3dvertexshader_shadowmap_anim.get()->GetLayout());
-		gameObj.Draw(lightViewMat * lightProjMat);
+		gameObj.Draw(light.GetVpMatrix());
 	
 	
 		deviceContext->VSSetShader(d3dvertexshader_shadowmap.get()->GetShader(device.Get()), NULL, 0);
 		deviceContext->IASetInputLayout(d3dvertexshader_shadowmap.get()->GetLayout());
-		gameObj2.Draw(lightViewMat * lightProjMat);
-		gameObj3.Draw(lightViewMat * lightProjMat);
+		gameObj2.Draw(light.GetVpMatrix());
+		gameObj3.Draw(light.GetVpMatrix());
 	}
 }
 
@@ -59,7 +55,7 @@ void Graphics::RenderFrame()
 	deviceContext->RSSetViewports(1, viewport.get());
 	deviceContext->PSSetShaderResources(5, 1, toneTexture.GetAddressOf());
 	
-	shadowMapRTT->BindTexture(deviceContext.Get(), 4);
+	light.BindShadowResourceView();
 
 	ImGui::Begin("Shader Settings");
 	ImGui::Checkbox("Tone Shading", &enableToneshading);
@@ -368,7 +364,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 	deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
 	
-	shadowMapRTT = std::make_unique<ShadowMapRTT>(device.Get(), shadow_width, shadow_height);
 	
 
 	return true;
