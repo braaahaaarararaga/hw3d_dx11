@@ -29,7 +29,7 @@ public:
 	void Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix);
 	bool InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, MeshAnimator* animator_out, AnimationComponent* animComp);
 
-
+	void SetMeshDiffuseColor(Color& color);
 	
 private:
 	std::vector<Mesh> meshes;

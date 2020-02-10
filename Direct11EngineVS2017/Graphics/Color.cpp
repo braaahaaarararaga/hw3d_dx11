@@ -46,7 +46,7 @@ bool Color::operator!=(const Color & rhs) const
 	return !(*this == rhs);
 }
 
-constexpr BYTE Color::GetR() const
+BYTE Color::GetR() const
 {
 	return this->rgba[0];
 }
@@ -56,7 +56,7 @@ void Color::SetR(BYTE r)
 	this->rgba[0] = r;
 }
 
-constexpr BYTE Color::GetG() const
+BYTE Color::GetG() const
 {
 	return this->rgba[1];
 }
@@ -66,7 +66,7 @@ void Color::SetG(BYTE g)
 	this->rgba[1] = g;
 }
 
-constexpr BYTE Color::GetB() const
+BYTE Color::GetB() const
 {
 	return rgba[2];
 }
@@ -76,7 +76,7 @@ void Color::SetB(BYTE b)
 	rgba[2] = b;
 }
 
-constexpr BYTE Color::GetA() const
+BYTE Color::GetA() const
 {
 	return rgba[3];
 }

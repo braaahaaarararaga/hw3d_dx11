@@ -144,6 +144,12 @@ void Mesh::BindMaterial() const
 		this->deviceContext->PSSetShaderResources(3, 1, material.GetEmissiveTexture()->GetShaderResourceView());
 }
 
+void Mesh::SetDiffuseColor(Color& color)
+{
+	material.SetDiffuseColour((float)color.GetR() / 256.0f, (float)color.GetG() / 256.0f, (float)color.GetB() / 256.0f);
+	//material.SetDiffuseColour(0.5f, 0.5f, 0.5f);
+}
+
 void Mesh::SetData(MeshParameters& params)
 {
 	if (!params.position.empty())

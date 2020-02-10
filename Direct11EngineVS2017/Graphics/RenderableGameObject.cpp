@@ -26,29 +26,33 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 {
 	if (mPlayAnimtion)
 	{
-		ImGui::Begin(mAnimator.GetCurrentAnimation().name.c_str());
-		ImGui::DragFloat("anim speed", &mAnimTimeScale, 0.001, 0.001f, 1.0f);
-		ImGui::End();
-		if ((float)mAnimTimer.GetMiliseceondsElapsed() / (1000.0f / mAnimTimeScale)  >= mAnimator.GetCurrentAnimation().duration)
+		float time = (float)mAnimTimer.GetMiliseceondsElapsed() / 1000.0f;
+		if (time * mAnimTimeScale  >= mAnimator.GetCurrentAnimation().duration)
 			mAnimTimer.Restart();
-		mAnimator.SetTimestamp((float)mAnimTimer.GetMiliseceondsElapsed() / (1000.0f / mAnimTimeScale));
+		mAnimator.SetTimestamp(time * mAnimTimeScale);
 		const AnimationChannel* channel = mAnimComp->GetCurrentChannel();
 		if (channel)
 		{
-			//DirectX::XMMATRIX sample = mAnimComp->GetSample();
-			//DirectX::XMVECTOR trans, quat, scale;
-			//DirectX::XMMatrixDecompose(&scale, &quat, &trans, sample);
-			//SetPosition(trans);
-			//SetQuaternionRotation(quat);
-			//float tempScale;
-			//DirectX::XMStoreFloat(&tempScale, scale);
-			//SetScale(tempScale, tempScale, tempScale);
-
 			mAnimator.Bind(deviceContext);
 		}
 	}
 	model.Draw(this->worldMatrix, viewProjectionMatrix);
 	
+}
+
+float & RenderableGameObject::GetAnimaTimeScale()
+{
+	return mAnimTimeScale;
+}
+
+MeshAnimator & RenderableGameObject::GetAnimator()
+{
+	return mAnimator;
+}
+
+void RenderableGameObject::SetMeshDiffuseColor(Color & color)
+{
+	model.SetMeshDiffuseColor(color);
 }
 
 void RenderableGameObject::UpdateMatrix()

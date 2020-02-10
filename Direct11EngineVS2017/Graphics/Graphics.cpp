@@ -32,9 +32,6 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 {	
 	light.SetUpShadowMap();
 
-	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
-	cb_ps_shadowmat.data.shadowMatrix = XMMatrixTranspose(light.GetVpMatrix());
-	cb_ps_shadowmat.ApplyChanges();
 	{
 		deviceContext->VSSetShader(d3dvertexshader_shadowmap_anim.get()->GetShader(device.Get()), NULL, 0);
 		deviceContext->IASetInputLayout(d3dvertexshader_shadowmap_anim.get()->GetLayout());
@@ -46,6 +43,9 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 		gameObj2.Draw(light.GetVpMatrix());
 		gameObj3.Draw(light.GetVpMatrix());
 	}
+	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
+	cb_ps_shadowmat.data.shadowMatrix = XMMatrixTranspose(light.GetVpMatrix());
+	cb_ps_shadowmat.ApplyChanges();
 }
 
 void Graphics::RenderFrame()
@@ -111,13 +111,21 @@ void Graphics::RenderImGui()
 	ImGui::ColorEdit3("Ambient Light", &this->cb_ps_light.data.ambientLightColor.x);
 	ImGui::DragFloat("Ambient Strength", &this->cb_ps_light.data.ambientLightStrength, 0.001, 0.0f, 1.0f);
 	ImGui::NewLine();
-	ImGui::ColorEdit3("Dynamic Light Color", &this->light.lightColor.x);
+	if (ImGui::ColorEdit3("Dynamic Light Color", &this->light.lightColor.x))
+	{
+		Color color = Color((BYTE)(light.lightColor.x * 255), (BYTE)(light.lightColor.y * 255), (BYTE)(light.lightColor.z * 255), (BYTE)0);
+		light.SetMeshDiffuseColor(color);
+	}
 	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.01, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light.attenuation_a, 0.001, 0.1f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.001, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.001, 0.0f, 10.0f);
 	ImGui::End();
 
+
+	ImGui::Begin(gameObj.GetAnimator().GetCurrentAnimation().name.c_str());
+	ImGui::DragFloat("anim speed", &gameObj.GetAnimaTimeScale(), 0.001, 0.001f, 1.0f);
+	ImGui::End();
 
 	// Assemble Together Draw Data
 	ImGui::Render();

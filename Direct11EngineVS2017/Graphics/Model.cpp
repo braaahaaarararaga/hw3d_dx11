@@ -48,6 +48,14 @@ bool Model::InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, MeshAnimator* anim
 	return true;
 }
 
+void Model::SetMeshDiffuseColor(Color & color)
+{
+	for (auto &it : meshes)
+	{
+		it.SetDiffuseColor(color);
+	}
+}
+
 bool Model::LoadModel(const std::string & filePath)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filePath);

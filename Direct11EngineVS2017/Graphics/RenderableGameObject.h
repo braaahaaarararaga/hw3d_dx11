@@ -11,6 +11,9 @@ public:
 
 	void Draw(const XMMATRIX& viewProjectionMatrix);
 
+	float& GetAnimaTimeScale();
+	MeshAnimator& GetAnimator();
+	void SetMeshDiffuseColor(Color& color);
 protected:
 	Model model;
 	virtual void UpdateMatrix() override;

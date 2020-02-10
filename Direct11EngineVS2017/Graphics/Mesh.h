@@ -10,6 +10,7 @@
 #include "Texture.h"
 #include "../ResourceManager.h"
 
+
 struct MeshParameters
 {
 	std::vector<DirectX::XMFLOAT3> position;
@@ -30,6 +31,8 @@ public:
 
 	void Bind(IVertexShader* pVertexShader) const;
 	void BindMaterial() const;
+
+	void SetDiffuseColor(Color& color);
 
 	void SetData(MeshParameters& params);
 
