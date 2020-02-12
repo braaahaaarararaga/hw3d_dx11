@@ -8,6 +8,8 @@ class ShadowMapRTT
 public:
 	ShadowMapRTT() = default;
 	ShadowMapRTT(ID3D11Device* device, int width, int height);
+	ShadowMapRTT(const ShadowMapRTT&) = delete;
+	ShadowMapRTT& operator = (ShadowMapRTT&) = delete;
 
 public:
 	void Resize(ID3D11Device* device, int width, int height);

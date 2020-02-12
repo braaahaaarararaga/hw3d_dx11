@@ -25,7 +25,7 @@ class Model
 {
 public:
 	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext,
-		 ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader);
+		 ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,ConstantBuffer<CB_PS_material>& cb_ps_material, Graphics * gfx);
 	void Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix);
 	bool InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, MeshAnimator* animator_out, AnimationComponent* animComp);
 
@@ -59,7 +59,7 @@ private:
 	ID3D11DeviceContext* deviceContext = nullptr;
 	ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader = nullptr;
 	ConstantBuffer<CB_PS_material>* cb_ps_material = nullptr;
-	IVertexShader * pVertexShader = nullptr;
+	Graphics * gfx = nullptr;
 	std::string directory = "";
 
 	std::vector<BoneData> m_Bones;

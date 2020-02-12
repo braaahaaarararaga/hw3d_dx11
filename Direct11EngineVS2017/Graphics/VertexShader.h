@@ -15,12 +15,24 @@ public:
 	virtual bool RequiresVertexAttribute(AttributeInfo::VertexAttribute attribute) const = 0;
 };
 
+struct ShaderMacro
+{
+	ShaderMacro(std::string name, std::string value = "")
+		:
+		name(std::move(name)),
+		value(std::move(value))
+	{}
+
+	std::string name;
+	std::string value;
+};
+
 class D3DVertexShader : public IVertexShader
 {
 public:
 	template<class T>
 	using ComPtr = Microsoft::WRL::ComPtr<T>;
-	D3DVertexShader(ID3D11Device* pDevice, const std::string& filename);
+	D3DVertexShader(ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros);
 	~D3DVertexShader();
 
 	virtual std::string GetName() const override { return m_szName; }
@@ -36,6 +48,7 @@ private:
 	void SetDirty(bool dirty) { m_bDirty = dirty; }
 private:
 	std::string m_szName;
+	std::vector<ShaderMacro> m_Macros;
 	ComPtr<ID3D11InputLayout>	m_pInputLayout;
 	bool m_bUsesAttribute[(int)AttributeInfo::VertexAttribute::TotalAttributes];
 	std::atomic_bool m_bDirty = true;

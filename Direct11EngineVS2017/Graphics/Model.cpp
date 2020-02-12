@@ -1,4 +1,6 @@
-﻿#include "Model.h"
+﻿#include "Graphics.h"
+#include "Model.h"
+
 
 static DirectX::XMMATRIX AiToDxMatrix(const aiMatrix4x4& aimat)
 {
@@ -7,13 +9,13 @@ static DirectX::XMMATRIX AiToDxMatrix(const aiMatrix4x4& aimat)
 
 
 bool Model::Initialize(const std::string& filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext,  ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,
-	ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader)
+	ConstantBuffer<CB_PS_material>& cb_ps_material, Graphics * gfx)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
 	this->cb_ps_material = &cb_ps_material;
-	this->pVertexShader = pVertexShader;
+	this->gfx = gfx;
 	try 
 	{
 		if (!this->LoadModel(filePath))
@@ -38,7 +40,7 @@ void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix)
 		this->cb_vs_vertexshader->data.vpMatrix = XMMatrixTranspose(viewProjectionMatrix); // Calculate world-view-projection matrix
 		this->cb_vs_vertexshader->data.worldMatrix = XMMatrixTranspose(meshes[i].GetTransformMatrix() * world);
 		this->cb_vs_vertexshader->ApplyChanges();
-		meshes[i].Draw(pVertexShader);
+		meshes[i].Draw(gfx);
 	}
 }
 

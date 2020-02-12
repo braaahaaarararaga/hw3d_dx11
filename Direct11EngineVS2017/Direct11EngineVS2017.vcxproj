@@ -273,6 +273,7 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Graphics\ShadowMapRTT.cpp" />
+    <ClCompile Include="Graphics\TextureRender.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Input\KeyboardClass.cpp" />
     <ClCompile Include="Input\MouseClass.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="Graphics\ShaderUtils.h" />
     <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Graphics\ShadowMapRTT.h" />
+    <ClInclude Include="Graphics\TextureRender.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Input\KeyboardClass.h" />
     <ClInclude Include="Input\MouseClass.h" />

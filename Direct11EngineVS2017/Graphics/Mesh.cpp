@@ -1,4 +1,5 @@
 ﻿#include "Mesh.h"
+#include "Graphics.h"
 #include "VertexShader.h"
 
 Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_PS_material>& cb_ps_material, MeshParameters& params, std::vector<DWORD>& indices, Material& material, const DirectX::XMMATRIX& matrixTransform)
@@ -33,10 +34,11 @@ Mesh::Mesh(const Mesh & mesh)
 	this->transformMatrix = mesh.transformMatrix;
 }
 
-void Mesh::Bind(IVertexShader * pVertexShader) const
+void Mesh::Bind(Graphics * gfx) const
 {
 	size_t slot = 0;
-
+	IVertexShader* pVertexShader = gfx->GetVertexShader();
+	
 	if (pVertexShader->RequiresVertexAttribute(AttributeInfo::VertexAttribute::Position))
 	{
 		assert(vBufPosition.VertexCount() > 0, "Shader requires model to have vertex position data");
@@ -186,10 +188,10 @@ void Mesh::SetData(MeshParameters& params)
 	}
 }
 
-void Mesh::Draw(IVertexShader * pVertexShader)
+void Mesh::Draw(Graphics * gfx)
 {
 	BindMaterial();
-	Bind(pVertexShader);
+	Bind(gfx);
 	this->deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	this->deviceContext->DrawIndexed(this->indexBuffer.IndexCount(), 0, 0);
 }

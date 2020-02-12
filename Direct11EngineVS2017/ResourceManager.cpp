@@ -1,6 +1,3 @@
-#include "Graphics/Texture.h"
-#include "Graphics/VertexShader.h"
-#include "StringHelper.h"
 #include "Graphics/Graphics.h"
 #include "ResourceManager.h"
 
@@ -63,18 +60,32 @@ Resource<Texture> ResourceManager::GetTexture(ID3D11Device * device, const std::
 	return it->second;
 }
 
-Resource<IVertexShader> ResourceManager::GetVertexShader(const std::string& filename, Graphics& gfx)
+static std::string GetShaderHashName(const std::string& filename, const std::vector<ShaderMacro>& macros)
 {
-	auto it = g_mapVShaders.find(filename);
+	std::string name = filename;
+	for (const auto& macro : macros)
+	{
+		name += macro.name;
+		name += macro.value;
+	}
+	return name;
+}
+
+IVertexShader * ResourceManager::GetVertexShader(const std::string & filename, Graphics * gfx, const std::vector<ShaderMacro>& macros)
+{
+	std::string name = GetShaderHashName(filename, macros);
+	auto it = g_mapVShaders.find(name);
 	if (it == g_mapVShaders.end())
 	{
-		auto pResource = std::shared_ptr<IVertexShader>(gfx.CreateVertexShader(filename));
-		g_mapVShaders[filename] = pResource;
+		auto pResource = gfx->CreateVertexShader(filename, macros);
+		g_mapVShaders[name] = std::unique_ptr<IVertexShader>(pResource);
 		return pResource;
 	}
 
-	return it->second;
+	return it->second.get();
 }
+
+
 
 template <typename T>
 static void CleanUpResources(std::unordered_map<std::string, std::shared_ptr<T>>& resource_map)

@@ -33,13 +33,13 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 	light.SetUpShadowMap();
 
 	{
-		deviceContext->VSSetShader(d3dvertexshader_shadowmap_anim.get()->GetShader(device.Get()), NULL, 0);
-		deviceContext->IASetInputLayout(d3dvertexshader_shadowmap_anim.get()->GetLayout());
+		IVertexShader* shadowmap_anim = ResourceManager::GetVertexShader("VS_shadowmap_anim.cso", this);
+		SetVertexShader(shadowmap_anim);
 		gameObj.Draw(light.GetVpMatrix());
 	
 	
-		deviceContext->VSSetShader(d3dvertexshader_shadowmap.get()->GetShader(device.Get()), NULL, 0);
-		deviceContext->IASetInputLayout(d3dvertexshader_shadowmap.get()->GetLayout());
+		IVertexShader* shadowmap = ResourceManager::GetVertexShader("VS_shadowmap.cso", this);
+		SetVertexShader(shadowmap);
 		gameObj2.Draw(light.GetVpMatrix());
 		gameObj3.Draw(light.GetVpMatrix());
 	}
@@ -64,19 +64,20 @@ void Graphics::RenderFrame()
 	ImGui::NewLine();
 	ImGui::End();
 
+
 	{	// TODO: refactory render pipelines
 		if(enableToneshading)
 			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
 		else
 			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-		deviceContext->VSSetShader(d3dvertexshader_animation.get()->GetShader(device.Get()), NULL, 0);
-		deviceContext->IASetInputLayout(d3dvertexshader_animation.get()->GetLayout());
+		IVertexShader* animation = ResourceManager::GetVertexShader("VertexShaderAnim.cso", this);
+		SetVertexShader(animation);
 		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
 		deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-		deviceContext->VSSetShader(d3dvertexshader.get()->GetShader(device.Get()), NULL, 0);
-		deviceContext->IASetInputLayout(d3dvertexshader.get()->GetLayout());
+		IVertexShader* litGeneric = ResourceManager::GetVertexShader("vertexShader.cso", this);
+		SetVertexShader(litGeneric);
 		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		if (enableToneshading)
@@ -88,16 +89,16 @@ void Graphics::RenderFrame()
 	}
 	{
 		deviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
-		deviceContext->VSSetShader(d3dvertexshader_nolight.get()->GetShader(device.Get()), NULL, 0);
-		deviceContext->IASetInputLayout(d3dvertexshader_nolight.get()->GetLayout());
+		IVertexShader* nolight = ResourceManager::GetVertexShader("VS_nolight.cso", this);
+		SetVertexShader(nolight);
 		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
 		if (enableProcSky)
 		{
 			deviceContext->PSSetShader(pixelshader_dynamic_sky.GetShader(), NULL, 0);
-			deviceContext->VSSetShader(d3dvertexshader_dynamic_sky.get()->GetShader(device.Get()), NULL, 0);
-			deviceContext->IASetInputLayout(d3dvertexshader_dynamic_sky.get()->GetLayout());
+			IVertexShader* dynamic_sky = ResourceManager::GetVertexShader("VS_DynamicSky.cso", this);
+			SetVertexShader(dynamic_sky);
 			deviceContext->Draw(3, 0);
 		}
 	}
@@ -214,9 +215,21 @@ void Graphics::RenderEnd()
 	swapchain->Present(0u, NULL);
 }
 
-IVertexShader * Graphics::CreateVertexShader(const std::string & filename)
+IVertexShader * Graphics::CreateVertexShader(const std::string & filename, const std::vector<ShaderMacro>& macros)
 {
-	return new D3DVertexShader(device.Get(), filename);
+	return new D3DVertexShader(device.Get(), filename, macros);
+}
+
+IVertexShader * Graphics::GetVertexShader() const
+{
+	return vertexshader;
+}
+
+void Graphics::SetVertexShader(IVertexShader * pShader)
+{
+	vertexshader = static_cast<D3DVertexShader*>(pShader);
+	deviceContext->VSSetShader(vertexshader ? vertexshader->GetShader(device.Get()) : nullptr, nullptr, 0);
+	deviceContext->IASetInputLayout(vertexshader ? vertexshader->GetLayout() : nullptr);
 }
 
 bool Graphics::InitializeDirectX(HWND hwnd)
@@ -280,7 +293,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	hr = device->CreateRenderTargetView(backBuffer.Get(), NULL, this->renderTargetView.GetAddressOf());
 
 	COM_ERROR_IF_FAILED(hr, "Failed to create render target view.");
-
 
 	//Describe our Depth/Stencil Buffer
 	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, window_width, window_height);
@@ -398,14 +410,6 @@ bool Graphics::InitializeShaders()
 #endif
 	}
 
-
-	
-	d3dvertexshader = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "vertexShader.cso");
-	d3dvertexshader_animation = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VertexShaderAnim.cso");
-	d3dvertexshader_nolight = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_nolight.cso");
-	d3dvertexshader_shadowmap = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_shadowmap.cso");
-	d3dvertexshader_shadowmap_anim = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_shadowmap_anim.cso");
-	d3dvertexshader_dynamic_sky = std::make_unique<D3DVertexShader>(device.Get(), StringHelper::WideToString(shaderfolder) + "VS_DynamicSky.cso");
 	if (!pixelshader.Initialize(this->device, shaderfolder + L"pixelshader.cso"))
 	{
 		return false;
@@ -451,11 +455,9 @@ bool Graphics::InitializeScene()
 	//initialize constant buffer
 	hr = this->cb_vs_vertexshader.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
-	cb_vs_vertexshader.SetDebugName("cb_vs_world");
 
 	hr = this->cb_ps_light.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
-	cb_ps_light.SetDebugName("cb_ps_light");
 
 	hr = this->cb_ps_shadowmat.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
@@ -463,16 +465,20 @@ bool Graphics::InitializeScene()
 
 	hr = this->cb_ps_common.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
-	cb_ps_common.SetDebugName("cb_ps_common");
 
 	hr = this->cb_ps_material.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
-	cb_ps_material.SetDebugName("ps_material");
 
 	hr = this->cb_bones.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
-	cb_bones.SetDebugName("vs_bone_transforms");
 
+#ifdef _DEBUG
+	cb_ps_light.SetDebugName("cb_ps_light");
+	cb_ps_material.SetDebugName("ps_material");
+	cb_vs_vertexshader.SetDebugName("cb_vs_world");
+	cb_ps_common.SetDebugName("cb_ps_common");
+	cb_bones.SetDebugName("vs_bone_transforms");
+#endif
 	// Initialize Model(s)
 	
 	cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -480,7 +486,7 @@ bool Graphics::InitializeScene()
 	
 
 	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(),
-		cb_vs_vertexshader, cb_ps_material, d3dvertexshader_animation.get()))
+		cb_vs_vertexshader, cb_ps_material, this))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
@@ -489,7 +495,7 @@ bool Graphics::InitializeScene()
 	gameObj.AdjustPosition(0.0f, 0.0f, 3.0f);
 	gameObj.InitAnimation(cb_bones);
 
-	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
+	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material,this))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
@@ -497,14 +503,14 @@ bool Graphics::InitializeScene()
 	gameObj2.AdjustRotation(DirectX::XMConvertToRadians(90.0f), 0.0f, 0.0f);
 	gameObj2.SetScale(10.0f, 10.0f, 10.0f);
 
-	if (!gameObj3.Initialize("Data\\Objects\\sphere_smooth.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader.get()))
+	if (!gameObj3.Initialize("Data\\Objects\\sphere_smooth.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, this))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
 	gameObj3.AdjustPosition(3.0f, 3.0f, 0.0f);
 
-	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, d3dvertexshader_nolight.get()))
+	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, this))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;

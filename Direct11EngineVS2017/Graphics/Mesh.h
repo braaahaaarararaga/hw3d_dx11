@@ -10,7 +10,7 @@
 #include "Texture.h"
 #include "../ResourceManager.h"
 
-
+class Graphics;
 struct MeshParameters
 {
 	std::vector<DirectX::XMFLOAT3> position;
@@ -29,14 +29,14 @@ public:
 	Mesh(ID3D11Device * device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_PS_material>& cb_ps_material, MeshParameters& params, std::vector<DWORD>& indices, Material& material, const DirectX::XMMATRIX& matrixTransform);
 	Mesh(const Mesh& mesh);
 
-	void Bind(IVertexShader* pVertexShader) const;
+	void Bind(Graphics * gfx) const;
 	void BindMaterial() const;
 
 	void SetDiffuseColor(Color& color);
 
 	void SetData(MeshParameters& params);
 
-	void Draw(IVertexShader* pVertexShader);
+	void Draw(Graphics * gfx);
 	const DirectX::XMMATRIX& GetTransformMatrix();
 	bool HasTangentsAndBitangents() const { return vBufTangent.VertexCount() > 0; }
 private:

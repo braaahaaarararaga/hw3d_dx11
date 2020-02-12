@@ -12,8 +12,9 @@
 #include "ImGui\\imgui_impl_dx11.h"
 #include "RenderableGameObject.h"
 #include "Light.h"
-#include "VertexShader.h"
+#include "../ResourceManager.h"
 
+class ShaderMacro;
 class Graphics
 {
 public:
@@ -34,7 +35,9 @@ public:
 	void RenderBegin();
 	void RenderEnd();
 
-	IVertexShader* CreateVertexShader(const std::string& filename);
+	IVertexShader* CreateVertexShader(const std::string& filename, const std::vector<ShaderMacro>& macros);
+	IVertexShader* GetVertexShader() const;
+	void SetVertexShader(IVertexShader* pShader);
 
 	RenderableGameObject gameObj2;
 	Camera3D Camera3D;
@@ -52,12 +55,8 @@ private:
 	std::unique_ptr<CD3D11_VIEWPORT> viewport;
 
 	// shaders
-	std::unique_ptr<D3DVertexShader> d3dvertexshader;
-	std::unique_ptr<D3DVertexShader> d3dvertexshader_animation;
-	std::unique_ptr<D3DVertexShader> d3dvertexshader_nolight;
-	std::unique_ptr<D3DVertexShader> d3dvertexshader_shadowmap;
-	std::unique_ptr<D3DVertexShader> d3dvertexshader_shadowmap_anim;
-	std::unique_ptr<D3DVertexShader> d3dvertexshader_dynamic_sky;
+	D3DVertexShader* vertexshader;
+
 	PixelShader_ pixelshader;
 	PixelShader_ pixelshader_nolight;
 	PixelShader_ pixelshader_tonemapping;

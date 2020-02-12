@@ -1,9 +1,9 @@
 ﻿#include "Light.h"
 
 bool Light::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,
-	ConstantBuffer<CB_PS_material>& cb_ps_material, IVertexShader * pVertexShader)
+	ConstantBuffer<CB_PS_material>& cb_ps_material, Graphics * gfx)
 {
-	if (!model.Initialize("Data\\Objects\\sphere.gltf", device, deviceContext, cb_vs_vertexshader, cb_ps_material, pVertexShader))
+	if (!model.Initialize("Data\\Objects\\sphere.gltf", device, deviceContext, cb_vs_vertexshader, cb_ps_material, gfx))
 		return false;
 
 	SetPosition(0.0f, 0.0f, 0.0f);
