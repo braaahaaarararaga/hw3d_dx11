@@ -4,6 +4,8 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Material.h"
+#include "VertexShader.h"
+#include "../ResourceManager.h"
 #include "Mesh.h"
 #include "AnimationSkeleton.h"
 #include <unordered_map>
@@ -26,7 +28,7 @@ class Model
 public:
 	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		 ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader,ConstantBuffer<CB_PS_material>& cb_ps_material, Graphics * gfx);
-	void Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix);
+	void Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix, IPipeline* pipeline);
 	bool InitAnimation(ConstantBuffer<CB_Bones>* cbufBone, MeshAnimator* animator_out, AnimationComponent* animComp);
 
 	void SetMeshDiffuseColor(Color& color);

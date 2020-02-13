@@ -103,6 +103,20 @@ static void CleanUpResources(std::unordered_map<std::string, std::shared_ptr<T>>
 	}
 }
 
+std::vector<ShaderMacro> ResourceManager::BuildMacrosForMesh(const Mesh & mesh)
+{
+	std::vector<ShaderMacro> macros;
+	if (mesh.HasTangentsAndBitangents())
+	{
+		macros.emplace_back("HAS_TANGENT");
+	}
+	if (mesh.HasBones())
+	{
+		macros.emplace_back("HAS_BONES");
+	}
+	return macros;
+}
+
 void ResourceManager::CleanUp()
 {
 	CleanUpResources(g_mapTextures);

@@ -33,15 +33,10 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 	light.SetUpShadowMap();
 
 	{
-		IVertexShader* shadowmap_anim = ResourceManager::GetVertexShader("VS_shadowmap_anim.cso", this);
-		SetVertexShader(shadowmap_anim);
-		gameObj.Draw(light.GetVpMatrix());
+		gameObj.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 	
-	
-		IVertexShader* shadowmap = ResourceManager::GetVertexShader("VS_shadowmap.cso", this);
-		SetVertexShader(shadowmap);
-		gameObj2.Draw(light.GetVpMatrix());
-		gameObj3.Draw(light.GetVpMatrix());
+		gameObj2.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
+		gameObj3.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 	}
 	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
 	cb_ps_shadowmat.data.shadowMatrix = XMMatrixTranspose(light.GetVpMatrix());
@@ -70,28 +65,22 @@ void Graphics::RenderFrame()
 			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
 		else
 			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-		IVertexShader* animation = ResourceManager::GetVertexShader("VertexShaderAnim.cso", this);
-		SetVertexShader(animation);
-		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 	}
 	{
 		deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-		IVertexShader* litGeneric = ResourceManager::GetVertexShader("vertexShader.cso", this);
-		SetVertexShader(litGeneric);
-		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 
 		if (enableToneshading)
 			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
 		else
 			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 
-		gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 	}
 	{
 		deviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
-		IVertexShader* nolight = ResourceManager::GetVertexShader("VS_nolight.cso", this);
-		SetVertexShader(nolight);
-		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_Nolight3D.get());
 	}
 	{
 		if (enableProcSky)
@@ -213,6 +202,11 @@ void Graphics::RenderBegin()
 void Graphics::RenderEnd()
 {
 	swapchain->Present(0u, NULL);
+}
+
+ID3D11DeviceContext * Graphics::GetDeviceContext()
+{
+	return deviceContext.Get();
 }
 
 IVertexShader * Graphics::CreateVertexShader(const std::string & filename, const std::vector<ShaderMacro>& macros)
@@ -430,6 +424,10 @@ bool Graphics::InitializeShaders()
 	{
 		return false;
 	}
+
+	Pipeline_ShadowMap = std::make_unique<ShadowMapPipeline>();
+	Pipeline_General3D = std::make_unique<General3DPipeline>();
+	Pipeline_Nolight3D = std::make_unique<NoLight3DPipeline>();
 
 	return true;
 }

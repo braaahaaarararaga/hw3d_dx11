@@ -1,5 +1,5 @@
-﻿#include "Graphics.h"
-#include "Model.h"
+﻿#include "Model.h"
+#include "Graphics.h"
 
 
 static DirectX::XMMATRIX AiToDxMatrix(const aiMatrix4x4& aimat)
@@ -30,7 +30,7 @@ bool Model::Initialize(const std::string& filePath, ID3D11Device * device, ID3D1
 	return true;
 }
 
-void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix)
+void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix, IPipeline* pipeline)
 {
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 	
@@ -40,7 +40,7 @@ void Model::Draw(const XMMATRIX & world, const XMMATRIX & viewProjectionMatrix)
 		this->cb_vs_vertexshader->data.vpMatrix = XMMatrixTranspose(viewProjectionMatrix); // Calculate world-view-projection matrix
 		this->cb_vs_vertexshader->data.worldMatrix = XMMatrixTranspose(meshes[i].GetTransformMatrix() * world);
 		this->cb_vs_vertexshader->ApplyChanges();
-		meshes[i].Draw(gfx);
+		meshes[i].Draw(gfx, pipeline);
 	}
 }
 

@@ -9,7 +9,7 @@ public:
 		ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_PS_material>& cb_ps_material, Graphics * gfx);
 	bool InitAnimation(ConstantBuffer<CB_Bones>& cbufBones);
 
-	void Draw(const XMMATRIX& viewProjectionMatrix);
+	void Draw(const XMMATRIX& viewProjectionMatrix, IPipeline* pipeline);
 
 	float& GetAnimaTimeScale();
 	MeshAnimator& GetAnimator();

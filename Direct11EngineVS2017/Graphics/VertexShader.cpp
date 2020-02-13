@@ -99,33 +99,33 @@ void D3DVertexShader::CreateInputLayoutDescFromVertexShaderSignature(ID3D11Devic
 void D3DVertexShader::LoadFromFile(ID3D11Device* pDevice, const std::string& filename, bool crash_on_error)
 {
 
-	std::wstring shaderfolder = L"";
-#pragma region DetermineShaderPath
-	if (IsDebuggerPresent())
-	{
-#ifdef _DEBUG // Debug Mode
-#ifdef _WIN64 // x64
-		shaderfolder = L"..\\x64\\Debug\\";
-#else	// x86
-		shaderfolder = L"..\\Debug\\";
-#endif
-#else	// Release Mode
-#ifdef _WIN64
-		shaderfolder = L"..\\x64\\Release\\";
-#else	// x86
-		shaderfolder = L"..\\Release\\";
-#endif
-#endif
-	}
-	shaderfolder = shaderfolder + StringHelper::StringToWide(filename);
 	for (int i = 0; i < (int)AttributeInfo::VertexAttribute::TotalAttributes; i++)
 	{
 		m_bUsesAttribute[i] = false;
 	}
 
 	// compiled shader object
-	if (StringHelper::GetFileExtension(StringHelper::WideToString(shaderfolder)) == "cso")
+	if (StringHelper::GetFileExtension(filename) == "cso")
 	{
+			std::wstring shaderfolder = L"";
+		#pragma region DetermineShaderPath
+			if (IsDebuggerPresent())
+			{
+		#ifdef _DEBUG // Debug Mode
+		#ifdef _WIN64 // x64
+				shaderfolder = L"..\\x64\\Debug\\";
+		#else	// x86
+				shaderfolder = L"..\\Debug\\";
+		#endif
+		#else	// Release Mode
+		#ifdef _WIN64
+				shaderfolder = L"..\\x64\\Release\\";
+		#else	// x86
+				shaderfolder = L"..\\Release\\";
+		#endif
+		#endif
+			}
+			shaderfolder = shaderfolder + StringHelper::StringToWide(filename);
 		auto bytes = MemoryStream::FromFile(shaderfolder);
 
 		COM_ERROR_IF_FAILED(pDevice->CreateVertexShader(bytes.Base(), bytes.Size(), NULL, &m_pShader), "Failed to Create Shader");
@@ -150,8 +150,7 @@ void D3DVertexShader::LoadFromFile(ID3D11Device* pDevice, const std::string& fil
 #endif
 
 
-
-		COM_ERROR_IF_FAILED(D3DCompileFromFile(shaderfolder.c_str(), macros.data(), NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage),
+		COM_ERROR_IF_FAILED(D3DCompileFromFile( StringHelper::StringToWide(filename).c_str(), macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage),
 			"Failed to compile shader");
 		
 

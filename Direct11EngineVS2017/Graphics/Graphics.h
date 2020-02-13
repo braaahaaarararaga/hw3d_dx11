@@ -12,7 +12,6 @@
 #include "ImGui\\imgui_impl_dx11.h"
 #include "RenderableGameObject.h"
 #include "Light.h"
-#include "../ResourceManager.h"
 
 class ShaderMacro;
 class Graphics
@@ -34,6 +33,8 @@ public:
 	void SetLight();
 	void RenderBegin();
 	void RenderEnd();
+
+	ID3D11DeviceContext* GetDeviceContext();
 
 	IVertexShader* CreateVertexShader(const std::string& filename, const std::vector<ShaderMacro>& macros);
 	IVertexShader* GetVertexShader() const;
@@ -101,6 +102,10 @@ private:
 	//ComPtr<ID3D11ShaderResourceView> grassTexture;
 	//ComPtr<ID3D11ShaderResourceView> pavementTexture;
 	ComPtr<ID3D11ShaderResourceView> toneTexture;
+
+	std::unique_ptr<IPipeline> Pipeline_ShadowMap;
+	std::unique_ptr<IPipeline> Pipeline_General3D;
+	std::unique_ptr<IPipeline> Pipeline_Nolight3D;
 
 	int window_width = 0;
 	int window_height = 0;

@@ -9,6 +9,7 @@
 #include "Material.h"
 #include "Texture.h"
 #include "../ResourceManager.h"
+#include "RenderPipelines.h"
 
 class Graphics;
 struct MeshParameters
@@ -36,9 +37,11 @@ public:
 
 	void SetData(MeshParameters& params);
 
-	void Draw(Graphics * gfx);
+	void Draw(Graphics * gfx, IPipeline* pipeline);
 	const DirectX::XMMATRIX& GetTransformMatrix();
+	const IndexBuffer& GetIndexBuffer()const { return indexBuffer ; }
 	bool HasTangentsAndBitangents() const { return vBufTangent.VertexCount() > 0; }
+	bool HasBones() const { return vBufBoneNames.VertexCount() > 0; }
 private:
 	VertexBuffer<DirectX::XMFLOAT3> vBufPosition;
 	VertexBuffer<DirectX::XMFLOAT4> vBufColor;

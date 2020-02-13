@@ -23,7 +23,7 @@ bool RenderableGameObject::InitAnimation(ConstantBuffer<CB_Bones>& cbufBones)
 	return model.InitAnimation(&cbufBones, &mAnimator, mAnimComp.get());
 }
 
-void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
+void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix, IPipeline* pipeline)
 {
 	if (mPlayAnimtion)
 	{
@@ -37,7 +37,7 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 			mAnimator.Bind(deviceContext);
 		}
 	}
-	model.Draw(this->worldMatrix, viewProjectionMatrix);
+	model.Draw(this->worldMatrix, viewProjectionMatrix, pipeline);
 	
 }
 

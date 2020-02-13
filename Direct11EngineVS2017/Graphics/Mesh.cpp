@@ -1,6 +1,5 @@
 ﻿#include "Mesh.h"
 #include "Graphics.h"
-#include "VertexShader.h"
 
 Mesh::Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_PS_material>& cb_ps_material, MeshParameters& params, std::vector<DWORD>& indices, Material& material, const DirectX::XMMATRIX& matrixTransform)
 {
@@ -188,12 +187,9 @@ void Mesh::SetData(MeshParameters& params)
 	}
 }
 
-void Mesh::Draw(Graphics * gfx)
+void Mesh::Draw(Graphics * gfx, IPipeline* pipeline)
 {
-	BindMaterial();
-	Bind(gfx);
-	this->deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	this->deviceContext->DrawIndexed(this->indexBuffer.IndexCount(), 0, 0);
+	pipeline->Render(gfx, (*this));
 }
 
 const DirectX::XMMATRIX & Mesh::GetTransformMatrix()
