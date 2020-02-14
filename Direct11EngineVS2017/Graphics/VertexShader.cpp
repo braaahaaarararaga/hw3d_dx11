@@ -144,7 +144,7 @@ void D3DVertexShader::LoadFromFile(ID3D11Device* pDevice, const std::string& fil
 		ComPtr<ID3DBlob> errorMessage;
 		ComPtr<ID3DBlob> vertexShaderBuffer;
 
-		UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
+		UINT flags =  D3DCOMPILE_ENABLE_STRICTNESS;
 #ifdef _DEBUG
 		flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif

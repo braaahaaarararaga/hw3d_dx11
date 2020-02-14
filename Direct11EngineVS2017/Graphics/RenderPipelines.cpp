@@ -31,7 +31,7 @@ void NoLight3DPipeline::Render(Graphics * gfx, Mesh & mesh)
 {
 	auto macros = ResourceManager::BuildMacrosForMesh(mesh);
 
-	IVertexShader* vertexshader = ResourceManager::GetVertexShader("VS_nolight.cso", gfx, macros);
+	IVertexShader* vertexshader = ResourceManager::GetVertexShader("Graphics/Shaders/VS_nolight.hlsl", gfx, macros);
 	gfx->SetVertexShader(vertexshader);
 
 	mesh.Bind(gfx);
