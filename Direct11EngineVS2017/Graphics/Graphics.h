@@ -129,5 +129,5 @@ private:
 	float deltaTime = 0;
 	float launchTime = 0;
 
-	int gaussBlurPasses = 2;
+	int gaussBlurPasses = 5;
 };

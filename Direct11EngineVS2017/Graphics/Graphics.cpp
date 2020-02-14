@@ -57,7 +57,7 @@ void Graphics::RenderFrame()
 	ImGui::Checkbox("ProcSky", &enableProcSky);
 	ImGui::DragFloat("Exposure", &cb_ps_tonemapping_settings.data.exposure, 0.01f, 0.01f, 10.0f);
 	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
-	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 1, 0, 5);
+	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 1, 0, 8);
 	ImGui::End();
 
 	// HDR PASS
@@ -276,6 +276,7 @@ void Graphics::RenderBegin()
 	float bgcolor[] = { .0f, .0f, .0f, 1.0f };
 	deviceContext->ClearRenderTargetView(renderTargetView.Get(), bgcolor);
 	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	deviceContext->PSSetSamplers(0, 1, this->depthCmpSampler.GetAddressOf());
 
 	deviceContext->RSSetState(rasterrizerState.Get());
 	deviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
@@ -585,7 +586,7 @@ bool Graphics::InitializeScene()
 
 	hr = this->cb_ps_tonemapping_settings.Initialize(device.Get(), deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
-	cb_ps_tonemapping_settings.data.exposure = 2.0f;
+	cb_ps_tonemapping_settings.data.exposure = 1.4f;
 	
 	hr = this->cb_ps_brightExtract_settings.Initialize(device.Get(), deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
