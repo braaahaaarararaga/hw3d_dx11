@@ -1,7 +1,12 @@
 #include "CommonPS.hlsli"
 
 Texture2D SceneTexture : register(t0);
-SamplerState objSamplerState : SAMPLER : register(s0);
+
+cbuffer ToneMapSettings : register(b4)
+{
+    float Exposure;
+    float3 _pad0;
+}
 
 struct PixelInputType
 {
@@ -18,7 +23,6 @@ static const float3x3 ACESInputMat =
     { 0.02840, 0.13383, 0.83777 }
 };
 
-// ODT_SAT => XYZ => D60_2_D65 => sRGB
 static const float3x3 ACESOutputMat =
 {
     { 1.60475, -0.53108, -0.07367 },
@@ -62,8 +66,8 @@ float3 ACESAprrox(float3 v)
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float3 texColour = SceneTexture.Sample(objSamplerState, input.tex).rgb;
-    float3 hdrColour = texColour * 2.0;
+    float3 texColour = SceneTexture.Sample(ClampSampler, input.tex).rgb;
+    float3 hdrColour = texColour * Exposure;
 
     float3 colour = TosRGBSpace(ACESAprrox(hdrColour));
     return float4(colour, 1.0f);

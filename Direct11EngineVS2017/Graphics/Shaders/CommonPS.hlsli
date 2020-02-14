@@ -5,6 +5,10 @@
 #define B_SLOT_MATERIAL b2
 #define B_SLOT_SHADOW   b3 
 
+SamplerComparisonState sampler_cmp_depth : register(s0);
+SamplerState WrapSampler : SAMPLER : register(s1);
+SamplerState ClampSampler : SAMPLER : register(s2);
+
 struct Material
 {
     float4 GlobalAmbient;
@@ -61,7 +65,6 @@ cbuffer GlobalsBuf : register(B_SLOT_GLOBALS)
     GlobalsBuf Globals;
 };
 
-SamplerComparisonState sampler_cmp_depth : register(s1);
 
 
 #define GAMMA 2.2f

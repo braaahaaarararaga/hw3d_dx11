@@ -53,16 +53,18 @@ void Graphics::RenderFrame()
 	light.BindShadowResourceView();
 
 	ImGui::Begin("Shader Settings");
-	ImGui::Checkbox("Tone Shading", &enableToneshading);
+	ImGui::Checkbox("Tone Shading", &enableCelshading);
 	ImGui::Checkbox("ProcSky", &enableProcSky);
-	ImGui::NewLine();
+	ImGui::DragFloat("Exposure", &cb_ps_tonemapping_settings.data.exposure, 0.01f, 0.01f, 10.0f);
+	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
+	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 1, 0, 5);
 	ImGui::End();
 
 	// HDR PASS
 	hdr_RTT->Begin(deviceContext.Get());
 	{	// TODO: refactory render pipelines & render pass
-		if(enableToneshading)
-			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
+		if(enableCelshading)
+			deviceContext->PSSetShader(pixelshader_celshading.GetShader(), NULL, 0);
 		else
 			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
@@ -71,8 +73,8 @@ void Graphics::RenderFrame()
 		deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 
-		if (enableToneshading)
-			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
+		if (enableCelshading)
+			deviceContext->PSSetShader(pixelshader_celshading.GetShader(), NULL, 0);
 		else
 			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 
@@ -94,12 +96,85 @@ void Graphics::RenderFrame()
 	hdr_RTT->End(deviceContext.Get());
 	//
 
+
+	// PostProcess //
+	// BLOOM PASS
+		// EXTRACT BRIGHT
+	{
+		brightExtract_RTT->Begin(deviceContext.Get());
+		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
+		SetVertexShader(sst);
+		deviceContext->PSSetShader(pixelshader_bright_extract.GetShader(), NULL, 0);
+		deviceContext->PSSetShaderResources(0, 1, hdr_RTT->GetOutputTexture());
+		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_brightExtract_settings.GetAddressOf());
+		cb_ps_brightExtract_settings.ApplyChanges();
+		deviceContext->Draw(3, 0);
+		brightExtract_RTT->End(deviceContext.Get());
+	}
+		// GAUSS BLUR 
+	{
+
+		deviceContext->PSSetShader(pixelshader_gauss_blur.GetShader(), NULL, 0);
+		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
+		SetVertexShader(sst);
+
+		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_blur_settings.GetAddressOf());
+
+		ID3D11RenderTargetView* shadowRenderTargetView[1] = { 0 };
+		for (int i = 0; i < gaussBlurPasses * 2; i++)
+		{
+			deviceContext->OMSetRenderTargets(1, shadowRenderTargetView, depthStencilView.Get());
+			// Unbind whatever is currently bound, to avoid binding on input/output at same time
+			if (i % 2 == 0)
+			{
+				gauss_blur_RTT->Begin(deviceContext.Get());
+
+				deviceContext->PSSetShaderResources(0, 1, brightExtract_RTT->GetOutputTexture());
+				cb_ps_blur_settings.data.Horizontal = true;
+				cb_ps_blur_settings.ApplyChanges();
+				deviceContext->Draw(3, 0);
+				gauss_blur_RTT->End(deviceContext.Get());
+			}
+			else
+			{
+				brightExtract_RTT->Begin(deviceContext.Get());
+
+				deviceContext->PSSetShaderResources(0, 1, gauss_blur_RTT->GetOutputTexture());
+				cb_ps_blur_settings.data.Horizontal = false;
+				cb_ps_blur_settings.ApplyChanges();
+				deviceContext->Draw(3, 0);
+				brightExtract_RTT->End(deviceContext.Get());
+			}
+		}
+
+		deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
+	}
+		// BLOOM
+	{
+		bloom_RTT->Begin(deviceContext.Get());
+
+		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
+		SetVertexShader(sst);
+		deviceContext->PSSetShader(pixelshader_bloom.GetShader(), NULL, 0);
+
+		deviceContext->PSSetShaderResources(0, 1, hdr_RTT->GetOutputTexture());
+		deviceContext->PSSetShaderResources(1, 1, brightExtract_RTT->GetOutputTexture());
+
+		deviceContext->Draw(3, 0);
+		bloom_RTT->End(deviceContext.Get());
+
+	}
 	// TONE_MAPPING PASS
-	deviceContext->PSSetShaderResources(0, 1, hdr_RTT->GetOutputTexture());
-	deviceContext->PSSetShader(pixelshader_render_texture.GetShader(), NULL, 0);
-	IVertexShader* sst = ResourceManager::GetVertexShader("VS_ScreenSizeTri.cso", this);
-	SetVertexShader(sst);
-	deviceContext->Draw(3, 0);
+	{
+		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
+		SetVertexShader(sst);
+		deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
+
+		deviceContext->PSSetShaderResources(0, 1, bloom_RTT->GetOutputTexture());
+		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_tonemapping_settings.GetAddressOf());
+		cb_ps_tonemapping_settings.ApplyChanges();
+		deviceContext->Draw(3, 0);
+	}
 	//
 }
 
@@ -115,7 +190,7 @@ void Graphics::RenderImGui()
 		Color color = Color((BYTE)(light.lightColor.x * 255), (BYTE)(light.lightColor.y * 255), (BYTE)(light.lightColor.z * 255), (BYTE)0);
 		light.SetMeshDiffuseColor(color);
 	}
-	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.01, 0.0f, 20.0f);
+	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.05, 0.0f, 20.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light.attenuation_a, 0.001, 0.1f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.001, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.001, 0.0f, 10.0f);
@@ -342,7 +417,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 	hr = device->CreateSamplerState(&samplerDesc, depthCmpSampler.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
-	deviceContext->PSSetSamplers(1, 1, this->depthCmpSampler.GetAddressOf());
+	deviceContext->PSSetSamplers(0, 1, this->depthCmpSampler.GetAddressOf());
 
 	// Create Rasterizer State
 	CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
@@ -383,11 +458,19 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
 
-	hr = device->CreateSamplerState(&samplerDesc, samplerState.GetAddressOf());
+	hr = device->CreateSamplerState(&samplerDesc, wrapSampler.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
-	deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
+	deviceContext->PSSetSamplers(1, 1, wrapSampler.GetAddressOf());
 	
-	
+	samplerDesc.AddressU  = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV  = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW  = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+	hr = device->CreateSamplerState(&samplerDesc, clapSampler.GetAddressOf());
+	COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
+	deviceContext->PSSetSamplers(2, 1, clapSampler.GetAddressOf());
+
+
 
 	return true;
 }
@@ -421,7 +504,7 @@ bool Graphics::InitializeShaders()
 	{
 		return false;
 	}
-	if (!pixelshader_tonemapping.Initialize(this->device, shaderfolder + L"PS_CelShading.cso"))
+	if (!pixelshader_celshading.Initialize(this->device, shaderfolder + L"PS_CelShading.cso"))
 	{
 		return false;
 	}
@@ -433,7 +516,19 @@ bool Graphics::InitializeShaders()
 	{
 		return false;
 	}
-	if (!pixelshader_render_texture.Initialize(this->device, shaderfolder + L"PS_ToneMapping.cso"))
+	if (!pixelshader_tonemapping.Initialize(this->device, shaderfolder + L"PS_ToneMapping.cso"))
+	{
+		return false;
+	}
+	if (!pixelshader_bright_extract.Initialize(this->device, shaderfolder + L"PS_BrightExtract.cso"))
+	{
+		return false;
+	}
+	if (!pixelshader_gauss_blur.Initialize(this->device, shaderfolder + L"PS_GaussBlur.cso"))
+	{
+		return false;
+	}
+	if (!pixelshader_bloom.Initialize(this->device, shaderfolder + L"PS_Bloom.cso"))
 	{
 		return false;
 	}
@@ -443,6 +538,9 @@ bool Graphics::InitializeShaders()
 	Pipeline_Nolight3D = std::make_unique<NoLight3DPipeline>();
 
 	hdr_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
+	brightExtract_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
+	gauss_blur_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
+	bloom_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
 
 	return true;
 }
@@ -485,12 +583,25 @@ bool Graphics::InitializeScene()
 	hr = this->cb_bones.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
 
+	hr = this->cb_ps_tonemapping_settings.Initialize(device.Get(), deviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_ps_tonemapping_settings.data.exposure = 2.0f;
+	
+	hr = this->cb_ps_brightExtract_settings.Initialize(device.Get(), deviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_ps_brightExtract_settings.data.brightThreshold = 1.0f;
+
+	hr = this->cb_ps_blur_settings.Initialize(device.Get(), deviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+
 #ifdef _DEBUG
 	cb_ps_light.SetDebugName("cb_ps_light");
 	cb_ps_material.SetDebugName("ps_material");
 	cb_vs_vertexshader.SetDebugName("cb_vs_world");
 	cb_ps_common.SetDebugName("cb_ps_common");
-	cb_bones.SetDebugName("vs_bone_transforms");
+	cb_bones.SetDebugName("vs_bone_transforms"); 
+	cb_ps_tonemapping_settings.SetDebugName("cb_ps_tonemapping_settings");
+	cb_ps_blur_settings.SetDebugName("cb_ps_blur_setting_buffer");
 #endif
 	// Initialize Model(s)
 	

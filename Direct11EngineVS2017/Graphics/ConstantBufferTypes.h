@@ -74,3 +74,21 @@ struct CB_PS_common
 	float pad;
 	DirectX::XMMATRIX cameraInvVP;
 };
+
+struct CB_PS_tonemapping_settings
+{
+	float exposure;
+	float pad[3];
+};
+
+struct CB_PS_brightExtract_settings
+{
+	float brightThreshold;
+	float pad[3];
+};
+
+struct CB_PS_BlurSettings
+{
+	int Horizontal;
+	float pad[3];
+};

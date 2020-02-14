@@ -41,8 +41,6 @@ Texture2D specularTexture : TEXTURE : register(t2);
 Texture2D emissiveTexture : TEXTURE : register(t3);
 Texture2D shadowTexture : TEXTURE : register(t4);
 
-SamplerState objSamplerState : SAMPLER: register(s0);
-
 
 float Shadow(float3 worldPos, float3 normal, float3 light_dir)
 {
@@ -78,7 +76,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     // do normal mapping
     if(material.HasNormalTexture)
     {
-        float3 normal_sample = normalTexture.Sample(objSamplerState, input.inTexCoord).xyz;
+        float3 normal_sample = normalTexture.Sample(WrapSampler, input.inTexCoord).xyz;
         normal = normal_sample * 2.0 - 1.0;
         //normal.y = -normal.y;
         float3x3 tbn = float3x3(normalize(input.inTangent), normalize(input.inBitangent), normalize(input.inNormal));
@@ -90,13 +88,13 @@ float4 main(PS_INPUT input) : SV_TARGET
     // diffuse
     if (material.HasDiffuseTexture)
     {
-        material.DiffuseColor = diffuseTexture.Sample(objSamplerState, input.inTexCoord);
+        material.DiffuseColor = diffuseTexture.Sample(WrapSampler, input.inTexCoord);
         material.DiffuseColor = ToLinearSpace(material.DiffuseColor);
     }
     
     if (material.HasSpecularTexture)
     {
-        material.SpecularColor = specularTexture.Sample(objSamplerState, input.inTexCoord);
+        material.SpecularColor = specularTexture.Sample(WrapSampler, input.inTexCoord);
     }
     	// ambient
     float3 ambient = material.AmbientColor.rgb;
@@ -119,16 +117,16 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 emissive = material.EmissiveColor.rgb;
     if (material.HasEmissiveTexture)
     {
-        float3 sample = emissiveTexture.Sample(objSamplerState, input.inTexCoord).rgb;
+        float3 sample = emissiveTexture.Sample(WrapSampler, input.inTexCoord).rgb;
         sample = ToLinearSpace(sample);
 		
         if (any(emissive))
         {
-            emissive *= emissiveTexture.Sample(objSamplerState, input.inTexCoord).rgb;
+            emissive *= emissiveTexture.Sample(WrapSampler, input.inTexCoord).rgb;
         }
         else
         {
-            emissive = emissiveTexture.Sample(objSamplerState, input.inTexCoord).rgb;
+            emissive = emissiveTexture.Sample(WrapSampler, input.inTexCoord).rgb;
         }
     }
     

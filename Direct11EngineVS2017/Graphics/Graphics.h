@@ -61,12 +61,15 @@ private:
 
 	PixelShader_ pixelshader;
 	PixelShader_ pixelshader_nolight;
-	PixelShader_ pixelshader_tonemapping;
+	PixelShader_ pixelshader_celshading;
 	PixelShader_ pixelshader_heightmapping;
 	PixelShader_ pixelshader_dynamic_sky;
-	PixelShader_ pixelshader_render_texture;
+	PixelShader_ pixelshader_tonemapping;
+	PixelShader_ pixelshader_bright_extract;
+	PixelShader_ pixelshader_gauss_blur;
+	PixelShader_ pixelshader_bloom;
 
-	bool enableToneshading = false;
+	bool enableCelshading = false;
 	bool enableProcSky = true;
 
 	// c_buffers
@@ -75,6 +78,9 @@ private:
 	ConstantBuffer<CB_PS_common> cb_ps_common;
 	ConstantBuffer<CB_PS_material> cb_ps_material;
 	ConstantBuffer<CB_Bones> cb_bones;
+	ConstantBuffer<CB_PS_tonemapping_settings> cb_ps_tonemapping_settings;
+	ConstantBuffer<CB_PS_brightExtract_settings> cb_ps_brightExtract_settings;
+	ConstantBuffer<CB_PS_BlurSettings> cb_ps_blur_settings;
 
 	RenderableGameObject gameObj;
 	RenderableGameObject gameObj3;
@@ -88,6 +94,9 @@ private:
 
 	// RTT texture
 	std::unique_ptr<TextureRender> hdr_RTT;
+	std::unique_ptr<TextureRender> brightExtract_RTT;
+	std::unique_ptr<TextureRender> gauss_blur_RTT;
+	std::unique_ptr<TextureRender> bloom_RTT;
 
 
 	ComPtr<ID3D11SamplerState> depthCmpSampler;
@@ -101,7 +110,8 @@ private:
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
 
-	ComPtr<ID3D11SamplerState> samplerState;
+	ComPtr<ID3D11SamplerState> wrapSampler;
+	ComPtr<ID3D11SamplerState> clapSampler;
 	//ComPtr<ID3D11ShaderResourceView> pinkTexture;
 	//ComPtr<ID3D11ShaderResourceView> grassTexture;
 	//ComPtr<ID3D11ShaderResourceView> pavementTexture;
@@ -118,4 +128,6 @@ private:
 	Timer deltaTimer;
 	float deltaTime = 0;
 	float launchTime = 0;
+
+	int gaussBlurPasses = 2;
 };

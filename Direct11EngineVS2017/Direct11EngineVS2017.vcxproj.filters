@@ -322,6 +322,8 @@
     <FxCompile Include="Graphics\Shaders\VS_General3D.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
+    <FxCompile Include="Graphics\Shaders\PS_GaussBlur.hlsl" />
+    <FxCompile Include="Graphics\Shaders\PS_Bloom.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct11EngineVS2017.rc">
@@ -338,5 +340,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Graphics\Shaders\CommonVS.hlsli" />
+    <None Include="Graphics\Shaders\PS_BrightExtract.hlsl" />
   </ItemGroup>
 </Project>
