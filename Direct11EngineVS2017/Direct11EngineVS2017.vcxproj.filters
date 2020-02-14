@@ -296,28 +296,32 @@
     <ClInclude Include="Graphics\TextureFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Shaders\VS_ScreenSizeTri.hlsl">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Graphics\Shaders\PixelShader_HeightMapping.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\pixelshader_nolight.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\pixelshader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\VertexShaderAnim.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="Graphics\Shaders\VS_nolight.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\VS_shadowmap_anim.hlsl" />
-    <FxCompile Include="Graphics\Shaders\pixelshader_tonemapping.hlsl" />
     <FxCompile Include="Graphics\Shaders\PS_EnvMapping.hlsl" />
     <FxCompile Include="Graphics\Shaders\VS_DynamicSky.hlsl" />
     <FxCompile Include="Graphics\Shaders\PS_DynamicSky.hlsl" />
+    <FxCompile Include="Graphics\Shaders\PS_ToneMapping.hlsl" />
+    <FxCompile Include="Graphics\Shaders\PS_CelShading.hlsl" />
+    <FxCompile Include="Graphics\Shaders\PS_Nolight.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\PS_HeightMapping.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\PS_General3D.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\VS_General3D.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct11EngineVS2017.rc">
@@ -333,5 +337,6 @@
     <None Include="Graphics\Shaders\CommonPS.hlsli">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Graphics\Shaders\CommonVS.hlsli" />
   </ItemGroup>
 </Project>

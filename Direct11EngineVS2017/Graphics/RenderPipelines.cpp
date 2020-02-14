@@ -5,7 +5,7 @@ void ShadowMapPipeline::Render(Graphics* gfx, Mesh& mesh)
 {
 	auto macros = ResourceManager::BuildMacrosForMesh(mesh);
 
-	IVertexShader* vertexshader = ResourceManager::GetVertexShader("Graphics/Shaders/VS_shadowmap_anim.hlsl", gfx, macros);
+	IVertexShader* vertexshader = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ShadowMapping.hlsl", gfx, macros);
 	gfx->SetVertexShader(vertexshader);
 
 	mesh.Bind(gfx);
@@ -18,7 +18,7 @@ void General3DPipeline::Render(Graphics* gfx, Mesh& mesh)
 {
 	auto macros = ResourceManager::BuildMacrosForMesh(mesh);
 
-	IVertexShader* vertexshader = ResourceManager::GetVertexShader("Graphics/Shaders/VertexShaderAnim.hlsl", gfx, macros);
+	IVertexShader* vertexshader = ResourceManager::GetVertexShader("Graphics/Shaders/VS_General3D.hlsl", gfx, macros);
 	gfx->SetVertexShader(vertexshader);
 
 	mesh.Bind(gfx);

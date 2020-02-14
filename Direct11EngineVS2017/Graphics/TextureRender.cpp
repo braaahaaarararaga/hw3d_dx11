@@ -115,9 +115,9 @@ void TextureRender::End(ID3D11DeviceContext * deviceContext)
 	cacheRTV.Reset();
 }
 
-ID3D11ShaderResourceView * TextureRender::GetOutputTexture()
+ID3D11ShaderResourceView * const * TextureRender::GetOutputTexture()
 {
-	return outputTextureSRV.Get();
+	return outputTextureSRV.GetAddressOf();
 }
 
 void TextureRender::SetDebugObjectName(const std::string & name)

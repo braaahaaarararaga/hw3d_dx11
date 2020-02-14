@@ -20,7 +20,7 @@ public:
 	void Resize(ID3D11Device* device, int width, int height, TexFormat format = TEX_FORMAT_R8G8B8A8_UNORM,bool generateMips = false);
 	void Begin(ID3D11DeviceContext * deviceContext);
 	void End(ID3D11DeviceContext * deviceContext);
-	ID3D11ShaderResourceView * GetOutputTexture();
+	ID3D11ShaderResourceView * const * GetOutputTexture();
 
 	void SetDebugObjectName(const std::string& name);
 

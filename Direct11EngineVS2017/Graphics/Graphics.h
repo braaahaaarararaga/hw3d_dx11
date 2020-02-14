@@ -12,6 +12,7 @@
 #include "ImGui\\imgui_impl_dx11.h"
 #include "RenderableGameObject.h"
 #include "Light.h"
+#include "TextureRender.h"
 
 class ShaderMacro;
 class Graphics
@@ -63,6 +64,7 @@ private:
 	PixelShader_ pixelshader_tonemapping;
 	PixelShader_ pixelshader_heightmapping;
 	PixelShader_ pixelshader_dynamic_sky;
+	PixelShader_ pixelshader_render_texture;
 
 	bool enableToneshading = false;
 	bool enableProcSky = true;
@@ -84,6 +86,8 @@ private:
 	// shadow map
 	ConstantBuffer<CB_PS_shadowmat> cb_ps_shadowmat;
 
+	// RTT texture
+	std::unique_ptr<TextureRender> hdr_RTT;
 
 
 	ComPtr<ID3D11SamplerState> depthCmpSampler;

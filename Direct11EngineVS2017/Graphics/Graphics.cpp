@@ -55,11 +55,10 @@ void Graphics::RenderFrame()
 	ImGui::Begin("Shader Settings");
 	ImGui::Checkbox("Tone Shading", &enableToneshading);
 	ImGui::Checkbox("ProcSky", &enableProcSky);
-
 	ImGui::NewLine();
 	ImGui::End();
 
-
+	hdr_RTT->Begin(deviceContext.Get());
 	{	// TODO: refactory render pipelines
 		if(enableToneshading)
 			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
@@ -92,6 +91,13 @@ void Graphics::RenderFrame()
 		}
 	}
 
+	hdr_RTT->End(deviceContext.Get());
+
+	deviceContext->PSSetShaderResources(0, 1, hdr_RTT->GetOutputTexture());
+	deviceContext->PSSetShader(pixelshader_render_texture.GetShader(), NULL, 0);
+	IVertexShader* sst = ResourceManager::GetVertexShader("VS_ScreenSizeTri.cso", this);
+	SetVertexShader(sst);
+	deviceContext->Draw(3, 0);
 }
 
 void Graphics::RenderImGui()
@@ -404,19 +410,19 @@ bool Graphics::InitializeShaders()
 #endif
 	}
 
-	if (!pixelshader.Initialize(this->device, shaderfolder + L"pixelshader.cso"))
+	if (!pixelshader.Initialize(this->device, shaderfolder + L"PS_General3D.cso"))
 	{
 		return false;
 	}
-	if (!pixelshader_nolight.Initialize(this->device, shaderfolder + L"pixelshader_nolight.cso"))
+	if (!pixelshader_nolight.Initialize(this->device, shaderfolder + L"PS_Nolight.cso"))
 	{
 		return false;
 	}
-	if (!pixelshader_tonemapping.Initialize(this->device, shaderfolder + L"pixelshader_tonemapping.cso"))
+	if (!pixelshader_tonemapping.Initialize(this->device, shaderfolder + L"PS_CelShading.cso"))
 	{
 		return false;
 	}
-	if (!pixelshader_heightmapping.Initialize(this->device, shaderfolder + L"PixelShader_HeightMapping.cso"))
+	if (!pixelshader_heightmapping.Initialize(this->device, shaderfolder + L"PS_HeightMapping.cso"))
 	{
 		return false;
 	}
@@ -424,10 +430,16 @@ bool Graphics::InitializeShaders()
 	{
 		return false;
 	}
+	if (!pixelshader_render_texture.Initialize(this->device, shaderfolder + L"PS_ToneMapping.cso"))
+	{
+		return false;
+	}
 
 	Pipeline_ShadowMap = std::make_unique<ShadowMapPipeline>();
 	Pipeline_General3D = std::make_unique<General3DPipeline>();
 	Pipeline_Nolight3D = std::make_unique<NoLight3DPipeline>();
+
+	hdr_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
 
 	return true;
 }
