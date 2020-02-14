@@ -58,8 +58,9 @@ void Graphics::RenderFrame()
 	ImGui::NewLine();
 	ImGui::End();
 
+	// HDR PASS
 	hdr_RTT->Begin(deviceContext.Get());
-	{	// TODO: refactory render pipelines
+	{	// TODO: refactory render pipelines & render pass
 		if(enableToneshading)
 			deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
 		else
@@ -90,14 +91,16 @@ void Graphics::RenderFrame()
 			deviceContext->Draw(3, 0);
 		}
 	}
-
 	hdr_RTT->End(deviceContext.Get());
+	//
 
+	// TONE_MAPPING PASS
 	deviceContext->PSSetShaderResources(0, 1, hdr_RTT->GetOutputTexture());
 	deviceContext->PSSetShader(pixelshader_render_texture.GetShader(), NULL, 0);
 	IVertexShader* sst = ResourceManager::GetVertexShader("VS_ScreenSizeTri.cso", this);
 	SetVertexShader(sst);
 	deviceContext->Draw(3, 0);
+	//
 }
 
 void Graphics::RenderImGui()
@@ -112,7 +115,7 @@ void Graphics::RenderImGui()
 		Color color = Color((BYTE)(light.lightColor.x * 255), (BYTE)(light.lightColor.y * 255), (BYTE)(light.lightColor.z * 255), (BYTE)0);
 		light.SetMeshDiffuseColor(color);
 	}
-	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.01, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.01, 0.0f, 20.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light.attenuation_a, 0.001, 0.1f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.001, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.001, 0.0f, 10.0f);
@@ -492,7 +495,7 @@ bool Graphics::InitializeScene()
 	// Initialize Model(s)
 	
 	cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	cb_ps_light.data.ambientLightStrength = 0.04f;
+	cb_ps_light.data.ambientLightStrength = 0.2f;
 	
 
 	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(),
