@@ -304,9 +304,6 @@
     <FxCompile Include="Graphics\Shaders\pixelshader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\vertexShader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="Graphics\Shaders\VertexShaderAnim.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
@@ -314,7 +311,6 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\VS_shadowmap_anim.hlsl" />
-    <FxCompile Include="Graphics\Shaders\VS_shadowmap.hlsl" />
     <FxCompile Include="Graphics\Shaders\pixelshader_tonemapping.hlsl" />
     <FxCompile Include="Graphics\Shaders\PS_EnvMapping.hlsl" />
     <FxCompile Include="Graphics\Shaders\VS_DynamicSky.hlsl" />
