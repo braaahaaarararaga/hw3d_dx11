@@ -247,7 +247,7 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <FileType>Document</FileType>
     </FxCompile>
-    <None Include="Graphics\Shaders\CommonPS.hlsl">
+    <None Include="Graphics\Shaders\CommonPS.hlsli">
       <FileType>Document</FileType>
     </None>
     <FxCompile Include="Graphics\Shaders\PixelShader_HeightMapping.hlsl">
@@ -307,6 +307,7 @@
     <ClInclude Include="Graphics\RenderableGameObject.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Sprite.h" />
+    <ClInclude Include="Graphics\TextureFormat.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="MemoryStream.h" />
     <ClInclude Include="Graphics\RenderPipelines.h" />

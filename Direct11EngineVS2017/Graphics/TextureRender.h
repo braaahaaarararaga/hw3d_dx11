@@ -3,6 +3,7 @@
 #include <memory>
 #include <wrl/client.h>
 #include <string>
+#include "TextureFormat.h"
 
 class TextureRender
 {
@@ -11,12 +12,12 @@ public:
 	using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 	TextureRender() = default;
-	TextureRender(ID3D11Device* device, int width, int height, bool generateMips = false);
+	TextureRender(ID3D11Device* device, int width, int height, TexFormat format = TEX_FORMAT_R8G8B8A8_UNORM, bool generateMips = false);
 	TextureRender(const TextureRender&) = delete;
 	TextureRender& operator = (TextureRender&) = delete;
 
 public:
-	void Resize(ID3D11Device* device, int width, int height, bool generateMips = false);
+	void Resize(ID3D11Device* device, int width, int height, TexFormat format = TEX_FORMAT_R8G8B8A8_UNORM,bool generateMips = false);
 	void Begin(ID3D11DeviceContext * deviceContext);
 	void End(ID3D11DeviceContext * deviceContext);
 	ID3D11ShaderResourceView * GetOutputTexture();

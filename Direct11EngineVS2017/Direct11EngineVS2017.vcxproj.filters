@@ -293,6 +293,9 @@
     <ClInclude Include="Graphics\RenderPipelines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\TextureFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Graphics\Shaders\PixelShader_HeightMapping.hlsl">
@@ -327,7 +330,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Graphics\Shaders\CommonPS.hlsl">
+    <None Include="Graphics\Shaders\CommonPS.hlsli">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

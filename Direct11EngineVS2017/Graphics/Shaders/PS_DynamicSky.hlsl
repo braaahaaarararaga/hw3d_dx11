@@ -1,4 +1,4 @@
-#include "CommonPS.hlsl"
+#include "CommonPS.hlsli"
 
 struct PixelInputType
 {

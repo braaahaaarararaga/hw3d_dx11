@@ -1,4 +1,4 @@
-#include "CommonPS.hlsl"
+#include "CommonPS.hlsli"
 
 cbuffer lightBuffer : register(B_SLOT_LIGHT)
 {

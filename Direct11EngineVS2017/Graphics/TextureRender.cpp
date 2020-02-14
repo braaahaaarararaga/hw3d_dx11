@@ -2,12 +2,12 @@
 #include "../COMException.h"
 #include "..\\d3dUtil.h"
 
-TextureRender::TextureRender(ID3D11Device * device, int width, int height, bool generateMips)
+TextureRender::TextureRender(ID3D11Device * device, int width, int height, TexFormat format, bool generateMips)
 {
-	Resize(device, width, height, generateMips);
+	Resize(device, width, height, format, generateMips);
 }
 
-void TextureRender::Resize(ID3D11Device * device, int width, int height, bool generateMips)
+void TextureRender::Resize(ID3D11Device * device, int width, int height, TexFormat format, bool generateMips)
 {
 	outputTextureSRV.Reset();
 	outputTextureRTV.Reset();
@@ -28,7 +28,7 @@ void TextureRender::Resize(ID3D11Device * device, int width, int height, bool ge
 	texDesc.ArraySize = 1;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.Format = (DXGI_FORMAT)format;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texDesc.CPUAccessFlags = 0;

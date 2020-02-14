@@ -1,4 +1,4 @@
-#include "CommonPS.hlsl"
+#include "CommonPS.hlsli"
 
 cbuffer Material : register(B_SLOT_MATERIAL)
 {
