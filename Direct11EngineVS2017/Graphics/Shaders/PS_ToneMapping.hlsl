@@ -9,6 +9,8 @@ struct PixelInputType
     float2 tex : TEXCOORD0;
 };
 
+// formulae adapted from Stephen Hill's fit See:https://64.github.io/tonemapping/
+
 static const float3x3 ACESInputMat =
 {
     { 0.59719, 0.35458, 0.04823 },
@@ -46,12 +48,23 @@ float3 ACESFitted(float3 colour)
     return colour;
 }
 
+// ACES fit by Krzysztof Narkowicz See:https://64.github.io/tonemapping/
+float3 ACESAprrox(float3 v)
+{
+    v *= 0.6f;
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    return saturate((v * (a * v + b)) / (v * (c * v + d) + e));
+}
 
 float4 main(PixelInputType input) : SV_TARGET
 {
     float3 texColour = SceneTexture.Sample(objSamplerState, input.tex).rgb;
     float3 hdrColour = texColour * 2.0;
 
-    float3 colour = TosRGBSpace(ACESFitted(hdrColour));
+    float3 colour = TosRGBSpace(ACESAprrox(hdrColour));
     return float4(colour, 1.0f);
 }
