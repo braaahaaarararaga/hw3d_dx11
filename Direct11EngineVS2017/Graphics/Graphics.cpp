@@ -538,8 +538,8 @@ bool Graphics::InitializeShaders()
 	Pipeline_Nolight3D = std::make_unique<NoLight3DPipeline>();
 
 	hdr_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
-	brightExtract_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
-	gauss_blur_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
+	brightExtract_RTT = std::make_unique<TextureRender>(device.Get(), window_width / 2, window_height / 2, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
+	gauss_blur_RTT = std::make_unique<TextureRender>(device.Get(), window_width / 2, window_height / 2, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
 	bloom_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
 
 	return true;
