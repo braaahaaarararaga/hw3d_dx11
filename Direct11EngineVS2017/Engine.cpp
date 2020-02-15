@@ -70,7 +70,7 @@ void Engine::Update()
 	}
 	if (input.keyboard.KeyIsPressed('J'))
 	{
-		gfx.gameObj2.AdjustRotation(0.0f, 0.01f * dt, 0.0f);
+		gfx.platform.AdjustRotation(0.0f, 0.01f * dt, 0.0f);
 	}
 }
 

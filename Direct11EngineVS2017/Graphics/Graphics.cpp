@@ -33,10 +33,10 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 	light.SetUpShadowMap();
 
 	{
-		gameObj.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
+		mainChara.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 	
-		gameObj2.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
-		gameObj3.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
+		platform.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
+		ball.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 	}
 	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
 	cb_ps_shadowmat.data.shadowMatrix = XMMatrixTranspose(light.GetVpMatrix());
@@ -67,18 +67,18 @@ void Graphics::RenderFrame()
 			deviceContext->PSSetShader(pixelshader_celshading.GetShader(), NULL, 0);
 		else
 			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-		gameObj.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
+		mainChara.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 	}
 	{
 		deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-		gameObj2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
+		platform.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 
 		if (enableCelshading)
 			deviceContext->PSSetShader(pixelshader_celshading.GetShader(), NULL, 0);
 		else
 			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 
-		gameObj3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
+		ball.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 	}
 	{
 		deviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
@@ -197,8 +197,8 @@ void Graphics::RenderImGui()
 	ImGui::End();
 
 
-	ImGui::Begin(gameObj.GetAnimator().GetCurrentAnimation().name.c_str());
-	ImGui::DragFloat("anim speed", &gameObj.GetAnimaTimeScale(), 0.001, 0.001f, 1.0f);
+	ImGui::Begin(mainChara.GetAnimator().GetCurrentAnimation().name.c_str());
+	ImGui::DragFloat("anim speed", &mainChara.GetAnimaTimeScale(), 0.001, 0.001f, 1.0f);
 	ImGui::End();
 
 	// Assemble Together Draw Data
@@ -610,30 +610,30 @@ bool Graphics::InitializeScene()
 	cb_ps_light.data.ambientLightStrength = 0.2f;
 	
 
-	if (!gameObj.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(),
+	if (!mainChara.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(),
 		cb_vs_vertexshader, cb_ps_material, this))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
-	gameObj.SetScale(0.07f, 0.07f, 0.07f);
-	gameObj.AdjustPosition(0.0f, 0.0f, 3.0f);
-	gameObj.InitAnimation(cb_bones);
+	mainChara.SetScale(0.07f, 0.07f, 0.07f);
+	mainChara.AdjustPosition(0.0f, 0.0f, 3.0f);
+	mainChara.InitAnimation(cb_bones);
 
-	if (!gameObj2.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material,this))
+	if (!platform.Initialize("Data\\Objects\\brick_wall\\brick_wall.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material,this))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
-	gameObj2.AdjustRotation(DirectX::XMConvertToRadians(90.0f), 0.0f, 0.0f);
-	gameObj2.SetScale(10.0f, 10.0f, 10.0f);
+	platform.AdjustRotation(DirectX::XMConvertToRadians(90.0f), 0.0f, 0.0f);
+	platform.SetScale(10.0f, 10.0f, 10.0f);
 
-	if (!gameObj3.Initialize("Data\\Objects\\sphere_smooth.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, this))
+	if (!ball.Initialize("Data\\Objects\\sphere_smooth.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, this))
 	{
 		COM_ERROR_IF_FAILED(-1, "Failed to load model file.");
 		return false;
 	}
-	gameObj3.AdjustPosition(3.0f, 3.0f, 0.0f);
+	ball.AdjustPosition(3.0f, 3.0f, 0.0f);
 
 	if (!light.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, this))
 	{

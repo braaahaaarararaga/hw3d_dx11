@@ -41,7 +41,7 @@ public:
 	IVertexShader* GetVertexShader() const;
 	void SetVertexShader(IVertexShader* pShader);
 
-	RenderableGameObject gameObj2;
+	RenderableGameObject platform;
 	Camera3D Camera3D;
 	Light light;
 private:
@@ -82,8 +82,8 @@ private:
 	ConstantBuffer<CB_PS_brightExtract_settings> cb_ps_brightExtract_settings;
 	ConstantBuffer<CB_PS_BlurSettings> cb_ps_blur_settings;
 
-	RenderableGameObject gameObj;
-	RenderableGameObject gameObj3;
+	RenderableGameObject mainChara;
+	RenderableGameObject ball;
 	// depth stencil
 	ComPtr<ID3D11DepthStencilView> depthStencilView;
 	ComPtr<ID3D11Texture2D> depthStencilBuffer;
