@@ -24,7 +24,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     {
         material.DiffuseColor = diffuseTexture.Sample(WrapSampler, input.inTexCoord);
     }
-    float3 sampleColor = material.DiffuseColor * 1.5;
+    float3 sampleColor = material.DiffuseColor * 5.0;
 
 	return float4(sampleColor, 1.0f) * material.Opacity;
 }
