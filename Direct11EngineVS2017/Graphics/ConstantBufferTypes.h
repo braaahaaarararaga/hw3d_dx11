@@ -92,3 +92,11 @@ struct CB_PS_BlurSettings
 	int Horizontal;
 	float pad[3];
 };
+
+struct CB_PS_SkySettings
+{
+	float Cloudiness;
+	float CloudScale;
+	float CloudSpeed;
+	int EnableCloud;
+};

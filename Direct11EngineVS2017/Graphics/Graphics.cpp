@@ -36,9 +36,9 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 		platform.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 		ball.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 	}
-	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
 	cb_ps_shadowmat.data.shadowMatrix = XMMatrixTranspose(light.GetVpMatrix());
 	cb_ps_shadowmat.ApplyChanges();
+	deviceContext->PSSetConstantBuffers(3, 1, cb_ps_shadowmat.GetAddressOf());
 }
 
 void Graphics::RenderFrame()
@@ -50,13 +50,6 @@ void Graphics::RenderFrame()
 	
 	light.BindShadowResourceView();
 
-	ImGui::Begin("Shader Settings");
-	ImGui::Checkbox("Cel Shading", &enableCelshading);
-	ImGui::Checkbox("ProcSky", &enableProcSky);
-	ImGui::DragFloat("Exposure", &cb_ps_tonemapping_settings.data.exposure, 0.01f, 0.01f, 10.0f);
-	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
-	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 1, 0, 8);
-	ImGui::End();
 
 	// HDR PASS
 	hdr_RTT->Begin(deviceContext.Get());
@@ -67,12 +60,12 @@ void Graphics::RenderFrame()
 		SetPixelShader(ps);
 
 		XMMATRIX camVPMat = camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix();
-		platform.Draw(camVPMat, Pipeline_General3D.get());
 		if (enableCelshading)
 		{
 			ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_CelShading.hlsl", this);
 			SetPixelShader(ps);
 		}
+		platform.Draw(camVPMat, Pipeline_General3D.get());
 		mainChara.Draw(camVPMat, Pipeline_General3D.get());
 		ball.Draw(camVPMat, Pipeline_General3D.get());
 
@@ -84,6 +77,10 @@ void Graphics::RenderFrame()
 			SetVertexShader(dynamic_sky);
 			IPixelShader*  dSkyPS = ResourceManager::GetPixelShader("Graphics/Shaders/PS_DynamicSky.hlsl", this);
 			SetPixelShader(dSkyPS);
+
+			cb_ps_sky_settings.ApplyChanges();
+			deviceContext->PSSetConstantBuffers(4, 1, cb_ps_sky_settings.GetAddressOf());
+
 			deviceContext->Draw(3, 0);
 		}
 	}
@@ -102,8 +99,9 @@ void Graphics::RenderFrame()
 		SetPixelShader(ps);
 
 		deviceContext->PSSetShaderResources(0, 1, hdr_RTT->GetOutputTexture());
-		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_brightExtract_settings.GetAddressOf());
 		cb_ps_brightExtract_settings.ApplyChanges();
+		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_brightExtract_settings.GetAddressOf());
+
 		deviceContext->Draw(3, 0);
 		brightExtract_RTT->End(deviceContext.Get());
 	}
@@ -169,8 +167,8 @@ void Graphics::RenderFrame()
 		SetPixelShader(ps);
 
 		deviceContext->PSSetShaderResources(0, 1, bloom_RTT->GetOutputTexture());
-		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_tonemapping_settings.GetAddressOf());
 		cb_ps_tonemapping_settings.ApplyChanges();
+		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_tonemapping_settings.GetAddressOf());
 		deviceContext->Draw(3, 0);
 	}
 	//
@@ -194,6 +192,21 @@ void Graphics::RenderImGui()
 
 	ImGui::Begin(mainChara.GetAnimator().GetCurrentAnimation().name.c_str());
 	ImGui::DragFloat("anim speed", &mainChara.GetAnimaTimeScale(), 0.001, 0.001f, 1.0f);
+	ImGui::End();
+
+	ImGui::Begin("Shader Settings");
+	ImGui::Checkbox("ToneShading", &enableCelshading);
+	ImGui::DragFloat("Exposure", &cb_ps_tonemapping_settings.data.exposure, 0.01f, 0.01f, 10.0f);
+	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
+	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 1, 0, 8);
+	ImGui::End();
+
+	ImGui::Begin("ProcSky Settings");
+	ImGui::Checkbox("Enable", &enableProcSky);
+	ImGui::Checkbox("Enable Cloud", reinterpret_cast<bool*>(&cb_ps_sky_settings.data.EnableCloud));
+	ImGui::DragFloat("Cloudiness", &cb_ps_sky_settings.data.Cloudiness, 0.001f, 0.001f, 1.0f);
+	ImGui::DragFloat("CloudScale", &cb_ps_sky_settings.data.CloudScale, 0.001f, 0.001f, 1.0f);
+	ImGui::DragFloat("CloudSpeed", &cb_ps_sky_settings.data.CloudSpeed, 0.01f, 0.03f, 2.0f);
 	ImGui::End();
 
 	// Assemble Together Draw Data
@@ -539,6 +552,14 @@ bool Graphics::InitializeScene()
 	hr = this->cb_ps_blur_settings.Initialize(device.Get(), deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
 
+	hr = this->cb_ps_sky_settings.Initialize(device.Get(), deviceContext.Get());
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_ps_sky_settings.data.Cloudiness = 0.2f;
+	cb_ps_sky_settings.data.CloudScale = 0.03f;
+	cb_ps_sky_settings.data.CloudSpeed = 0.1f;
+	cb_ps_sky_settings.data.EnableCloud = 1;
+
+
 #ifdef _DEBUG
 	cb_ps_light.SetDebugName("cb_ps_light");
 	cb_ps_material.SetDebugName("ps_material");
@@ -547,6 +568,7 @@ bool Graphics::InitializeScene()
 	cb_bones.SetDebugName("vs_bone_transforms"); 
 	cb_ps_tonemapping_settings.SetDebugName("cb_ps_tonemapping_settings");
 	cb_ps_blur_settings.SetDebugName("cb_ps_blur_setting_buffer");
+	cb_ps_sky_settings.SetDebugName("cb_ps_sky_setting_buffer");
 #endif
 	// Initialize Model(s)
 

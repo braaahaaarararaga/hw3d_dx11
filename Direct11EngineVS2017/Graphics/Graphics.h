@@ -67,6 +67,7 @@ private:
 	ConstantBuffer<CB_PS_tonemapping_settings> cb_ps_tonemapping_settings;
 	ConstantBuffer<CB_PS_brightExtract_settings> cb_ps_brightExtract_settings;
 	ConstantBuffer<CB_PS_BlurSettings> cb_ps_blur_settings;
+	ConstantBuffer<CB_PS_SkySettings> cb_ps_sky_settings;
 	// shadow map
 	ConstantBuffer<CB_PS_shadowmat> cb_ps_shadowmat;
 	// depth stencil

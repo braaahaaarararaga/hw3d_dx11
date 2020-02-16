@@ -52,7 +52,7 @@ float Shadow(float3 worldPos, float3 normal, float3 light_dir)
     float2 shadow_uv = proj_coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
     //float closest_depth = shadowTexture.Sample(shadowSamplerState, shadow_uv).r;
     //float bias = max(0.005 * (1.0 - dot(normal, light_dir)), 0.0005f);
-    float bias = 0.005f;
+    float bias = 0.001f;
     float current_depth = proj_coords.z - bias;
 	
     float2 shadow = 0.0f;

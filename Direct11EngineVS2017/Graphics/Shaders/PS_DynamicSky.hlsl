@@ -1,5 +1,13 @@
 #include "CommonPS.hlsli"
 
+cbuffer DynamicSkySettings : register(b4)
+{
+    float Cloudiness;
+    float CloudScale;
+    float CloudSpeed;
+    bool EnableCloud;
+}
+
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -39,9 +47,9 @@ float noise(in float2 p)
 float3 GetDynamicSkyColor(in float3 V, bool sun_enabled = true, bool clouds_enabled = true, bool dark_enabled = false)
 {
     float t = cos(Globals.Time) * 0.5f + 0.5f;
-    const float cloudiness = 0.2f;
-    const float cloudScale = 0.0003f;
-    const float cloudSpeed = 0.1f;
+    const float cloudiness = Cloudiness; //0.2f;
+    const float cloudScale = CloudScale / 100; //0.0003f;
+    const float cloudSpeed = CloudSpeed; //0.1f;
     const float3 horizonColor = lerp(float3(0.2f, 0.05f, 0.15f), float3(0.3f, 0.3f, 0.4f), t);
     const float3 skyColor = lerp(float3(0.4f, 0.05f, 0.1f), float3(37.0f / 255.0f, 61.0f / 255.0f, 142.0f / 255.0f), t);
     const float3 sunDirection = normalize(float3(1.0f, t, 1.0f));
@@ -178,7 +186,7 @@ float4 main(PixelInputType input) : SV_TARGET
     pos_ws.xyz /= pos_ws.w;
 	
     float3 dir = normalize(pos_ws.xyz - Globals.CameraPos);
-    float3 sky_colour = GetDynamicSkyColor(dir, true, true);
+    float3 sky_colour = GetDynamicSkyColor(dir, true, EnableCloud);
     
     return float4(sky_colour, 1.0f);
 }
