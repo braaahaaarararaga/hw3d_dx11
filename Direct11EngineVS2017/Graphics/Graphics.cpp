@@ -60,12 +60,12 @@ void Graphics::RenderFrame()
 		SetPixelShader(ps);
 
 		XMMATRIX camVPMat = camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix();
+		platform.Draw(camVPMat, Pipeline_General3D.get());
 		if (enableCelshading)
 		{
 			ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_CelShading.hlsl", this);
 			SetPixelShader(ps);
 		}
-		platform.Draw(camVPMat, Pipeline_General3D.get());
 		mainChara.Draw(camVPMat, Pipeline_General3D.get());
 		ball.Draw(camVPMat, Pipeline_General3D.get());
 
@@ -179,7 +179,9 @@ void Graphics::RenderImGui()
 	// Create imGui Test Window
 	ImGui::Begin("Light Controls");
 	ImGui::ColorEdit3("Ambient Light", &this->cb_ps_light.data.ambientLightColor.x);
-	ImGui::DragFloat("Ambient Strength", &this->cb_ps_light.data.ambientLightStrength, 0.001, 0.0f, 1.0f);
+	//ImGui::DragFloat("Ambient Strength", &this->cb_ps_light.data.ambientLightStrength, 0.001, 0.0f, 1.0f);
+	float t = cos(launchTime) * 0.5f + 0.5f;
+	cb_ps_light.data.ambientLightStrength = t;
 	ImGui::NewLine();
 	if (ImGui::ColorEdit3("Dynamic Light Color", &this->light.lightColor.x))
 	{
@@ -196,7 +198,8 @@ void Graphics::RenderImGui()
 
 	ImGui::Begin("Shader Settings");
 	ImGui::Checkbox("CelShading", &enableCelshading);
-	ImGui::DragFloat("Exposure", &cb_ps_tonemapping_settings.data.exposure, 0.01f, 0.01f, 10.0f);
+	ImGui::DragFloat("Exposure", &exposure, 0.01f, 0.5f, 10.0f);
+	cb_ps_tonemapping_settings.data.exposure = exposure + (1 - pow(t, 2)) * 1.5f;
 	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
 	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 1, 0, 8);
 	ImGui::End();
@@ -517,7 +520,7 @@ bool Graphics::InitializeScene()
 {
 	HRESULT hr;
 		// load texture
-	hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data\\Textures\\tone_.png", nullptr, toneTexture.GetAddressOf());
+	hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data\\Textures\\tone_2.png", nullptr, toneTexture.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
 
 	//initialize constant buffer

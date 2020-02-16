@@ -111,4 +111,5 @@ private:
 	float launchTime = 0;
 
 	int gaussBlurPasses = 5;
+	float exposure = 1.4f;
 };

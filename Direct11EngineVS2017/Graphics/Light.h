@@ -9,7 +9,7 @@ public:
 		ConstantBuffer<CB_PS_material>& cb_ps_material, Graphics * gfx);
 
 	DirectX::XMFLOAT3 lightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	float lightStrenght = 3.5f;
+	float lightStrenght = 4.5f;
 	float attenuation_a = 1.0f;
 	float attenuation_b = 0.02f;
 	float attenuation_c = 0.01f;

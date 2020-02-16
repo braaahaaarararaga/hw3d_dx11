@@ -52,7 +52,7 @@ float Shadow(float3 worldPos, float3 normal, float3 light_dir)
     float2 shadow_uv = proj_coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
     //float closest_depth = shadowTexture.Sample(shadowSamplerState, shadow_uv).r;
     //float bias = max(0.005 * (1.0 - dot(normal, light_dir)), 0.0005f);
-    float bias = 0.001f;
+    float bias = 0.0004f;
     float current_depth = proj_coords.z - bias;
 	
     float2 shadow = 0.0f;
@@ -144,18 +144,22 @@ float4 main(PS_INPUT input) : SV_TARGET
     float distanceToLight = distance(dynamicLightPosition, input.inWorldPos);
     float attenuationFactor = 1 / (dynamicLightAttenuation_a + dynamicLightAttenuation_b * distanceToLight + dynamicLightAttenuation_c * pow(distanceToLight, 2));
     
-    //float3 refv = reflect(vectorToLight, normal);
-    //refv = normalize(refv);
+    float3 refv = reflect(vectorToLight, normal);
+    refv = normalize(refv);
     float3 eyev = normalize(Globals.CameraPos - worldPos);
-    //float rv = dot(-refv, eyev);
-    //rv = saturate(rv);
-    //float3 specular = material.SpecularColor.rgb * pow(rv, material.SpecularPower);
+    float rv = dot(-refv, eyev);
+    rv = saturate(rv);
+    if(rv < 0.987)
+        rv = 0.0;
+    //else
+    //    rv = 1.0;
+    float3 specular = material.SpecularColor.rgb * pow(rv, material.SpecularPower);
     
     float light = dot(vectorToLight, normal) / 2.0 + 0.5;
     light *= Shadow(worldPos, normal, vectorToLight);
     float facing = dot(eyev, normal);
     float2 toneTexcoord = float2(light, facing);
-    float3 toneColor = toneTexture.Sample(ClampSampler, toneTexcoord).rgb;
+    float3 toneColor = toneTexture.Sample(ClampSampler, toneTexcoord).rgb + specular;
     
     //diffuseLightIntensity = (diffuseLightIntensity + specular) * attenuationFactor * Shadow(worldPos, normal, vectorToLight);
     diffuseLightIntensity = toneColor * attenuationFactor;// * Shadow(worldPos, normal, vectorToLight);
