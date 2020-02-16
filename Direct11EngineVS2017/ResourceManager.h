@@ -4,6 +4,7 @@
 #include "Graphics//Texture.h"
 #include <vector>
 #include "Graphics//VertexShader.h"
+#include "Graphics//PixelShader.h"
 
 class Mesh;
 class Graphics;
@@ -21,7 +22,7 @@ public:
 	static Resource<Texture>        GetTexture(ID3D11Device* device, const std::string& texturename, const Color& color, aiTextureType type);
 	static Resource<Texture>        GetTexture(ID3D11Device* device, const std::string& texturename, const Color * colorData, UINT width, UINT height, aiTextureType type);
 	static IVertexShader*   GetVertexShader(const std::string& filename, Graphics* gfx, const std::vector<ShaderMacro>& macros = {});
-	//static Resource<IPixelShader>    GetPixelShader(const std::string& filename);
+	static IPixelShader*     GetPixelShader(const std::string& filename, Graphics* gfx, const std::vector<ShaderMacro>& macros = {});
 
 	static std::vector<ShaderMacro> BuildMacrosForMesh(const Mesh& mesh);
 

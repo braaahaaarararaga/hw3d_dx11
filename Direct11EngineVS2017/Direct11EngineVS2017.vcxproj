@@ -292,6 +292,7 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <ClCompile Include="Graphics\RenderPipelines.cpp" />
+    <ClCompile Include="Graphics\PixelShader.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Graphics\ShadowMapRTT.cpp" />
@@ -300,7 +301,6 @@
     <ClCompile Include="Input\KeyboardClass.cpp" />
     <ClCompile Include="Input\MouseClass.cpp" />
     <ClCompile Include="RenderWindow.cpp" />
-    <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="Graphics\VertexShader.cpp" />
@@ -364,6 +364,7 @@
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="MemoryStream.h" />
     <ClInclude Include="Graphics\RenderPipelines.h" />
+    <ClInclude Include="Graphics\PixelShader.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Graphics\ShaderUtils.h" />
@@ -374,7 +375,6 @@
     <ClInclude Include="Input\KeyboardClass.h" />
     <ClInclude Include="Input\MouseClass.h" />
     <ClInclude Include="RenderWindow.h" />
-    <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />

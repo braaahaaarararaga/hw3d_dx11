@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "AdapterReader.h"
-#include "Shaders.h"
 #include "GameObject.h"
 #include "Camera3D.h"
 #include <SpriteBatch.h>
@@ -40,6 +39,9 @@ public:
 	IVertexShader* CreateVertexShader(const std::string& filename, const std::vector<ShaderMacro>& macros);
 	IVertexShader* GetVertexShader() const;
 	void SetVertexShader(IVertexShader* pShader);
+	IPixelShader* CreatePixelShader(const std::string& filename, const std::vector<ShaderMacro>& macros);
+	IPixelShader* GetPixelShader() const;
+	void SetPixelShader(IPixelShader* pShader);
 
 	RenderableGameObject platform;
 	Camera3D Camera3D;
@@ -58,16 +60,7 @@ private:
 
 	// shaders
 	D3DVertexShader* vertexshader;
-
-	PixelShader_ pixelshader;
-	PixelShader_ pixelshader_nolight;
-	PixelShader_ pixelshader_celshading;
-	PixelShader_ pixelshader_heightmapping;
-	PixelShader_ pixelshader_dynamic_sky;
-	PixelShader_ pixelshader_tonemapping;
-	PixelShader_ pixelshader_bright_extract;
-	PixelShader_ pixelshader_gauss_blur;
-	PixelShader_ pixelshader_bloom;
+	D3DPixelShader*  pixelshader;
 
 	bool enableCelshading = false;
 	bool enableProcSky = true;
@@ -81,6 +74,8 @@ private:
 	ConstantBuffer<CB_PS_tonemapping_settings> cb_ps_tonemapping_settings;
 	ConstantBuffer<CB_PS_brightExtract_settings> cb_ps_brightExtract_settings;
 	ConstantBuffer<CB_PS_BlurSettings> cb_ps_blur_settings;
+	// shadow map
+	ConstantBuffer<CB_PS_shadowmat> cb_ps_shadowmat;
 
 	RenderableGameObject mainChara;
 	RenderableGameObject ball;
@@ -89,8 +84,6 @@ private:
 	ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	ComPtr<ID3D11DepthStencilState> depthStencilState;
 
-	// shadow map
-	ConstantBuffer<CB_PS_shadowmat> cb_ps_shadowmat;
 
 	// RTT texture
 	std::unique_ptr<TextureRender> hdr_RTT;

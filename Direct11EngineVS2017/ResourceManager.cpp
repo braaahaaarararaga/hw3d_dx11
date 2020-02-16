@@ -4,9 +4,12 @@
 
 template<typename T>
 using ResourceMap = std::unordered_map<std::string, Resource<T>>;
+template<typename T>
+using UniqueResourceMap = std::unordered_map<std::string, std::unique_ptr<T>>;
 
 static ResourceMap<Texture>        g_mapTextures;
-static ResourceMap<IVertexShader>   g_mapVShaders;
+static UniqueResourceMap<IVertexShader>   g_mapVShaders;
+static UniqueResourceMap<IPixelShader>  g_mapPShaders;
 
 Resource<Texture> ResourceManager::GetTexture(ID3D11Device* device, const std::string& filename, aiTextureType type)
 {
@@ -85,6 +88,20 @@ IVertexShader * ResourceManager::GetVertexShader(const std::string & filename, G
 	return it->second.get();
 }
 
+IPixelShader * ResourceManager::GetPixelShader(const std::string & filename, Graphics * gfx, const std::vector<ShaderMacro>& macros)
+{
+	std::string name = GetShaderHashName(filename, macros);
+	auto it = g_mapPShaders.find(name);
+	if (it == g_mapPShaders.end())
+	{
+		auto pResource = gfx->CreatePixelShader(filename, macros);
+		g_mapPShaders[name] = std::unique_ptr<IPixelShader>(pResource);
+		return pResource;
+	}
+
+	return it->second.get();
+}
+
 
 
 template <typename T>
@@ -120,6 +137,8 @@ std::vector<ShaderMacro> ResourceManager::BuildMacrosForMesh(const Mesh & mesh)
 void ResourceManager::CleanUp()
 {
 	CleanUpResources(g_mapTextures);
-	CleanUpResources(g_mapVShaders);
+
+	g_mapVShaders.clear();
+	g_mapPShaders.clear();
 }
 

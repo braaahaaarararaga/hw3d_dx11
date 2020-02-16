@@ -1,7 +1,17 @@
 #pragma once
 #include <unordered_map>
 
+struct ShaderMacro
+{
+	ShaderMacro(std::string name, std::string value = "")
+		:
+		name(std::move(name)),
+		value(std::move(value))
+	{}
 
+	std::string name;
+	std::string value;
+};
 
 class AttributeInfo
 {

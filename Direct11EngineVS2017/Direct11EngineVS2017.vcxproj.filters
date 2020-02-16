@@ -54,9 +54,6 @@
     <ClCompile Include="Graphics\AdapterReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Shaders.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -144,6 +141,9 @@
     <ClCompile Include="Graphics\RenderPipelines.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\PixelShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.h">
@@ -162,9 +162,6 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Vertex.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Shaders.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\VertexBuffer.h">
@@ -296,7 +293,7 @@
     <ClInclude Include="Graphics\TextureFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Shaders\VS_ScreenSizeTri.hlsl">
+    <ClInclude Include="Graphics\PixelShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -304,7 +301,6 @@
     <FxCompile Include="Graphics\Shaders\VS_nolight.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\VS_shadowmap_anim.hlsl" />
     <FxCompile Include="Graphics\Shaders\PS_EnvMapping.hlsl" />
     <FxCompile Include="Graphics\Shaders\VS_DynamicSky.hlsl" />
     <FxCompile Include="Graphics\Shaders\PS_DynamicSky.hlsl" />
@@ -324,6 +320,9 @@
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\PS_GaussBlur.hlsl" />
     <FxCompile Include="Graphics\Shaders\PS_Bloom.hlsl" />
+    <FxCompile Include="Graphics\Shaders\VS_ShadowMapping.hlsl" />
+    <FxCompile Include="Graphics\Shaders\PS_BrightExtract.hlsl" />
+    <FxCompile Include="Graphics\Shaders\VS_ScreenSizeTri.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct11EngineVS2017.rc">
@@ -340,6 +339,5 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Graphics\Shaders\CommonVS.hlsli" />
-    <None Include="Graphics\Shaders\PS_BrightExtract.hlsl" />
   </ItemGroup>
 </Project>

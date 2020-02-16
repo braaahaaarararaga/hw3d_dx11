@@ -31,10 +31,8 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 {	
 	light.SetUpShadowMap();
-
 	{
 		mainChara.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
-	
 		platform.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 		ball.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 	}
@@ -63,33 +61,28 @@ void Graphics::RenderFrame()
 	// HDR PASS
 	hdr_RTT->Begin(deviceContext.Get());
 	{	// TODO: refactory render pipelines & render pass
-		if(enableCelshading)
-			deviceContext->PSSetShader(pixelshader_celshading.GetShader(), NULL, 0);
-		else
-			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-		mainChara.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
-	}
-	{
-		deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
+		IPixelShader*  ps;
+		ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_General3D.hlsl", this);
+		SetPixelShader(ps);
 		platform.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
-
 		if (enableCelshading)
-			deviceContext->PSSetShader(pixelshader_celshading.GetShader(), NULL, 0);
-		else
-			deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
-
+		{
+			ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_CelShading.hlsl", this);
+			SetPixelShader(ps);
+		}
+		mainChara.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 		ball.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
 	}
 	{
-		deviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
 		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_Nolight3D.get());
 	}
 	{
 		if (enableProcSky)
 		{
-			deviceContext->PSSetShader(pixelshader_dynamic_sky.GetShader(), NULL, 0);
-			IVertexShader* dynamic_sky = ResourceManager::GetVertexShader("VS_DynamicSky.cso", this);
+			IVertexShader* dynamic_sky = ResourceManager::GetVertexShader("Graphics/Shaders/VS_DynamicSky.hlsl", this);
 			SetVertexShader(dynamic_sky);
+			IPixelShader*  dSkyPS = ResourceManager::GetPixelShader("Graphics/Shaders/PS_DynamicSky.hlsl", this);
+			SetPixelShader(dSkyPS);
 			deviceContext->Draw(3, 0);
 		}
 	}
@@ -104,7 +97,9 @@ void Graphics::RenderFrame()
 		brightExtract_RTT->Begin(deviceContext.Get());
 		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
 		SetVertexShader(sst);
-		deviceContext->PSSetShader(pixelshader_bright_extract.GetShader(), NULL, 0);
+		IPixelShader*  ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_BrightExtract.hlsl", this);
+		SetPixelShader(ps);
+
 		deviceContext->PSSetShaderResources(0, 1, hdr_RTT->GetOutputTexture());
 		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_brightExtract_settings.GetAddressOf());
 		cb_ps_brightExtract_settings.ApplyChanges();
@@ -113,10 +108,10 @@ void Graphics::RenderFrame()
 	}
 		// GAUSS BLUR 
 	{
-
-		deviceContext->PSSetShader(pixelshader_gauss_blur.GetShader(), NULL, 0);
 		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
 		SetVertexShader(sst);
+		IPixelShader*  ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_GaussBlur.hlsl", this);
+		SetPixelShader(ps);
 
 		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_blur_settings.GetAddressOf());
 
@@ -155,7 +150,8 @@ void Graphics::RenderFrame()
 
 		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
 		SetVertexShader(sst);
-		deviceContext->PSSetShader(pixelshader_bloom.GetShader(), NULL, 0);
+		IPixelShader*  ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_Bloom.hlsl", this);
+		SetPixelShader(ps);
 
 		deviceContext->PSSetShaderResources(0, 1, hdr_RTT->GetOutputTexture());
 		deviceContext->PSSetShaderResources(1, 1, brightExtract_RTT->GetOutputTexture());
@@ -168,7 +164,8 @@ void Graphics::RenderFrame()
 	{
 		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
 		SetVertexShader(sst);
-		deviceContext->PSSetShader(pixelshader_tonemapping.GetShader(), NULL, 0);
+		IPixelShader*  ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_ToneMapping.hlsl", this);
+		SetPixelShader(ps);
 
 		deviceContext->PSSetShaderResources(0, 1, bloom_RTT->GetOutputTexture());
 		deviceContext->PSSetConstantBuffers(4, 1, cb_ps_tonemapping_settings.GetAddressOf());
@@ -299,6 +296,22 @@ IVertexShader * Graphics::CreateVertexShader(const std::string & filename, const
 IVertexShader * Graphics::GetVertexShader() const
 {
 	return vertexshader;
+}
+
+IPixelShader * Graphics::CreatePixelShader(const std::string & filename, const std::vector<ShaderMacro>& macros)
+{
+	return new D3DPixelShader(device.Get(), filename, macros);
+}
+
+IPixelShader * Graphics::GetPixelShader() const
+{
+	return pixelshader;
+}
+
+void Graphics::SetPixelShader(IPixelShader * pShader)
+{
+	pixelshader = static_cast<D3DPixelShader*>(pShader);
+	deviceContext->PSSetShader(pixelshader ? pixelshader->GetShader(device.Get()) : nullptr, nullptr, 0);
 }
 
 void Graphics::SetVertexShader(IVertexShader * pShader)
@@ -492,43 +505,6 @@ bool Graphics::InitializeShaders()
 		shaderfolder = L"..\\Release\\";
 	#endif
 #endif
-	}
-
-	if (!pixelshader.Initialize(this->device, shaderfolder + L"PS_General3D.cso"))
-	{
-		return false;
-	}
-	if (!pixelshader_nolight.Initialize(this->device, shaderfolder + L"PS_Nolight.cso"))
-	{
-		return false;
-	}
-	if (!pixelshader_celshading.Initialize(this->device, shaderfolder + L"PS_CelShading.cso"))
-	{
-		return false;
-	}
-	if (!pixelshader_heightmapping.Initialize(this->device, shaderfolder + L"PS_HeightMapping.cso"))
-	{
-		return false;
-	}
-	if (!pixelshader_dynamic_sky.Initialize(this->device, shaderfolder + L"PS_DynamicSky.cso"))
-	{
-		return false;
-	}
-	if (!pixelshader_tonemapping.Initialize(this->device, shaderfolder + L"PS_ToneMapping.cso"))
-	{
-		return false;
-	}
-	if (!pixelshader_bright_extract.Initialize(this->device, shaderfolder + L"PS_BrightExtract.cso"))
-	{
-		return false;
-	}
-	if (!pixelshader_gauss_blur.Initialize(this->device, shaderfolder + L"PS_GaussBlur.cso"))
-	{
-		return false;
-	}
-	if (!pixelshader_bloom.Initialize(this->device, shaderfolder + L"PS_Bloom.cso"))
-	{
-		return false;
 	}
 
 	Pipeline_ShadowMap = std::make_unique<ShadowMapPipeline>();

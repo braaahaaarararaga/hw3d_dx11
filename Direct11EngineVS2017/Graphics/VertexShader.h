@@ -15,17 +15,7 @@ public:
 	virtual bool RequiresVertexAttribute(AttributeInfo::VertexAttribute attribute) const = 0;
 };
 
-struct ShaderMacro
-{
-	ShaderMacro(std::string name, std::string value = "")
-		:
-		name(std::move(name)),
-		value(std::move(value))
-	{}
 
-	std::string name;
-	std::string value;
-};
 
 class D3DVertexShader : public IVertexShader
 {
