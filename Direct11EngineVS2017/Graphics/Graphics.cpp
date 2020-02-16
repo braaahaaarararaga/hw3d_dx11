@@ -195,7 +195,7 @@ void Graphics::RenderImGui()
 	ImGui::End();
 
 	ImGui::Begin("Shader Settings");
-	ImGui::Checkbox("ToneShading", &enableCelshading);
+	ImGui::Checkbox("CelShading", &enableCelshading);
 	ImGui::DragFloat("Exposure", &cb_ps_tonemapping_settings.data.exposure, 0.01f, 0.01f, 10.0f);
 	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
 	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 1, 0, 8);
