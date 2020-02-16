@@ -61,22 +61,23 @@ void Graphics::RenderFrame()
 	// HDR PASS
 	hdr_RTT->Begin(deviceContext.Get());
 	{	// TODO: refactory render pipelines & render pass
+		// Draw Models
 		IPixelShader*  ps;
 		ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_General3D.hlsl", this);
 		SetPixelShader(ps);
-		platform.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
+
+		XMMATRIX camVPMat = camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix();
+		platform.Draw(camVPMat, Pipeline_General3D.get());
 		if (enableCelshading)
 		{
 			ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_CelShading.hlsl", this);
 			SetPixelShader(ps);
 		}
-		mainChara.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
-		ball.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_General3D.get());
-	}
-	{
-		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), Pipeline_Nolight3D.get());
-	}
-	{
+		mainChara.Draw(camVPMat, Pipeline_General3D.get());
+		ball.Draw(camVPMat, Pipeline_General3D.get());
+
+		light.Draw(camVPMat, Pipeline_Nolight3D.get());
+
 		if (enableProcSky)
 		{
 			IVertexShader* dynamic_sky = ResourceManager::GetVertexShader("Graphics/Shaders/VS_DynamicSky.hlsl", this);
@@ -228,10 +229,10 @@ void Graphics::SetLight()
 	cb_ps_common.data.resolution.y = window_height;
 	cb_ps_common.data.time = launchTime;
 	cb_ps_common.data.deltaTime = deltaTime;
-	cb_ps_common.data.eyePos = Camera3D.GetPositionFloat3();
-	cb_ps_common.data.cameraInvVP = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix()));
-	cb_ps_common.ApplyChanges();
+	cb_ps_common.data.eyePos = camera3D.GetPositionFloat3();
+	cb_ps_common.data.cameraInvVP = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(NULL, camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix()));
 	deviceContext->PSSetConstantBuffers(1, 1, cb_ps_common.GetAddressOf());
+	cb_ps_common.ApplyChanges();
 
 	cb_ps_light.data.dynamicLightColor = light.lightColor;
 	cb_ps_light.data.dynamicLightStrength = light.lightStrenght;
@@ -239,9 +240,8 @@ void Graphics::SetLight()
 	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
 	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
 	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
-
-	cb_ps_light.ApplyChanges();
 	deviceContext->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
+	cb_ps_light.ApplyChanges();
 }
 
 void Graphics::RenderBegin()
@@ -488,25 +488,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 bool Graphics::InitializeShaders()
 {
-	std::wstring shaderfolder = L"";
-#pragma region DetermineShaderPath
-	if (IsDebuggerPresent())
-	{
-#ifdef _DEBUG // Debug Mode
-	#ifdef _WIN64 // x64
-		shaderfolder = L"..\\x64\\Debug\\";
-	#else	// x86
-		shaderfolder = L"..\\Debug\\";
-	#endif
-#else	// Release Mode
-	#ifdef _WIN64
-		shaderfolder = L"..\\x64\\Release\\";
-	#else	// x86
-		shaderfolder = L"..\\Release\\";
-	#endif
-#endif
-	}
-
 	Pipeline_ShadowMap = std::make_unique<ShadowMapPipeline>();
 	Pipeline_General3D = std::make_unique<General3DPipeline>();
 	Pipeline_Nolight3D = std::make_unique<NoLight3DPipeline>();
@@ -521,19 +502,8 @@ bool Graphics::InitializeShaders()
 
 bool Graphics::InitializeScene()
 {
-	
-	
-
 	HRESULT hr;
 		// load texture
-	// hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_grass.jpg", nullptr, grassTexture.GetAddressOf());
-	// COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
-	// 
-	// hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\pinksquare.jpg", nullptr, pinkTexture.GetAddressOf());
-	// COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
-	// 
-	// hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_pavement.jpg", nullptr, pavementTexture.GetAddressOf());
-	// COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
 	hr = DirectX::CreateWICTextureFromFile(device.Get(), L"Data\\Textures\\tone_.png", nullptr, toneTexture.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create wic texture.");
 
@@ -543,10 +513,11 @@ bool Graphics::InitializeScene()
 
 	hr = this->cb_ps_light.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
+	cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	cb_ps_light.data.ambientLightStrength = 0.2f;
 
 	hr = this->cb_ps_shadowmat.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
-
 
 	hr = this->cb_ps_common.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize constant buffer.");
@@ -578,10 +549,6 @@ bool Graphics::InitializeScene()
 	cb_ps_blur_settings.SetDebugName("cb_ps_blur_setting_buffer");
 #endif
 	// Initialize Model(s)
-	
-	cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	cb_ps_light.data.ambientLightStrength = 0.2f;
-	
 
 	if (!mainChara.Initialize("Data\\Objects\\akai_e_espiritu@Taunt.fbx", this->device.Get(), this->deviceContext.Get(),
 		cb_vs_vertexshader, cb_ps_material, this))
@@ -599,7 +566,7 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 	platform.AdjustRotation(DirectX::XMConvertToRadians(90.0f), 0.0f, 0.0f);
-	platform.SetScale(10.0f, 10.0f, 10.0f);
+	platform.SetScale(20.0f, 20.0f);
 
 	if (!ball.Initialize("Data\\Objects\\sphere_smooth.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, cb_ps_material, this))
 	{
@@ -616,9 +583,8 @@ bool Graphics::InitializeScene()
 	light.AdjustPosition(0.0f, 10.0f, -6.0f);
 	light.AdjustRotation(DirectX::XMConvertToRadians(20.0f), 0.0f, 0.0f);
 
-
-	Camera3D.SetPosition(0.0f, 5.0f, -2.0f);
-	Camera3D.SetProjectionValues(90.0f, static_cast<float>(window_width) / static_cast<float>(window_height), 0.1f, 1000.0f);
+	camera3D.SetPosition(0.0f, 5.0f, -2.0f);
+	camera3D.SetProjectionValues(90.0f, static_cast<float>(window_width) / static_cast<float>(window_height), 0.1f, 1000.0f);
 	
 	return true;
 }

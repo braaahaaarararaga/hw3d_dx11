@@ -27,7 +27,7 @@ void Engine::Update()
 	
 	if (input.mouse.IsRightDown())
 	{
-		this->gfx.Camera3D.AdjustRotation(input.mouse.rawPoint.x * 0.01f, input.mouse.rawPoint.y * 0.01, 0.0f);
+		this->gfx.camera3D.AdjustRotation(input.mouse.rawPoint.x * 0.01f, input.mouse.rawPoint.y * 0.01, 0.0f);
 	}
 
 	float Camera3DSpeed = 0.005f;
@@ -39,38 +39,34 @@ void Engine::Update()
 
 	if (input.keyboard.KeyIsPressed('W'))
 	{
-		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+		this->gfx.camera3D.AdjustPosition(this->gfx.camera3D.GetForwardVector() * Camera3DSpeed * dt);
 	}
 	if (input.keyboard.KeyIsPressed('S'))
 	{
-		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+		this->gfx.camera3D.AdjustPosition(this->gfx.camera3D.GetBackwardVector() * Camera3DSpeed * dt);
 	}
 	if (input.keyboard.KeyIsPressed('A'))
 	{
-		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
+		this->gfx.camera3D.AdjustPosition(this->gfx.camera3D.GetLeftVector() * Camera3DSpeed * dt);
 	}
 	if (input.keyboard.KeyIsPressed('D'))
 	{
-		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
+		this->gfx.camera3D.AdjustPosition(this->gfx.camera3D.GetRightVector() * Camera3DSpeed * dt);
 	}
 	if (input.keyboard.KeyIsPressed(VK_SPACE))
 	{
-		this->gfx.Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
+		this->gfx.camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
 	}
 	if (input.keyboard.KeyIsPressed(VK_CONTROL))
 	{
-		this->gfx.Camera3D.AdjustPosition(0.0f, -Camera3DSpeed * dt, 0.0f);
+		this->gfx.camera3D.AdjustPosition(0.0f, -Camera3DSpeed * dt, 0.0f);
 	}
 	if (input.keyboard.KeyIsPressed('C'))
 	{
-		XMVECTOR lightPosition = this->gfx.Camera3D.GetPositionVector();
-		lightPosition += this->gfx.Camera3D.GetForwardVector();
+		XMVECTOR lightPosition = this->gfx.camera3D.GetPositionVector();
+		lightPosition += this->gfx.camera3D.GetForwardVector();
 		this->gfx.light.SetPosition(lightPosition);
-		this->gfx.light.SetRotation(this->gfx.Camera3D.GetRotationFloat3());
-	}
-	if (input.keyboard.KeyIsPressed('J'))
-	{
-		gfx.platform.AdjustRotation(0.0f, 0.01f * dt, 0.0f);
+		this->gfx.light.SetRotation(this->gfx.camera3D.GetRotationFloat3());
 	}
 }
 

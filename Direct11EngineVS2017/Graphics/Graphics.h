@@ -21,15 +21,10 @@ public:
 	using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 	bool Initialize(HWND hwnd, int width, int height);
-
 	void RenderShadowMap();
-
 	void RenderFrame();
-
 	void RenderImGui();
-
 	void RenderText();
-
 	void SetLight();
 	void RenderBegin();
 	void RenderEnd();
@@ -43,28 +38,26 @@ public:
 	IPixelShader* GetPixelShader() const;
 	void SetPixelShader(IPixelShader* pShader);
 
-	RenderableGameObject platform;
-	Camera3D Camera3D;
+	Camera3D camera3D;
 	Light light;
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
 
+	// objs
+	RenderableGameObject mainChara;
+	RenderableGameObject platform;
+	RenderableGameObject ball;
 
 	ComPtr<ID3D11Device> device;
 	ComPtr <ID3D11DeviceContext> deviceContext;
 	ComPtr<IDXGISwapChain> swapchain;
 	ComPtr<ID3D11RenderTargetView> renderTargetView;
 	std::unique_ptr<CD3D11_VIEWPORT> viewport;
-
 	// shaders
 	D3DVertexShader* vertexshader;
 	D3DPixelShader*  pixelshader;
-
-	bool enableCelshading = false;
-	bool enableProcSky = true;
-
 	// c_buffers
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
@@ -76,43 +69,37 @@ private:
 	ConstantBuffer<CB_PS_BlurSettings> cb_ps_blur_settings;
 	// shadow map
 	ConstantBuffer<CB_PS_shadowmat> cb_ps_shadowmat;
-
-	RenderableGameObject mainChara;
-	RenderableGameObject ball;
 	// depth stencil
 	ComPtr<ID3D11DepthStencilView> depthStencilView;
 	ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	ComPtr<ID3D11DepthStencilState> depthStencilState;
-
-
 	// RTT texture
 	std::unique_ptr<TextureRender> hdr_RTT;
 	std::unique_ptr<TextureRender> brightExtract_RTT;
 	std::unique_ptr<TextureRender> gauss_blur_RTT;
 	std::unique_ptr<TextureRender> bloom_RTT;
-
-
-	ComPtr<ID3D11SamplerState> depthCmpSampler;
-
 	// rasterizer
 	ComPtr<ID3D11RasterizerState> rasterrizerState;
 	ComPtr<ID3D11RasterizerState> rasterrizerState_CullFront;
-
+	// blendState
 	ComPtr<ID3D11BlendState> blendState;
-
+	// fontDraw
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
-
+	// sampler
+	ComPtr<ID3D11SamplerState> depthCmpSampler;
 	ComPtr<ID3D11SamplerState> wrapSampler;
 	ComPtr<ID3D11SamplerState> clapSampler;
-	//ComPtr<ID3D11ShaderResourceView> pinkTexture;
-	//ComPtr<ID3D11ShaderResourceView> grassTexture;
-	//ComPtr<ID3D11ShaderResourceView> pavementTexture;
+	// textures
 	ComPtr<ID3D11ShaderResourceView> toneTexture;
-
+	// pipelines
 	std::unique_ptr<IPipeline> Pipeline_ShadowMap;
 	std::unique_ptr<IPipeline> Pipeline_General3D;
 	std::unique_ptr<IPipeline> Pipeline_Nolight3D;
+
+
+	bool enableCelshading = false;
+	bool enableProcSky = true;
 
 	int window_width = 0;
 	int window_height = 0;
