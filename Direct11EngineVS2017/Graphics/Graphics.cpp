@@ -53,7 +53,7 @@ void Graphics::RenderFrame()
 	light.BindShadowResourceView();
 
 	ImGui::Begin("Shader Settings");
-	ImGui::Checkbox("Tone Shading", &enableCelshading);
+	ImGui::Checkbox("Cel Shading", &enableCelshading);
 	ImGui::Checkbox("ProcSky", &enableProcSky);
 	ImGui::DragFloat("Exposure", &cb_ps_tonemapping_settings.data.exposure, 0.01f, 0.01f, 10.0f);
 	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
@@ -191,9 +191,6 @@ void Graphics::RenderImGui()
 		light.SetMeshDiffuseColor(color);
 	}
 	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrenght, 0.05, 0.0f, 20.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light.attenuation_a, 0.001, 0.1f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.001, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.001, 0.0f, 10.0f);
 	ImGui::End();
 
 

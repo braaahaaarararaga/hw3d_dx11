@@ -155,7 +155,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     light *= Shadow(worldPos, normal, vectorToLight);
     float facing = dot(eyev, normal);
     float2 toneTexcoord = float2(light, facing);
-    float3 toneColor = toneTexture.Sample(WrapSampler, toneTexcoord).rgb;
+    float3 toneColor = toneTexture.Sample(ClampSampler, toneTexcoord).rgb;
     
     //diffuseLightIntensity = (diffuseLightIntensity + specular) * attenuationFactor * Shadow(worldPos, normal, vectorToLight);
     diffuseLightIntensity = toneColor * attenuationFactor;// * Shadow(worldPos, normal, vectorToLight);
