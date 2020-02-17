@@ -181,7 +181,7 @@ void Graphics::RenderImGui()
 	ImGui::ColorEdit3("Ambient Light", &this->cb_ps_light.data.ambientLightColor.x);
 	//ImGui::DragFloat("Ambient Strength", &this->cb_ps_light.data.ambientLightStrength, 0.001, 0.0f, 1.0f);
 	float t = cos(launchTime) * 0.5f + 0.5f;
-	cb_ps_light.data.ambientLightStrength = t;
+	cb_ps_light.data.ambientLightStrength = t * 0.25f;
 	ImGui::NewLine();
 	if (ImGui::ColorEdit3("Dynamic Light Color", &this->light.lightColor.x))
 	{
@@ -205,7 +205,8 @@ void Graphics::RenderImGui()
 	ImGui::Checkbox("CelShading", &enableCelshading);
 	ImGui::DragFloat("Exposure", &exposure, 0.01f, 0.5f, 10.0f);
 	cb_ps_tonemapping_settings.data.exposure = exposure + (1 - pow(t, 2)) * 0.8f;
-	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
+	ImGui::DragFloat("BrightThreshold", &brightThreshold, 0.01f, 0.01f, 10.0f);
+	cb_ps_brightExtract_settings.data.brightThreshold = brightThreshold + t * 1;
 	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 0.1, 0, 8);
 	ImGui::End();
 

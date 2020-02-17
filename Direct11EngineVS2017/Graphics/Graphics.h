@@ -112,4 +112,5 @@ private:
 
 	int gaussBlurPasses = 5;
 	float exposure = 0.9f;
+	float brightThreshold = 0.82f;
 };
