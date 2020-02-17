@@ -2,12 +2,12 @@
 #include "../COMException.h"
 #include "..\\d3dUtil.h"
 
-TextureRender::TextureRender(ID3D11Device * device, int width, int height, TexFormat format, bool generateMips)
+TextureRender::TextureRender(ID3D11Device * device, int width, int height, TexFormat format, bool useDepth, bool generateMips)
 {
-	Resize(device, width, height, format, generateMips);
+	Resize(device, width, height, format, useDepth, generateMips);
 }
 
-void TextureRender::Resize(ID3D11Device * device, int width, int height, TexFormat format, bool generateMips)
+void TextureRender::Resize(ID3D11Device * device, int width, int height, TexFormat format, bool useDepth, bool generateMips)
 {
 	outputTextureSRV.Reset();
 	outputTextureRTV.Reset();
@@ -17,6 +17,7 @@ void TextureRender::Resize(ID3D11Device * device, int width, int height, TexForm
 	cacheDSV.Reset();
 
 	this->generateMips = generateMips;
+	this->useDepth = useDepth;
 
 	HRESULT hr;
 
@@ -54,32 +55,34 @@ void TextureRender::Resize(ID3D11Device * device, int width, int height, TexForm
 	hr = device->CreateShaderResourceView(texture.Get(), &srvDesc, outputTextureSRV.ReleaseAndGetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create RTT SRV");
 
-	texDesc.Width = width;
-	texDesc.Height = height;
-	texDesc.MipLevels = 0;
-	texDesc.ArraySize = 1;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.MiscFlags = 0;
+	if (useDepth)
+	{
+		texDesc.Width = width;
+		texDesc.Height = height;
+		texDesc.MipLevels = 0;
+		texDesc.ArraySize = 1;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.SampleDesc.Quality = 0;
+		texDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		texDesc.CPUAccessFlags = 0;
+		texDesc.MiscFlags = 0;
 
-	ComPtr<ID3D11Texture2D> depthTex;
-	hr = device->CreateTexture2D(&texDesc, nullptr, depthTex.ReleaseAndGetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create dpth texture");
+		ComPtr<ID3D11Texture2D> depthTex;
+		hr = device->CreateTexture2D(&texDesc, nullptr, depthTex.ReleaseAndGetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Failed to create depth texture");
 
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	dsvDesc.Format = texDesc.Format;
-	dsvDesc.Flags = 0;
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	dsvDesc.Texture2D.MipSlice = 0;
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+		dsvDesc.Format = texDesc.Format;
+		dsvDesc.Flags = 0;
+		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		dsvDesc.Texture2D.MipSlice = 0;
 
-	hr = device->CreateDepthStencilView(depthTex.Get(), &dsvDesc,
-		outputTextureDSV.ReleaseAndGetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create DSV");
-
+		hr = device->CreateDepthStencilView(depthTex.Get(), &dsvDesc,
+			outputTextureDSV.ReleaseAndGetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Failed to create DSV");
+	}
 	outputViewPort.TopLeftX = 0.0f;
 	outputViewPort.TopLeftY = 0.0f;
 	outputViewPort.Width = static_cast<float>(width);
@@ -96,8 +99,16 @@ void TextureRender::Begin(ID3D11DeviceContext * deviceContext)
 
 	float black[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	deviceContext->ClearRenderTargetView(outputTextureRTV.Get(), black);
-	deviceContext->ClearDepthStencilView(outputTextureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	deviceContext->OMSetRenderTargets(1, outputTextureRTV.GetAddressOf(), outputTextureDSV.Get());
+	if (useDepth)
+	{
+		deviceContext->ClearDepthStencilView(outputTextureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		deviceContext->OMSetRenderTargets(1, outputTextureRTV.GetAddressOf(), outputTextureDSV.Get());
+	}
+	else
+	{
+		deviceContext->OMSetRenderTargets(1, outputTextureRTV.GetAddressOf(), nullptr);
+		//deviceContext->OMSetDepthStencilState(nullptr, 0);
+	}
 	deviceContext->RSSetViewports(1, &outputViewPort);
 }
 

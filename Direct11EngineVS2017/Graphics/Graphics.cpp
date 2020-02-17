@@ -196,15 +196,20 @@ void Graphics::RenderImGui()
 	ImGui::DragFloat("anim speed", &mainChara.GetAnimaTimeScale(), 0.001, 0.001f, 1.0f);
 	ImGui::End();
 
+	ImGui::Begin("bloom pass review");
+	ImGui::Image((void*)*brightExtract_RTT->GetOutputTexture(), ImVec2(ImGui::GetWindowWidth()
+	, ImGui::GetWindowWidth()
+	));
+	ImGui::End();
 	ImGui::Begin("Shader Settings");
 	ImGui::Checkbox("CelShading", &enableCelshading);
 	ImGui::DragFloat("Exposure", &exposure, 0.01f, 0.5f, 10.0f);
-	cb_ps_tonemapping_settings.data.exposure = exposure + (1 - pow(t, 2)) * 1.5f;
+	cb_ps_tonemapping_settings.data.exposure = exposure + (1 - pow(t, 2)) * 0.8f;
 	ImGui::DragFloat("BrightThreshold", &cb_ps_brightExtract_settings.data.brightThreshold, 0.01f, 0.01f, 10.0f);
-	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 1, 0, 8);
+	ImGui::DragInt("GaussBlurPasses", &gaussBlurPasses, 0.1, 0, 8);
 	ImGui::End();
 
-	ImGui::Begin("ProcSky Settings");
+	ImGui::Begin("ProceduralSky Settings");
 	ImGui::Checkbox("Enable", &enableProcSky);
 	ImGui::Checkbox("Enable Cloud", reinterpret_cast<bool*>(&cb_ps_sky_settings.data.EnableCloud));
 	ImGui::DragFloat("Cloudiness", &cb_ps_sky_settings.data.Cloudiness, 0.001f, 0.001f, 1.0f);
