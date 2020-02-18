@@ -28,7 +28,7 @@ float2 hash(float2 p)
     p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3)));
     return -1.0 + 2.0 * frac(sin(p) * 43758.5453123);
 }
-float noise(in float2 p)
+float noise(in float2 p) // Simplex2D noise : https://www.shadertoy.com/view/Msf3WH
 {
     const float K1 = 0.366025404; // (sqrt(3)-1)/2;
     const float K2 = 0.211324865; // (3-sqrt(3))/6;
