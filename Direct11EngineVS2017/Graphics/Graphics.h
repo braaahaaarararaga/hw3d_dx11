@@ -118,6 +118,6 @@ private:
 	float launchTime = 0;
 
 	int gaussBlurPasses = 5;
-	float exposure = 0.9f;
-	float brightThreshold = 0.82f;
+	float exposure = 0.85f;
+	float brightThreshold = 0.92f;
 };
