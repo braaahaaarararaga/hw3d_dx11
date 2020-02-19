@@ -1,4 +1,5 @@
 ﻿#include "Graphics.h"
+Timer Graphics::renderTimer;
 
 bool Graphics::Initialize(HWND hwnd, int width, int height)
 {
@@ -33,6 +34,7 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 	light.SetUpShadowMap();
 	{
 		mainChara.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
+
 		platform.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 		ball.Draw(light.GetVpMatrix(), Pipeline_ShadowMap.get());
 	}
@@ -43,14 +45,19 @@ void Graphics::RenderShadowMap() // TODO: abstract shadow pipeline
 
 void Graphics::RenderFrame()
 {
+	renderTimer.Restart();
+	RenderShadowMap();
+
+	float PL_Shadow, PL_Deferred1, PL_Deferred2, PL_Sky, PL_ExtractBright, PL_Blur, PL_bloom, PL_tonemapping;
+	PL_Shadow = renderTimer.GetMiliseceondsElapsed();
 	deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 	//Set the Viewport
 	deviceContext->RSSetViewports(1, viewport.get());
 	deviceContext->PSSetShaderResources(5, 1, toneTexture.GetAddressOf());
 	
+	renderTimer.Restart();
 	// Deferred Rendering PASS
 	{
-
 		IPixelShader*  ps;
 		ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_General3D_DeferredShading.hlsl", this);
 		SetPixelShader(ps);
@@ -61,13 +68,14 @@ void Graphics::RenderFrame()
 		mainChara.Draw(camVPMat, Pipeline_General3D.get());
 		ball.Draw(camVPMat, Pipeline_General3D.get());
 
-		light.Draw(camVPMat, Pipeline_Nolight3D.get());
 
 
 		deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), nullptr);
 		deviceContext->RSSetViewports(1, viewport.get());
 	}
-
+	//count
+	PL_Deferred1 = renderTimer.GetMiliseceondsElapsed();
+	renderTimer.Restart();
 
 	light.BindShadowResourceView();
 	// HDR PASS
@@ -106,10 +114,17 @@ void Graphics::RenderFrame()
 			deviceContext->PSSetShaderResources(3, 1, specColor_RTT->GetOutputTexture());
 			deviceContext->Draw(3, 0);
 		}
+
+		ID3D11RenderTargetView* rtv = hdr_RTT->GetRenderTargetView();
+		deviceContext->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
+		light.Draw(camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix(), Pipeline_Nolight3D.get());
+
+		//count time 
+		PL_Deferred2 = renderTimer.GetMiliseceondsElapsed();
+		renderTimer.Restart();
+
 		if (enableProcSky)
 		{
-			ID3D11RenderTargetView* rtv = hdr_RTT->GetRenderTargetView();
-			deviceContext->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
 			IVertexShader* dynamic_sky = ResourceManager::GetVertexShader("Graphics/Shaders/VS_DynamicSky.hlsl", this);
 			SetVertexShader(dynamic_sky);
 			IPixelShader*  dSkyPS = ResourceManager::GetPixelShader("Graphics/Shaders/PS_DynamicSky.hlsl", this);
@@ -123,7 +138,8 @@ void Graphics::RenderFrame()
 	}
 	hdr_RTT->End(deviceContext.Get());
 	//
-
+	PL_Sky = renderTimer.GetMiliseceondsElapsed();
+	renderTimer.Restart();
 
 	// PostProcess //
 	// BLOOM PASS
@@ -142,6 +158,11 @@ void Graphics::RenderFrame()
 		deviceContext->Draw(3, 0);
 		brightExtract_RTT->End(deviceContext.Get());
 	}
+
+
+	PL_ExtractBright = renderTimer.GetMiliseceondsElapsed();
+	renderTimer.Restart();
+
 		// GAUSS BLUR 
 	{
 		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
@@ -180,6 +201,10 @@ void Graphics::RenderFrame()
 
 		deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 	}
+
+	PL_Blur = renderTimer.GetMiliseceondsElapsed();
+	renderTimer.Restart();
+
 		// BLOOM
 	{
 		bloom_RTT->Begin(deviceContext.Get());
@@ -196,6 +221,11 @@ void Graphics::RenderFrame()
 		bloom_RTT->End(deviceContext.Get());
 
 	}
+
+
+	PL_bloom = renderTimer.GetMiliseceondsElapsed();
+	renderTimer.Restart();
+
 	// TONE_MAPPING PASS
 	{
 		IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
@@ -209,6 +239,28 @@ void Graphics::RenderFrame()
 		deviceContext->Draw(3, 0);
 	}
 	//
+	PL_tonemapping = renderTimer.GetMiliseceondsElapsed();
+	renderTimer.Restart();
+	static std::string fpsString = " ";
+	ImGui::Begin("render time cost : ");
+	fpsString = "shadow           : " + std::to_string(PL_Shadow) + "ms";
+	ImGui::Text(fpsString.c_str());
+	fpsString = "deferred shading : " + std::to_string(PL_Deferred1) + "ms";
+	ImGui::Text(fpsString.c_str());
+	fpsString = "do light         : " + std::to_string(PL_Deferred2) + "ms";
+	ImGui::Text(fpsString.c_str());
+	fpsString = "procedural sky   : " + std::to_string(PL_Sky) + "ms";
+	ImGui::Text(fpsString.c_str());
+	fpsString = "extract bright   : " + std::to_string(PL_ExtractBright) + "ms";
+	ImGui::Text(fpsString.c_str());
+	fpsString = "gauss blur       : " + std::to_string(PL_Blur) + "ms";
+	ImGui::Text(fpsString.c_str());
+	fpsString = "bloom            : " + std::to_string(PL_bloom) + "ms";
+	ImGui::Text(fpsString.c_str());
+	fpsString = "tone mapping     : " + std::to_string(PL_tonemapping) + "ms";
+	ImGui::Text(fpsString.c_str());
+	ImGui::End();
+
 }
 
 void Graphics::RenderImGui()
@@ -623,7 +675,6 @@ bool Graphics::InitializeScene()
 	cb_ps_sky_settings.data.CloudScale = 0.03f;
 	cb_ps_sky_settings.data.CloudSpeed = 0.1f;
 	cb_ps_sky_settings.data.EnableCloud = 1;
-
 
 #ifdef _DEBUG
 	cb_ps_light.SetDebugName("cb_ps_light");

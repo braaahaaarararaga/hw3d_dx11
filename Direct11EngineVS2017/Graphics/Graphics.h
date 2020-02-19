@@ -40,6 +40,8 @@ public:
 
 	Camera3D camera3D;
 	Light light;
+
+	static Timer renderTimer;
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();

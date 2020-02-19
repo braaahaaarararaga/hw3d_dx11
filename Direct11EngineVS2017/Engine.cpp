@@ -74,7 +74,6 @@ void Engine::RenderFrame()
 {
 	gfx.RenderBegin();
 	gfx.SetLight();
-	gfx.RenderShadowMap();
 
 	gfx.RenderFrame();
 
