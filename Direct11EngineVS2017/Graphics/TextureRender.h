@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <memory>
+#include <vector>
 #include <wrl/client.h>
 #include <string>
 #include "TextureFormat.h"
@@ -21,6 +22,9 @@ public:
 	void Begin(ID3D11DeviceContext * deviceContext);
 	void End(ID3D11DeviceContext * deviceContext);
 	ID3D11ShaderResourceView * const * GetOutputTexture();
+	ID3D11RenderTargetView* GetRenderTargetView(){return outputTextureRTV.Get();}
+
+	static void SetMultiRenderTarget(ID3D11DeviceContext * deviceContext, std::vector<ID3D11RenderTargetView*>& RTVs, ID3D11DepthStencilView* DSV, D3D11_VIEWPORT * viewport);
 
 	void SetDebugObjectName(const std::string& name);
 

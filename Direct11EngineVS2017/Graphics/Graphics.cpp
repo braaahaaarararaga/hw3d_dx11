@@ -48,31 +48,68 @@ void Graphics::RenderFrame()
 	deviceContext->RSSetViewports(1, viewport.get());
 	deviceContext->PSSetShaderResources(5, 1, toneTexture.GetAddressOf());
 	
-	light.BindShadowResourceView();
+	// Deferred Rendering PASS
+	{
 
-
-	// HDR PASS
-	hdr_RTT->Begin(deviceContext.Get());
-	{	// TODO: refactory render pipelines & render pass
-		// Draw Models
 		IPixelShader*  ps;
-		ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_General3D.hlsl", this);
+		ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_General3D_DeferredShading.hlsl", this);
 		SetPixelShader(ps);
+		TextureRender::SetMultiRenderTarget(deviceContext.Get(), RTVs, depthStencilView.Get(), viewport.get());
 
 		XMMATRIX camVPMat = camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix();
 		platform.Draw(camVPMat, Pipeline_General3D.get());
-		if (enableCelshading)
-		{
-			ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_CelShading.hlsl", this);
-			SetPixelShader(ps);
-		}
 		mainChara.Draw(camVPMat, Pipeline_General3D.get());
 		ball.Draw(camVPMat, Pipeline_General3D.get());
 
 		light.Draw(camVPMat, Pipeline_Nolight3D.get());
 
+
+		deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), nullptr);
+		deviceContext->RSSetViewports(1, viewport.get());
+	}
+
+
+	light.BindShadowResourceView();
+	// HDR PASS
+	hdr_RTT->Begin(deviceContext.Get());
+	{	// TODO: refactory render pipelines & render pass
+		//// Draw Models
+		//IPixelShader*  ps;
+		//ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_General3D.hlsl", this);
+		//SetPixelShader(ps);
+
+		//XMMATRIX camVPMat = camera3D.GetViewMatrix() * camera3D.GetProjectionMatrix();
+		//platform.Draw(camVPMat, Pipeline_General3D.get());
+		//if (enableCelshading)
+		//{
+		//	ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_CelShading.hlsl", this);
+		//	SetPixelShader(ps);
+		//}
+		//mainChara.Draw(camVPMat, Pipeline_General3D.get());
+		//ball.Draw(camVPMat, Pipeline_General3D.get());
+
+		//light.Draw(camVPMat, Pipeline_Nolight3D.get());
+
+		// Deferred shading
+		{
+			IVertexShader* sst = ResourceManager::GetVertexShader("Graphics/Shaders/VS_ScreenSizeTri.hlsl", this);
+			SetVertexShader(sst);
+			IPixelShader*  ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_DeferredShading_PP.hlsl", this);
+			if (enableCelshading)
+			{
+				ps = ResourceManager::GetPixelShader("Graphics/Shaders/PS_CelShading_Deferred.hlsl", this);
+			}
+			SetPixelShader(ps);
+			deviceContext->PSSetShaderResources(0, 1, position_RTT->GetOutputTexture());
+			deviceContext->PSSetShaderResources(1, 1, normals_RTT->GetOutputTexture());
+			deviceContext->PSSetShaderResources(2, 1, albedo_RTT->GetOutputTexture());
+			deviceContext->PSSetShaderResources(3, 1, specColor_RTT->GetOutputTexture());
+			deviceContext->Draw(3, 0);
+		}
 		if (enableProcSky)
 		{
+			ID3D11RenderTargetView* rtv = hdr_RTT->GetRenderTargetView();
+			deviceContext->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
 			IVertexShader* dynamic_sky = ResourceManager::GetVertexShader("Graphics/Shaders/VS_DynamicSky.hlsl", this);
 			SetVertexShader(dynamic_sky);
 			IPixelShader*  dSkyPS = ResourceManager::GetPixelShader("Graphics/Shaders/PS_DynamicSky.hlsl", this);
@@ -197,10 +234,20 @@ void Graphics::RenderImGui()
 	ImGui::End();
 
 	ImGui::Begin("bloom pass review");
-	ImGui::Image((void*)*brightExtract_RTT->GetOutputTexture(), ImVec2(ImGui::GetWindowWidth()
-	, ImGui::GetWindowWidth()
-	));
+	ImGui::Image((void*)*brightExtract_RTT->GetOutputTexture(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()));
 	ImGui::End();
+
+	ImGui::Begin("deferred shading pass review");
+	ImGui::Text("position");
+	ImGui::Image((void*)*position_RTT->GetOutputTexture(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()));
+	ImGui::Text("normal");
+	ImGui::Image((void*)*normals_RTT->GetOutputTexture(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()));
+	ImGui::Text("albedo");
+	ImGui::Image((void*)*albedo_RTT->GetOutputTexture(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()));
+	ImGui::Text("specular");
+	ImGui::Image((void*)*specColor_RTT->GetOutputTexture(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()));
+	ImGui::End();
+
 	ImGui::Begin("Shader Settings");
 	ImGui::Checkbox("CelShading", &enableCelshading);
 	ImGui::DragFloat("Exposure", &exposure, 0.01f, 0.5f, 10.0f);
@@ -514,11 +561,20 @@ bool Graphics::InitializeShaders()
 	Pipeline_General3D = std::make_unique<General3DPipeline>();
 	Pipeline_Nolight3D = std::make_unique<NoLight3DPipeline>();
 
-	hdr_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
-	brightExtract_RTT = std::make_unique<TextureRender>(device.Get(), window_width / 2, window_height / 2, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
-	gauss_blur_RTT = std::make_unique<TextureRender>(device.Get(), window_width / 2, window_height / 2, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
-	bloom_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT);
+	hdr_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT, false);
+	brightExtract_RTT = std::make_unique<TextureRender>(device.Get(), window_width / 2, window_height / 2, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT, false);
+	gauss_blur_RTT = std::make_unique<TextureRender>(device.Get(), window_width / 2, window_height / 2, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT, false);
+	bloom_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT, false);
 
+	albedo_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R8G8B8A8_UNORM, false);
+	position_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT, false);
+	normals_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R16G16B16A16_FLOAT, false);
+	specColor_RTT = std::make_unique<TextureRender>(device.Get(), window_width, window_height, TexFormat::TEX_FORMAT_R8G8B8A8_UNORM, false);
+
+	RTVs.push_back(position_RTT->GetRenderTargetView());
+	RTVs.push_back(normals_RTT->GetRenderTargetView());
+	RTVs.push_back(albedo_RTT->GetRenderTargetView());
+	RTVs.push_back(specColor_RTT->GetRenderTargetView());
 	return true;
 }
 

@@ -131,6 +131,17 @@ ID3D11ShaderResourceView * const * TextureRender::GetOutputTexture()
 	return outputTextureSRV.GetAddressOf();
 }
 
+void TextureRender::SetMultiRenderTarget(ID3D11DeviceContext * deviceContext, std::vector<ID3D11RenderTargetView*>& RTVs, ID3D11DepthStencilView * DSV, D3D11_VIEWPORT * viewport)
+{
+	float black[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	for(auto rtv : RTVs)
+		deviceContext->ClearRenderTargetView(rtv, black);
+
+	deviceContext->ClearDepthStencilView(DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	deviceContext->OMSetRenderTargets(RTVs.size(), RTVs.data(), DSV);
+	deviceContext->RSSetViewports(1, viewport);
+}
+
 void TextureRender::SetDebugObjectName(const std::string & name)
 {
 #if (defined(DEBUG) || defined(_DEBUG)) && (GRAPHICS_DEBUGGER_OBJECT_NAME)

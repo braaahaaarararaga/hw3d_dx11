@@ -71,7 +71,7 @@ float Shadow(float3 worldPos, float3 normal, float3 light_dir)
 float4 main(PS_INPUT input) : SV_TARGET
 {
     Material material = Mat;
-    float4 inpos = input.inPosition;
+    //float4 inpos = input.inPosition;
     float3 normal = input.inNormal;
     // do normal mapping
     if(material.HasNormalTexture)

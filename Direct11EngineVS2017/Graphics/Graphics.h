@@ -79,6 +79,13 @@ private:
 	std::unique_ptr<TextureRender> brightExtract_RTT;
 	std::unique_ptr<TextureRender> gauss_blur_RTT;
 	std::unique_ptr<TextureRender> bloom_RTT;
+	// Deferred rendering
+	std::unique_ptr<TextureRender> albedo_RTT;
+	std::unique_ptr<TextureRender> position_RTT;
+	std::unique_ptr<TextureRender> normals_RTT;
+	std::unique_ptr<TextureRender> specColor_RTT;
+
+	std::vector<ID3D11RenderTargetView*> RTVs;
 	// rasterizer
 	ComPtr<ID3D11RasterizerState> rasterrizerState;
 	ComPtr<ID3D11RasterizerState> rasterrizerState_CullFront;

@@ -323,6 +323,9 @@
     <FxCompile Include="Graphics\Shaders\VS_ShadowMapping.hlsl" />
     <FxCompile Include="Graphics\Shaders\PS_BrightExtract.hlsl" />
     <FxCompile Include="Graphics\Shaders\VS_ScreenSizeTri.hlsl" />
+    <FxCompile Include="Graphics\Shaders\PS_General3D_DeferredShading.hlsl" />
+    <FxCompile Include="Graphics\Shaders\PS_DeferredShading_PP.hlsl" />
+    <FxCompile Include="Graphics\Shaders\PS_CelShading_Deferred.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct11EngineVS2017.rc">
