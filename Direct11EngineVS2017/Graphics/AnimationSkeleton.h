@@ -119,9 +119,11 @@ private:
 	std::vector<BoneNode> m_OriginalSkeleton;
 	std::vector<MeshAnimation> m_Animations;
 
+	DirectX::XMMATRIX bone_Transforms[MAX_BONES];
 	ConstantBuffer<CB_Bones>* m_cbufBones;
 	size_t m_iCurrentAnimation = 0;
 	float m_flTimestamp = 0.0f;
+	float m_preSampleTimestamp = -1.0f;
 };
 
 class AnimationComponent

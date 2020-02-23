@@ -121,9 +121,12 @@ void MeshAnimator::Bind(ID3D11DeviceContext * deviceContext)
 {
 	const MeshAnimation& animation = GetAnimation(GetCurrentAnimationIndex());
 
-
-	GetPoseOffsetTransforms(m_cbufBones->data.bone_Transforms, animation, GetTimestamp());
-
+	if ( abs(m_preSampleTimestamp - GetTimestamp()) > (1.0f / 60.0f))
+	{
+		GetPoseOffsetTransforms(bone_Transforms, animation, GetTimestamp());
+		m_preSampleTimestamp = GetTimestamp();
+	}
+	memcpy(m_cbufBones->data.bone_Transforms, bone_Transforms, sizeof(bone_Transforms));
 	m_cbufBones->ApplyChanges();
 	deviceContext->VSSetConstantBuffers(1, 1, m_cbufBones->GetAddressOf());
 }
